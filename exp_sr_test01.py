@@ -556,7 +556,7 @@ def show_test(s_list, n_list, method_list, label_list, save_data_path):
     ax[0, 0].set_yticks([0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
     ax[1, 0].set_yticks([0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
     for s in s_list:
-        print('\t'.join(method_list))
+        print(' '.join(method_list))
         re_mat = np.zeros(shape=(len(n_list), 4))
         for method_ind, method in enumerate(method_list):
             for ind, _ in enumerate(
@@ -580,8 +580,7 @@ def show_test(s_list, n_list, method_list, label_list, save_data_path):
         ttl.set_position([.5, 0.97])
 
     for i in range(2):
-        ax[1, i].set_xlabel(
-            r"$\displaystyle n$", labelpad=-0.5)
+        ax[1, i].set_xlabel(r"$\displaystyle n$", labelpad=-0.5)
         ax[i, 0].set_ylabel(r"Probability of Recovery")
     ax[1, 1].legend(loc='center right', framealpha=1.,
                     bbox_to_anchor=(0.55, 0.5),
@@ -677,10 +676,10 @@ def main():
     lr = 1.0
 
     # TODO config the path by yourself.
-    root_p = '/network/rit/lab/ceashpc/bz383376/data/icml19/publish/'
+    root_p = 'results'
     if not os.path.exists(root_p):
         os.mkdir(root_p)
-    save_data_path = root_p + 'sr_simu_test01.pkl'
+    save_data_path = root_p + 'results_exp_sr_test01.pkl'
 
     if len(os.sys.argv) <= 1:
         print('\n'.join(['please use one of the following commands: ',
