@@ -103,3 +103,6 @@ venv.bak/
 # mypy
 .mypy_cache/
 .idea
+algo_wrapper/main_sort
+algo_wrapper/main_fast_pcst
+algo_wrapper/main_head_tail_proj

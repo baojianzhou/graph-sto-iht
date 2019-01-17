@@ -13,7 +13,8 @@ src_files = ['algo_wrapper/c/main_wrapper.c',
              'algo_wrapper/c/head_tail_proj.c',
              'algo_wrapper/c/fast_pcst.c',
              'algo_wrapper/c/sort.c']
-compile_args = ['-std=c11', '-lpython2.7', '-lm']
+compile_args = ['-shared', '-Wall', '-g', '-fPIC',
+                '-std=c11', '-lpython2.7', '-lm']
 # calling the setup function
 setup(
     # sparse_learning package.
