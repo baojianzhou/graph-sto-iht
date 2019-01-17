@@ -645,7 +645,7 @@ def generate_figures(root_p, save_data_path):
             ax.margins(0.02, 0.02)
             ax.xaxis.set_major_locator(plt.NullLocator())
             ax.yaxis.set_major_locator(plt.NullLocator())
-        f_name = root_p + 'sr_simu_test01_s_%02d.pdf' % s
+        f_name = root_p + 'results_exp_sr_test01_s_%02d.pdf' % s
         fig.savefig(f_name, dpi=600, pad_inches=0.0, format='pdf')
         plt.close()
 
