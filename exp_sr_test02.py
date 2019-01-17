@@ -1,16 +1,42 @@
 # -*- coding: utf-8 -*-
 
-# system library
-import os
+"""
+In this test, we compare GraphStoIHT with three baseline methods including
+IHT, StoIHT, and GraphIHT. IHT is proposed in [3]. StoIHT is proposed in [1].
+GraphIHT is proposed [4] with head/tail projections in [2].
 
+References:
+    [1] Nguyen, Nam, Deanna Needell, and Tina Woolf. "Linear convergence of
+        stochastic iterative greedy algorithms with sparse constraints."
+        IEEE Transactions on Information Theory 63.11 (2017): 6869-6895.
+    [2] Hegde, Chinmay, Piotr Indyk, and Ludwig Schmidt. "A nearly-linear time
+        framework for graph-structured sparsity." International Conference on
+        Machine Learning. 2015.
+    [3] Blumensath, Thomas, and Mike E. Davies. "Iterative hard thresholding
+        for compressed sensing." Applied and computational harmonic analysis
+        27.3 (2009): 265-274.
+    [4] Hegde, Chinmay, Piotr Indyk, and Ludwig Schmidt. "Fast recovery from
+        a union of subspaces." Advances in Neural Information Processing
+        Systems. 2016.
+    [5] Lovász, László. "Random walks on graphs: A survey." Combinatorics,
+        Paul erdos is eighty 2.1 (1993): 1-46.
+    [6] Needell, Deanna, and Joel A. Tropp. "CoSaMP: Iterative signal recovery
+        from incomplete and inaccurate samples."
+        Applied and computational harmonic analysis 26.3 (2009): 301-321.
+
+# TODO You need to:
+    1.  install numpy, matplotlib (optional), and networkx (optional).
+    2.  build our sparse_module by executing ./build.sh please check our
+        readme.md file. If you do not know how to compile this library.
+"""
+
+import os
 import time
 import random
 import pickle
 from os import sys
 import multiprocessing
 from itertools import product
-
-# you need to install numpy
 import numpy as np
 
 try:
@@ -26,8 +52,22 @@ except ImportError:
     print('cannot find the module: sparse_module')
 
 
-def algo_head_tail_binsearch(
+def algo_head_tail_bisearch(
         edges, x, costs, g, root, s_low, s_high, max_num_iter, verbose):
+    """ This is the wrapper of head/tail-projection proposed in [2].
+    :param edges:           edges in the graph.
+    :param x:               projection vector x.
+    :param costs:           edge costs in the graph.
+    :param g:               the number of connected components.
+    :param root:            root of subgraph. Usually, set to -1: no root.
+    :param s_low:           the lower bound of the sparsity.
+    :param s_high:          the upper bound of the sparsity.
+    :param max_num_iter:    the maximum number of iterations used in
+                            binary search procedure.
+    :param verbose: print out some information.
+    :return:            1.  the support of the projected vector
+                        2.  the projected vector
+    """
     prizes = x * x
     # to avoid too large upper bound problem.
     if s_high >= len(prizes) - 1:
@@ -40,6 +80,14 @@ def algo_head_tail_binsearch(
 
 
 def simu_grid_graph(width, height, rand_weight=False):
+    """ Generate a grid graph with size, width x height. Totally there will be
+        width x height number of nodes in this generated graph.
+    :param width:       the width of the grid graph.
+    :param height:      the height of the grid graph.
+    :param rand_weight: the edge costs in this generated grid graph.
+    :return:            1.  list of edges
+                        2.  list of edge costs
+    """
     np.random.seed()
     if width < 0 and height < 0:
         print('Error: width and height should be positive.')
@@ -70,6 +118,16 @@ def simu_grid_graph(width, height, rand_weight=False):
 
 
 def sensing_matrix(n, x, norm_noise=0.0):
+    """ Generate sensing matrix (design matrix). This generated sensing
+        matrix is a Gaussian matrix, i.e., each entry ~ N(0,\sigma/\sqrt(n)).
+        Please see more details in equation (1.2) shown in reference [6].
+    :param n:           the number of measurements required.
+    :param x:           the input signal.
+    :param norm_noise:  plus ||norm_noise|| noise on the measurements.
+    :return:            1.  the design matrix
+                        2.  the vector of measurements
+                        3.  the noised vector.
+    """
     p = len(x)
     x_mat = np.random.normal(loc=0.0, scale=1.0, size=(n * p)) / np.sqrt(n)
     x_mat = x_mat.reshape((n, p))
@@ -80,6 +138,14 @@ def sensing_matrix(n, x, norm_noise=0.0):
 
 
 def random_walk(edges, s, init_node=None, restart=0.0):
+    """ The random walk on graphs. Please see details in reference [5].
+    :param edges:       the edge list of the graph.
+    :param s:           the sparsity ( number of nodes) in the true subgraph.
+    :param init_node:   initial point of the random walk.
+    :param restart:     with restart.
+    :return:            1. list of nodes walked.
+                        2. list of edges walked.
+    """
     np.random.seed()
     adj, nodes = dict(), set()
     for edge in edges:  # construct the adjacency matrix.
@@ -126,6 +192,27 @@ def random_walk(edges, s, init_node=None, restart=0.0):
 def algo_graph_sto_iht(
         x_mat, y_tr, max_epochs, lr, x_star, x0, tol_algo, edges, costs, s, b,
         g=1, root=-1, gamma=0.1, proj_max_num_iter=50, verbose=0):
+    """ Graph Stochastic Iterative Hard Thresholding.
+    :param x_mat:       the design matrix.
+    :param y_tr:        the array of measurements.
+    :param max_epochs:  the maximum epochs (iterations) allowed.
+    :param lr:          the learning rate (should be 1.0).
+    :param x_star:      the true signal.
+    :param x0:          x0 is the initial point.
+    :param tol_algo:    tolerance parameter for early stopping.
+    :param edges:       edges in the graph.
+    :param costs:       edge costs
+    :param s:           sparsity
+    :param b: the block size
+    :param g:           number of connected component in the true signal.
+    :param root:        the root included in the result (default -1: no root).
+    :param gamma:       to control the upper bound of sparsity.
+    :param proj_max_num_iter: maximum number of iterations of projection.
+    :param verbose: print out some information.
+    :return:            1.  the final estimation error,
+                        2.  number of epochs(iterations) used,
+                        3.  and the run time.
+    """
     np.random.seed()
     start_time = time.time()
     x_hat = np.copy(x0)
@@ -156,11 +243,11 @@ def algo_graph_sto_iht(
             xtx = np.dot(x_tr_t[:, block], x_mat[block])
             xty = np.dot(x_tr_t[:, block], y_tr[block])
             gradient = -2. * (xty - np.dot(xtx, x_hat))
-            head_nodes, proj_grad = algo_head_tail_binsearch(
+            head_nodes, proj_grad = algo_head_tail_bisearch(
                 edges, gradient, costs, g, root, h_low, h_high,
                 proj_max_num_iter, verbose)
             bt = x_hat - (lr / (prob[ii] * num_blocks)) * proj_grad
-            tail_nodes, proj_bt = algo_head_tail_binsearch(
+            tail_nodes, proj_bt = algo_head_tail_bisearch(
                 edges, bt, costs, g, root,
                 t_low, t_high, proj_max_num_iter, verbose)
             x_hat = proj_bt
@@ -185,7 +272,7 @@ def print_helper(method, trial_i, b, n, num_epochs, err, run_time):
 def run_single_test_diff_b(data):
     np.random.seed()
     # generate Gaussian measurement matrix.
-    # each entry is generated from N(0,1)/sqrt(m) Gaussian.
+    # each entry is generated from N(0,1)/sqrt(n) Gaussian.
     s, n, p, b = data['s'], data['n'], data['p'], data['b']
     lr = data['lr'][b]
     x0 = data['x0']
@@ -211,7 +298,7 @@ def run_single_test_diff_b(data):
 def run_single_test_diff_eta(data):
     np.random.seed()
     # generate Gaussian measurement matrix.
-    # each entry is generated from N(0,1)/sqrt(m) Gaussian.
+    # each entry is generated from N(0,1)/sqrt(n) Gaussian.
     s, n, p, b = data['s'], data['n'], data['p'], data['b']
     lr = data['lr']
     x0 = data['x0']
