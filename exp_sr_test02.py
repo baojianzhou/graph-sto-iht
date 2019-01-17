@@ -255,6 +255,8 @@ def algo_graph_sto_iht(
             x_iter_err_list.append(np.linalg.norm(x_hat - x_star))
 
         x_err_list.append(np.linalg.norm(x_hat - x_star))
+
+        # early stopping for diverge cases due to the large learning rate
         if np.linalg.norm(x_hat) >= 1e3:  # diverge cases.
             break
         if np.linalg.norm(y_tr - np.dot(x_mat, x_hat)) <= tol_algo:
