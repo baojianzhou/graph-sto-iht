@@ -676,7 +676,7 @@ def main():
     lr = 1.0
 
     # TODO config the path by yourself.
-    root_p = 'results'
+    root_p = 'results/'
     if not os.path.exists(root_p):
         os.mkdir(root_p)
     save_data_path = root_p + 'results_exp_sr_test01.pkl'
