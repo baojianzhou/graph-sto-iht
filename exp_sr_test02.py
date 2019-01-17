@@ -483,7 +483,7 @@ def run_test_diff_eta(
             'saved_data': saved_data}
 
 
-def show_test(lr_list, b_list, root_p):
+def show_test(lr_list, b_list, save_data_path):
     import matplotlib.pyplot as plt
     from matplotlib import rc
     from pylab import rcParams
@@ -498,7 +498,7 @@ def show_test(lr_list, b_list, root_p):
                   'mediumspringgreen', 'greenyellow', 'yellow', 'orange',
                   'darkorange', 'red', 'magenta']
     marker_list = ['+', 'o', '*', '.', 'x', 's', 'D', '^', 'v', '>', '<', '']
-    results = pickle.load(open(root_p + 'sr_simu_test02.pkl'))
+    results = pickle.load(open(save_data_path))
     results_01 = results['re_diff_b']['trim_results']
     ax[0].set_yticklabels([
         r"$\displaystyle 10^{0}$",
@@ -579,9 +579,9 @@ def show_test(lr_list, b_list, root_p):
     ax[0].set_title('GraphStoIHT')
     ax[1].set_title('GraphStoIHT')
     plt.subplots_adjust(wspace=0.7, hspace=0.5)
-    f_name = root_p + 'sr_simu_test02.pdf'
-    print('save fig to: %s' % f_name)
-    plt.savefig(f_name, dpi=600, bbox_inches='tight', pad_inches=0,
+    save_data_path = save_data_path.replace('pkl', 'pdf')
+    print('save fig to: %s' % save_data_path)
+    plt.savefig(save_data_path, dpi=600, bbox_inches='tight', pad_inches=0,
                 format='pdf')
     plt.close()
 
@@ -650,7 +650,8 @@ def main():
                      're_diff_eta': re_diff_eta},
                     open(save_data_path, 'wb'))
     elif command == 'show_test':
-        show_test(lr_list=lr_list, b_list=b_list, root_p=root_p)
+        show_test(lr_list=lr_list, b_list=b_list,
+                  save_data_path=save_data_path)
     else:
         print('\n'.join(['you can try: ',
                          '1. python exp_sr_test02.py run_test 50',
