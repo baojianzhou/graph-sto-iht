@@ -606,11 +606,17 @@ def main():
     lr_list = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,
                1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6]
 
-    # TODO config by yourself.
-    root_p = '/network/rit/lab/ceashpc/bz383376/data/icml19/publish/'
+    # TODO config the path by yourself.
+    root_p = 'results/'
     if not os.path.exists(root_p):
         os.mkdir(root_p)
-    save_data_path = root_p + 'sr_simu_test02.pkl'
+    save_data_path = root_p + 'results_exp_sr_test02.pkl'
+
+    if len(os.sys.argv) <= 1:
+        print('\n'.join(['please use one of the following commands: ',
+                         '1. python exp_sr_test02.py run_test',
+                         '2. python exp_sr_test02.py show_test']))
+        exit(0)
 
     command = sys.argv[1]
     if command == 'run_test':
@@ -645,6 +651,10 @@ def main():
                     open(save_data_path, 'wb'))
     elif command == 'show_test':
         show_test(lr_list=lr_list, b_list=b_list, root_p=root_p)
+    else:
+        print('\n'.join(['you can try: ',
+                         '1. python exp_sr_test02.py run_test',
+                         '2. python exp_sr_test02.py show_test']))
 
 
 if __name__ == '__main__':
