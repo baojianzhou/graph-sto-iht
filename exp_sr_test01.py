@@ -683,7 +683,7 @@ def main():
 
     if len(os.sys.argv) <= 1:
         print('\n'.join(['please use one of the following commands: ',
-                         '1. python exp_sr_test01.py run_test',
+                         '1. python exp_sr_test01.py run_test 50',
                          '2. python exp_sr_test01.py show_test',
                          '3. python exp_sr_test01.py gen_figures']))
         exit(0)
@@ -715,7 +715,7 @@ def main():
                          save_data_path=save_data_path)
     else:
         print('\n'.join(['you can try: ',
-                         '1. python exp_sr_test01.py run_test',
+                         '1. python exp_sr_test01.py run_test 50',
                          '2. python exp_sr_test01.py show_test',
                          '3. python exp_sr_test01.py gen_figures']))
 

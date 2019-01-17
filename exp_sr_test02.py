@@ -653,7 +653,7 @@ def main():
         show_test(lr_list=lr_list, b_list=b_list, root_p=root_p)
     else:
         print('\n'.join(['you can try: ',
-                         '1. python exp_sr_test02.py run_test',
+                         '1. python exp_sr_test02.py run_test 50',
                          '2. python exp_sr_test02.py show_test']))
 
 
