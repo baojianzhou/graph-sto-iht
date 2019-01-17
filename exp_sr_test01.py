@@ -48,7 +48,7 @@ try:
         exit(0)
 except ImportError:
     print('\n'.join(['cannot find the module: sparse_module',
-                     'please use ./build.sh build sparse_module.so library.']))
+                     'use ./build.sh build sparse_module.so library.']))
 
 
 def algo_head_tail_bisearch(

@@ -45,11 +45,12 @@ try:
     try:
         from sparse_module import wrap_head_tail_binsearch
     except ImportError:
-        print('cannot find some function(s) in sparse_module')
+        print('cannot find wrap_head_tail_binsearch method in sparse_module')
         sparse_module = None
         exit(0)
 except ImportError:
-    print('cannot find the module: sparse_module')
+    print('\n'.join(['cannot find the module: sparse_module',
+                     'use ./build.sh build sparse_module.so library.']))
 
 
 def algo_head_tail_bisearch(
