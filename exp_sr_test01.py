@@ -687,6 +687,7 @@ def main():
                          '1. python exp_sr_test01.py run_test',
                          '2. python exp_sr_test01.py show_test',
                          '3. python exp_sr_test01.py gen_figures']))
+        exit(0)
     command = os.sys.argv[1]
     if command == 'run_test':
         num_cpus = int(os.sys.argv[2])
