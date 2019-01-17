@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """
-In this test, we compare GraphStoIHT with three baseline methods including
-IHT, StoIHT, and GraphIHT. IHT is proposed in [3]. StoIHT is proposed in [1].
-GraphIHT is proposed [4] with head/tail projections in [2].
+In this test, we compare difference choice of block size b and learning rate
+lr of our proposed algorithm.
 
 References:
     [1] Nguyen, Nam, Deanna Needell, and Tina Woolf. "Linear convergence of
@@ -34,7 +33,6 @@ import os
 import time
 import random
 import pickle
-from os import sys
 import multiprocessing
 from itertools import product
 import numpy as np
@@ -255,6 +253,8 @@ def algo_graph_sto_iht(
             x_iter_err_list.append(np.linalg.norm(x_hat - x_star))
 
         x_err_list.append(np.linalg.norm(x_hat - x_star))
+
+        # early stopping for diverge cases due to the large learning rate
         if np.linalg.norm(x_hat) >= 1e3:  # diverge cases.
             break
         if np.linalg.norm(y_tr - np.dot(x_mat, x_hat)) <= tol_algo:
@@ -618,10 +618,10 @@ def main():
                          '2. python exp_sr_test02.py show_test']))
         exit(0)
 
-    command = sys.argv[1]
+    command = os.sys.argv[1]
     if command == 'run_test':
         # learning rate
-        num_cpus = int(sys.argv[2])
+        num_cpus = int(os.sys.argv[2])
         re_diff_b = run_test_diff_b(s=s,
                                     p=p,
                                     height=height,

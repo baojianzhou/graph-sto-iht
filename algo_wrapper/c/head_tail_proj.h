@@ -1,7 +1,3 @@
-//
-// Created by baojian on 8/10/18.
-//
-
 #ifndef FAST_PCST_HEAD_TAIL_PROJ_H
 #define FAST_PCST_HEAD_TAIL_PROJ_H
 
@@ -30,6 +26,21 @@ typedef struct {
     double run_time;
     int num_iter;
 } GraphStat;
+
+typedef struct {
+    EdgePair *edges;
+    double *costs;
+    double *prizes;
+    int m;
+    int p;
+    int num_tr;
+    int sparsity_low;
+    int sparsity_high;
+    int max_num_iter;
+    int g;
+    int root;
+    int verbose;
+} head_tail_bisearch_para;
 
 
 GraphStat *make_graph_stat(int p, int m);
