@@ -1,17 +1,3 @@
-/*****************************************************************************
- * Created by -- on 6/3/18.
- * This code exactly follows Ludwig Schmidt's pcst-fast algorithm:
- *      https://github.com/fraenkel-lab/pcst_fast
- *      https://github.com/ludwigschmidt/pcst-fast
- * The pcst-fast algorithm is proposed in the following paper:
- * [1]  A Fast, Adaptive Variant of the Goemans-Williamson Scheme for
- *      the Prize-Collecting Steiner Tree Problem. Chinmay Hegde, Piotr Indyk,
- *      Ludwig Schmidt Workshop of the 11th DIMACS Implementation Challenge in
- *      Collaboration with ICERM: Steiner Tree Problems, 2014
- * Licences: No Licence! The author has no any responsibility for this code.
- * this priority queue is used the following code:
- *      https://github.com/vy/libpqueue.git
-*****************************************************************************/
 #ifndef FAST_PCST_H
 #define FAST_PCST_H
 

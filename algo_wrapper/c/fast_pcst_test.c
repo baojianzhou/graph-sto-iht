@@ -401,7 +401,8 @@ int test_13() {
 }
 
 int test_14() {
-    int i, root = 3, target_num_active_clusters = 0, n = 10, m = 24, verbose = 0;
+    int i, root = 3, target_num_active_clusters = 0;
+    int n = 10, m = 24, verbose = 0;
     int edge_u[] = {0, 1, 2, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 3, 3, 3, 3, 3, 3, 4,
                     4, 4, 5, 6};
     int edge_v[] = {1, 2, 3, 9, 2, 3, 5, 9, 3, 5, 7, 8, 3, 4, 5, 6, 7, 8, 9, 5,
@@ -451,9 +452,8 @@ int test_15() {
         edges[i].first = edge_u[i];
         edges[i].second = edge_v[i];
     }
-    int _result_nodes[] = {0, 1, 2, 3, 4, 5, 6, 7}, _result_edges[] = {0, 1, 2,
-                                                                       3, 4, 5,
-                                                                       6};
+    int _result_nodes[] = {0, 1, 2, 3, 4, 5, 6, 7};
+    int _result_edges[] = {0, 1, 2, 3, 4, 5, 6};
     double prizes[] = {100., 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 100.0};
     double costs[] = {0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9};
     double eps = 1e-6;
@@ -474,7 +474,8 @@ int test_15() {
 }
 
 int test_16() {
-    int i, root = -1, target_num_active_clusters = 1, n = 5, m = 4, verbose = 0;
+    int i, root = -1, target_num_active_clusters = 1;
+    int n = 5, m = 4, verbose = 0;
     int edge_u[] = {0, 0, 2, 3};
     int edge_v[] = {1, 2, 3, 4};
     EdgePair *edges = malloc(sizeof(EdgePair) * m);
@@ -503,7 +504,8 @@ int test_16() {
 }
 
 int test_17() {
-    int i, root = -1, target_num_active_clusters = 1, n = 5, m = 4, verbose = 0;
+    int i, root = -1, target_num_active_clusters = 1;
+    int n = 5, m = 4, verbose = 0;
     int edge_u[] = {0, 0, 2, 3};
     int edge_v[] = {1, 2, 3, 4};
     EdgePair *edges = malloc(sizeof(EdgePair) * m);
@@ -532,7 +534,8 @@ int test_17() {
 }
 
 int test_18() {
-    int i, root = -1, target_num_active_clusters = 1, n = 3, m = 2, verbose = 0;
+    int i, root = -1, target_num_active_clusters = 1;
+    int n = 3, m = 2, verbose = 0;
     int edge_u[] = {0, 1};
     int edge_v[] = {1, 2};
     EdgePair *edges = malloc(sizeof(EdgePair) * m);
@@ -641,7 +644,8 @@ void read_stp_file(char *file_name, Data *graph) {
 
 void test_stp_instance(char *file_name, char *index, int *n_, int *m_,
                        double *run_time_, int *re_n, int *re_m,
-                       PruningMethod pruning, int target_num_active_clusters) {
+                       PruningMethod pruning,
+                       int target_num_active_clusters) {
     EdgePair *edges;
     double *prizes, *costs;
     Data *graph = malloc(sizeof(Data));
@@ -1348,7 +1352,6 @@ void test_all() {
     test_on_mnist_data();
     test_on_grid_data();
 }
-
 
 
 int main() {
