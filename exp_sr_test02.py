@@ -323,7 +323,7 @@ def run_single_test_diff_eta(data):
 
 
 def run_test_diff_b(
-        s, n, p, lr, height, width, max_epochs, tol_algo, tol_rec, b_list,
+        s, p, height, width, max_epochs, tol_algo, tol_rec, b_list,
         trim_ratio, num_cpus, num_trials):
     np.random.seed()
     start_time = time.time()
@@ -339,12 +339,12 @@ def run_test_diff_b(
         data = {
             # we need to keep the consistency with Needell's code
             # when b==180 corresponding to batched-versions.
-            'lr': {b: lr if b != 180 else lr / 2. for b in b_list},
+            'lr': {b: 1.0 if b != 180 else 1.0 / 2. for b in b_list},
             'max_epochs': max_epochs,
             'trial_i': trial_i,
             's': s,
-            'n': n,
-            'n_list': [n],
+            'n': 180,
+            'n_list': [180],
             's_list': [s],
             'p': p,
             'b': b,
@@ -404,7 +404,7 @@ def run_test_diff_b(
 
 
 def run_test_diff_eta(
-        s, n, p, lr_list, height, width, num_iterations, tol_algo, tol_rec, b,
+        s, p, lr_list, height, width, num_iterations, tol_algo, tol_rec, b,
         trim_ratio, num_cpus, num_trials):
     # make sure, it works under multiprocessing case.
     np.random.seed()
@@ -424,8 +424,8 @@ def run_test_diff_eta(
             'max_epochs': 210,
             'trial_i': trial_i,
             's': s,
-            'n': n,
-            'n_list': [n],
+            'n': 80,
+            'n_list': [80],
             's_list': [s],
             'p': p,
             'b': b,
@@ -615,34 +615,28 @@ def main():
     command = sys.argv[1]
     if command == 'run_test':
         # learning rate
-        lr, n = 1.0, 180
-        max_epochs = 35
         num_cpus = int(sys.argv[2])
         re_diff_b = run_test_diff_b(s=s,
-                                    n=n,
                                     p=p,
-                                    lr=lr,
                                     height=height,
                                     width=width,
-                                    max_epochs=max_epochs,
+                                    max_epochs=35,
                                     tol_algo=tol_algo,
                                     tol_rec=tol_rec,
                                     b_list=b_list,
                                     trim_ratio=trim_ratio,
                                     num_cpus=num_cpus,
                                     num_trials=num_trials)
-        b, n = s, 80
-        num_iterations = 1000
+
         re_diff_eta = run_test_diff_eta(s=s,
-                                        n=n,
                                         p=p,
                                         lr_list=lr_list,
                                         height=height,
                                         width=width,
-                                        num_iterations=num_iterations,
+                                        num_iterations=2000,
                                         tol_algo=tol_algo,
                                         tol_rec=tol_rec,
-                                        b=b,
+                                        b=s,
                                         trim_ratio=trim_ratio,
                                         num_cpus=num_cpus,
                                         num_trials=num_trials)
