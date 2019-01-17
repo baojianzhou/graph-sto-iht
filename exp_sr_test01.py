@@ -659,7 +659,7 @@ def main():
     s_list = np.asarray([12, 20, 28, 36])
     # number of measurements list
     n_list = np.arange(5, 251, 5)
-    # try 50 different trials and take average on 44 trials.
+    # try 50 different trials
     num_trials = 50
     # tolerance of the algorithm
     tol_algo = 1e-7
