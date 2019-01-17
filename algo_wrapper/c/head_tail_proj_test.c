@@ -7,7 +7,7 @@ typedef struct {
     double *prizes;
     double *costs;
 } Data;
-char *file_name = "--/mnist_test_case_0.txt";
+char *file_name = "../data/mnist_test_case_0.txt";
 
 Data *read_mnist_data() {
     int p = 784, m = 1512;
@@ -142,12 +142,6 @@ void test_tail_proj_approx() {
     free(graph);
 }
 
-void test_all() {
-    test_head_proj_exact();
-    test_head_proj_approx();
-    test_tail_proj_exact();
-    test_tail_proj_approx();
-}
 
 void build_grid_graph(const double *values, bool include_root, double gamma,
                       EdgePair *edges, double *prizes, double *costs,
@@ -182,7 +176,7 @@ void build_grid_graph(const double *values, bool include_root, double gamma,
     }
     if (include_root) {
         *root = n - 1;
-        prizes[*root] = 0.0; // TODO this may have a problem.
+        prizes[*root] = 0.0;
         double root_edge_cost = 1.0 + gamma;
         for (int ii = 0; ii < *root; ++ii) {
             edges[edge_index].first = *root;
@@ -235,7 +229,7 @@ bool test_cluster_grid_pcst() {
 }
 
 
-bool test_cluster_grid_pcst_binsearch() {
+bool test_cluster_grid_pcst_bisearch() {
     double values[25] = {1.0, 1.0, 0.0, 0.0, 0.0,
                          1.0, 1.0, 0.0, 0.0, 0.0,
                          0.0, 0.0, 0.0, 0.0, 0.0,
@@ -279,7 +273,7 @@ bool test_cluster_grid_pcst_binsearch() {
     return 0;
 }
 
-bool test_head_tail_binsearch() {
+bool test_head_tail_bisearch() {
     double values[25] = {1.0, 1.0, 0.0, 0.0, 0.0,
                          1.0, 1.0, 0.0, 0.0, 0.0,
                          0.0, 0.0, 0.0, 0.0, 0.0,
@@ -324,5 +318,11 @@ bool test_head_tail_binsearch() {
 }
 
 int main() {
-    test_all();
+    test_head_proj_exact();
+    test_head_proj_approx();
+    test_tail_proj_exact();
+    test_tail_proj_approx();
+    test_cluster_grid_pcst();
+    test_head_tail_bisearch();
+    test_cluster_grid_pcst_bisearch();
 }
