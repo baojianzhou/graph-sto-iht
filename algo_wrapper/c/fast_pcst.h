@@ -1,5 +1,5 @@
 /*****************************************************************************
- * Created by baojian on 6/3/18.
+ * Created by -- on 6/3/18.
  * This code exactly follows Ludwig Schmidt's pcst-fast algorithm:
  *      https://github.com/fraenkel-lab/pcst_fast
  *      https://github.com/ludwigschmidt/pcst-fast
@@ -8,16 +8,6 @@
  *      the Prize-Collecting Steiner Tree Problem. Chinmay Hegde, Piotr Indyk,
  *      Ludwig Schmidt Workshop of the 11th DIMACS Implementation Challenge in
  *      Collaboration with ICERM: Steiner Tree Problems, 2014
- * I appreciate Ludwig Schmidt provided me his great c++ code. Please consider
- * use his code first. This piece of code is almost a copy of his code. Why I
- * reimplement his algorithm in C? I used a different priority queue and a
- * continuous memory to create pairing heap nodes and priority queue
- * nodes. Hence, this C version will be a little faster than c++ version.
- * However, I didn't test extensively on larger datasets. This code may
- * contain bugs. If there exists a bug, you can email to
- *      (Baojian Zhou) bzhou6@albany.edu.
- * This code is not a readable code. Please read the original code at:
- *      https://github.com/ludwigschmidt/pcst-fast
  * Licences: No Licence! The author has no any responsibility for this code.
  * this priority queue is used the following code:
  *      https://github.com/vy/libpqueue.git

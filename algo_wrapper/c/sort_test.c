@@ -1,7 +1,3 @@
-//
-// Created by baojian on 8/16/18.
-//
-
 #include "sort.h"
 
 

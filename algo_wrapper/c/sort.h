@@ -1,7 +1,3 @@
-//
-// Created by baojian on 8/15/18.
-//
-
 #ifndef FAST_PCST_SORT_H
 #define FAST_PCST_SORT_H
 

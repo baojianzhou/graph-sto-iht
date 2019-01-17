@@ -1,6 +1,3 @@
-//
-// Created by baojian on 8/4/18.
-//
 #include "fast_pcst.h"
 
 int comp(const void *a, const void *b) {

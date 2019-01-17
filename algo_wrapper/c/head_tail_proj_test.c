@@ -1,7 +1,3 @@
-//
-// Created by baojian on 8/11/18.
-//
-
 #include "head_tail_proj.h"
 
 typedef struct {
@@ -11,7 +7,7 @@ typedef struct {
     double *prizes;
     double *costs;
 } Data;
-char *file_name = "/network/rit/lab/ceashpc/bz383376/data/pcst/MNIST/mnist_test_case_0.txt";
+char *file_name = "--/mnist_test_case_0.txt";
 
 Data *read_mnist_data() {
     int p = 784, m = 1512;

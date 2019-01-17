@@ -1,6 +1,3 @@
-//
-// Created by baojian on 8/10/18.
-//
 #include <unistd.h>
 #include "head_tail_proj.h"
 #include "sort.h"

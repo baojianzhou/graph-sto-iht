@@ -4,9 +4,8 @@
 #define parent(i) ((unsigned int)(i) >> 1u)
 #define right(i) ((unsigned int)(i) >> 1u)
 
-// TODO Warning about the size of the buffer:
-// You your graph has huge number of nodes.
-// You need to config the buffer size of the pairing heap by yourself.
+// TODO Warning about the size of the buffer: 1. You need to change it if
+// your graph has huge number of nodes, say 10 millions.
 #define MAX_BUFFER_SIZE 100000
 PHNode *buffer[MAX_BUFFER_SIZE];
 

@@ -28,7 +28,6 @@ set(ROOT algo_wrapper/c/)
 set(SRC_PCST ${ROOT}fast_pcst.c ${ROOT}fast_pcst.h)
 set(SRC_Head ${ROOT}head_tail_proj.c ${ROOT}head_tail_proj.h)
 set(SRC_Sort ${ROOT}sort.c ${ROOT}sort.h)
-set(SRC_Metric ${ROOT}metrics.c ${ROOT}metrics.h)
 set(SRC_Loss ${ROOT}loss.c ${ROOT}loss.h)
 set(SRC_Algo ${ROOT}sparse_algorithms.c ${ROOT}sparse_algorithms.h)
 set(SRC_IHT ${ROOT}algo_sto_iht.c ${ROOT}algo_sto_iht.h)
@@ -45,9 +44,6 @@ add_executable(test_head_tail ${ROOT}head_tail_proj_test.c
 target_link_libraries(test_head_tail -std=c11 -Wall -Wextra -O3 -lm)
 
 add_executable(test_sort ${SRC_Sort} ${ROOT}sort_test.c)
-target_link_libraries(test_sort -std=c11 -Wall -Wextra -O3 -lm)
-
-add_executable(test_metrics ${ROOT}metrics_test.c ${SRC_Metric} ${SRC_Sort})
 target_link_libraries(test_sort -std=c11 -Wall -Wextra -O3 -lm)
 
 add_executable(test_loss ${ROOT}loss_test.c ${SRC_Loss})

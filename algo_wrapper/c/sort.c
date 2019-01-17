@@ -1,6 +1,3 @@
-//
-// Created by baojian on 8/15/18.
-//
 #include "sort.h"
 
 typedef struct {
