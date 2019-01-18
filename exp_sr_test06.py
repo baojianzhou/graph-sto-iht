@@ -664,7 +664,7 @@ def run_test(trial_range, max_epochs, tol_algo, tol_rec,
             sum_results[trial_i] = []
         sum_results[trial_i].append((method, img_name, trial_i, n, err))
     for trial_i in sum_results:
-        f_name = root_p + 'sr_images_50_50_trial_%02d.pkl' % trial_i
+        f_name = root_p + 'results_exp_sr_test05_trial_%02d.pkl' % trial_i
         print('save results to file: %s' % f_name)
         pickle.dump({'results_pool': sum_results[trial_i]},
                     open(f_name, 'wb'))
@@ -680,11 +680,11 @@ def show_test(method_list, method_label_list, sample_ratio_arr, root_p):
     plt.rcParams["font.size"] = 12
     rc('text', usetex=True)
 
-    img_data = get_img_data(root_p)  # 236, 383, 411
+    img_data = get_img_data('data/')  # 236, 383, 411
     resized_images = [img_data[_] for _ in img_data['img_list']]
 
     rcParams['figure.figsize'] = 8, 5
-    f_name = root_p + 'sr_image_50_50.pkl'
+    f_name = root_p + 'results_exp_sr_test06.pkl'
     trim_results = pickle.load(open(f_name))['trim_results']
     color_list = ['c', 'b', 'g', 'k', 'm', 'y', 'r']
     marker_list = ['D', 'X', 'o', 'h', 'P', 'p', 's']
@@ -743,7 +743,7 @@ def show_test(method_list, method_label_list, sample_ratio_arr, root_p):
                     frameon=True, borderpad=0.1, labelspacing=0.2,
                     handletextpad=0.1, markerfirst=True)
     plt.subplots_adjust(wspace=0.1, hspace=0.0)
-    f_name = root_p + 'sr_image_50_50.pdf'
+    f_name = root_p + 'results_exp_sr_test06.pdf'
     print('save fig to: %s' % f_name)
     plt.savefig(f_name, dpi=600, bbox_inches='tight', pad_inches=0,
                 format='pdf')
@@ -756,12 +756,12 @@ def summarize_results(
     results_pool = []
     num_trials = len(trial_range)
     for trial_i in trial_range:
-        f_name = root_p + 'sr_images_50_50_trial_%02d.pkl' % trial_i
+        f_name = root_p + 'results_exp_sr_test06_trial_%02d.pkl' % trial_i
         print('load file from: %s' % f_name)
         results = pickle.load(open(f_name))
         for item in results:
             results_pool.extend(results[item])
-    img_data = get_img_data(root_p)
+    img_data = get_img_data('data/')
     sum_results = dict()
     for method, fig_i, trial_i, n, err in results_pool:
         print(method, err)
@@ -793,7 +793,7 @@ def summarize_results(
             re[re > tol_rec] = 0.
             re[re != 0.0] = 1.0
             trim_results[fig_i][method] = np.mean(re, axis=0)
-    f_name = root_p + 'sr_simu_test_06.pkl'
+    f_name = root_p + 'results_exp_sr_test06.pkl'
     print('save file to: %s' % f_name)
     pickle.dump({'results_pool': results_pool,
                  'trim_results': trim_results,
@@ -837,9 +837,9 @@ def main():
                      sample_ratio_arr=sample_ratio_arr,
                      method_list=method_list,
                      num_cpus=num_cpus,
-                     root_p='data/')
+                     root_p='results/')
     elif command == 'summarize_results':
-        trial_range = range(num_trials)
+        trial_range = [0]
         summarize_results(
             trial_range=trial_range,
             sample_ratio_arr=sample_ratio_arr,
@@ -848,7 +848,7 @@ def main():
             trim_ratio=trim_ratio,
             root_p=root_p)
     elif command == 'show_test':
-        trial_range = range(num_trials)
+        trial_range = [0]
         summarize_results(
             trial_range=trial_range,
             sample_ratio_arr=sample_ratio_arr,

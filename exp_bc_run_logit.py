@@ -795,7 +795,7 @@ def summarize_data(trial_list, num_iterations, root_output):
     return sum_data
 
 
-def show_test(trials_list, num_iterations, root_input, root_output):
+def show_test01(trials_list, num_iterations, root_input, root_output):
     sum_data1 = summarize_data(trials_list, num_iterations, root_output)
     all_data = pickle.load(open(root_input + 'overlap_data_summarized.pkl'))
     for trial_i in sum_data1:
@@ -921,17 +921,17 @@ def main():
         for trial_i in range(trial_start, trial_end):
             run_test(trial_i=trial_i, num_cpus=num_cpus,
                      root_input='data/', root_output='results/')
-    elif command == 'show_test':
+    elif command == 'show_test01':
         folding_list = [0, 1, 4, 5, 8, 9, 12, 13, 16, 17]
         folding_list = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18]
         folding_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
                         16, 17]
         folding_list = [0, 1, 10, 11]
         num_iterations = 50
-        show_test(folding_list, num_iterations,
-                  root_input='data/', root_output='results/')
+        show_test01(folding_list, num_iterations,
+                    root_input='data/', root_output='results/')
     elif command == 'show_test02':
-        folding_list = range(0, 20)
+        folding_list = [0, 1, 10, 11]
         # trials_list = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18]
         num_iterations = 50
         show_test02(folding_list, num_iterations,
