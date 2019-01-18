@@ -729,7 +729,8 @@ def run_test(trial_range, n_list, tol_algo, tol_rec,
               (len(trial_range), time.time() - start_time))
 
 
-def summarize_results(trials_range, n_list, method_list, tol_rec, root_p):
+def summarize_results(trim_ratio, trials_range, n_list, method_list, tol_rec,
+                      root_p):
     results_pool = []
     num_trials = len(trials_range)
     for trial_i in trials_range:
@@ -743,7 +744,7 @@ def summarize_results(trials_range, n_list, method_list, tol_rec, root_p):
         for method, err in rec_err:
             ind = list(trials_range).index(trial_i)
             sum_results[method][ind][n_ind] = err
-    num_trim = int(round(0.05 * num_trials))
+    num_trim = int(round(trim_ratio * num_trials))
     trim_results = dict()
     for method in method_list:
         re = sum_results[method]
@@ -832,7 +833,7 @@ def main():
     max_epochs = 500
     tol_algo = 1e-7
     tol_rec = 1e-6
-
+    trim_ratio = 0.05
     n_list = range(20, 151, 5)
     method_list = ['niht', 'iht', 'sto-iht', 'cosamp',
                    'graph-iht', 'graph-cosamp', 'graph-sto-iht']
@@ -860,8 +861,9 @@ def main():
                  num_cpus=num_cpus,
                  root_p=root_p)
     elif command == 'summarize_results':
-        trials_range = range(45)
-        summarize_results(trials_range=trials_range, n_list=n_list,
+        trials_range = range(50)
+        summarize_results(trim_ratio=trim_ratio,
+                          trials_range=trials_range, n_list=n_list,
                           method_list=method_list, tol_rec=tol_rec,
                           root_p=root_p)
     elif command == 'show_test':
