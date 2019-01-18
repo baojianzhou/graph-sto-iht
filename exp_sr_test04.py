@@ -532,12 +532,12 @@ def run_test(trial_range, fig_list, n_range_list, num_va, lr_list,
 
 
 def summarize_results(
-        trial_range, fig_list, n_range_list, method_list, tol_rec, root_p,
+        trial_list, fig_list, n_range_list, method_list, tol_rec, root_p,
         trim_ratio):
     results_pool = []
-    num_trials = len(trial_range)
-    for trial_i in trial_range:
-        f_name = root_p + 'sr_anomalous_trial_%02d.pkl' % trial_i
+    num_trials = len(trial_list)
+    for trial_i in trial_list:
+        f_name = root_p + 'results_exp_sr_test04_trial_%02d.pkl' % trial_i
         results = pickle.load(open(f_name))
         for item in results:
             results_pool.extend(results[item])
@@ -545,7 +545,7 @@ def summarize_results(
     for fig_i, trial_i, n, rec_err in results_pool:
         fig_i_ind = list(fig_list).index(fig_i)
         n_ind = list(n_range_list[fig_i_ind]).index(n)
-        trial_i_ind = list(trial_range).index(trial_i)
+        trial_i_ind = list(trial_list).index(trial_i)
         for method, err in rec_err:
             if fig_i not in sum_results:
                 sum_results[fig_i] = dict()
@@ -573,7 +573,7 @@ def summarize_results(
             re[re > tol_rec] = 0.
             re[re != 0.0] = 1.0
             trim_results[fig_i][method] = np.mean(re, axis=0)
-    f_name = root_p + 'sr_anomalous.pkl'
+    f_name = root_p + 'results_exp_sr_test04.pkl'
     print('save file to: %s' % f_name)
     pickle.dump({'trim_results': trim_results,
                  'sum_results': sum_results,
@@ -593,7 +593,7 @@ def show_test(n_range_list, method_list, title_list, fig_list, root_p):
     marker_list = ['X', 'o', 'P', 's']
     x_label = n_range_list
     s_list = [26, 46, 92, 132]
-    f_name = 'sr_anomalous.pkl'
+    f_name = 'results_exp_sr_test04.pkl'
     trim_results = pickle.load(open(root_p + f_name))['trim_results']
 
     fig, ax = plt.subplots(2, 4)
@@ -647,7 +647,7 @@ def show_test(n_range_list, method_list, title_list, fig_list, root_p):
     plt.setp(ax[1, 2].get_yticklabels(), visible=False)
     plt.setp(ax[1, 3].get_yticklabels(), visible=False)
     plt.subplots_adjust(wspace=0.0, hspace=0.0)
-    f_name = root_p + 'sr_anomalous.pdf'
+    f_name = root_p + 'results_exp_sr_test04.pdf'
     print('save fig to: %s' % f_name)
     plt.savefig(f_name, dpi=600, bbox_inches='tight', pad_inches=0,
                 format='pdf')
@@ -706,7 +706,7 @@ def main():
                      root_p=root_p)
     elif command == 'summarize_results':
         trial_range = range(num_trials)
-        summarize_results(trial_range=trial_range,
+        summarize_results(trial_list=trial_range,
                           fig_list=fig_list,
                           n_range_list=n_range_list,
                           method_list=method_list,
@@ -714,8 +714,8 @@ def main():
                           root_p=root_p,
                           trim_ratio=trim_ratio)
     elif command == 'show_test':
-        trial_range = range(num_trials)
-        summarize_results(trial_range=trial_range,
+        trial_range = [0, 10, 11, 20, 21, 30, 31, 40, 41]
+        summarize_results(trial_list=trial_range,
                           fig_list=fig_list,
                           n_range_list=n_range_list,
                           method_list=method_list,
