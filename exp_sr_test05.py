@@ -683,7 +683,8 @@ def run_test(trial_range, n_list, tol_algo, tol_rec,
             edges, costs = simu_grid_graph(height=height, width=width)
             p, s = grid_data['p'], grid_data['s']
             x_star = np.zeros(p)  # using Gaussian signal.
-            x_star[grid_data['subgraph']] = np.random.normal(0.0, 1.0, size=s)
+            x_star[grid_data['subgraph']] = np.random.normal(
+                loc=0.0, scale=1.0, size=s)
             data = {
                 'trial_i': trial_i,
                 's': s,

@@ -32,7 +32,7 @@ setup(
     classifiers=("Programming Language :: Python :: 2",
                  "License :: OSI Approved :: MIT License",
                  "Operating System :: POSIX :: Linux",),
-    install_requires=['numpy', 'matplotlib', 'networkx'],
+    install_requires=['numpy', 'matplotlib', 'networkx', 'scipy'],
     headers=['algo_wrapper/c/head_tail_proj.h',
              'algo_wrapper/c/fast_pcst.h',
              'algo_wrapper/c/sort.h'],
