@@ -614,11 +614,11 @@ def run_single_test(data):
 
 
 def run_test(trial_range, max_epochs, tol_algo, tol_rec,
-             sample_ratio_arr, method_list, num_cpus, root_p):
+             sample_ratio_arr, method_list, num_cpus, root_input, root_output):
     """ This test is test the methods on 50x50 resized images. """
     np.random.seed()
     start_time = time.time()
-    img_data = get_img_data(root_p)  # 236, 383, 411
+    img_data = get_img_data(root_input)  # 236, 383, 411
     edges, costs = img_data['graph']
     input_data_list = []
     for img_name in img_data['img_list']:
@@ -664,7 +664,7 @@ def run_test(trial_range, max_epochs, tol_algo, tol_rec,
             sum_results[trial_i] = []
         sum_results[trial_i].append((method, img_name, trial_i, n, err))
     for trial_i in sum_results:
-        f_name = root_p + 'results_exp_sr_test05_trial_%02d.pkl' % trial_i
+        f_name = root_output + 'results_exp_sr_test06_trial_%02d.pkl' % trial_i
         print('save results to file: %s' % f_name)
         pickle.dump({'results_pool': sum_results[trial_i]},
                     open(f_name, 'wb'))
@@ -837,7 +837,7 @@ def main():
                      sample_ratio_arr=sample_ratio_arr,
                      method_list=method_list,
                      num_cpus=num_cpus,
-                     root_p='results/')
+                     root_input='data/', root_output='results/')
     elif command == 'summarize_results':
         trial_range = [0]
         summarize_results(

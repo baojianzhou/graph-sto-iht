@@ -795,8 +795,8 @@ def summarize_data(trial_list, num_iterations, root_output):
     return sum_data
 
 
-def show_test01(trials_list, num_iterations, root_input, root_output,
-                latex_flag=True):
+def show_test(trials_list, num_iterations, root_input, root_output,
+              latex_flag=True):
     sum_data = summarize_data(trials_list, num_iterations, root_output)
     all_data = pickle.load(open(root_input + 'overlap_data_summarized.pkl'))
     for trial_i in sum_data:
@@ -868,34 +868,71 @@ def show_test01(trials_list, num_iterations, root_input, root_output,
         for metric in ['bacc', 'auc', 'num_nonzeros']:
             mean_dict = {method: [] for method in method_list}
             print(' '.join(['-' * 75, '%12s' % metric, '-' * 75]))
-            print('            Path-Lasso   Path-Overlap'),
-            print('Edge-Lasso   Edge-Overlap    StoIHT '
-                  'GraphStoIHT     IHT     GraphIHT')
-
+            print(' & '.join(
+                ['-', '$\ell_1$-Path', '$\Omega_{\cup}^\mathcal{G}$-Path',
+                 '$\ell_1$-Edge', '$\Omega_{\cup}^\mathcal{G}$-Edge',
+                 '\\textsc{StoIHT}', '\\textsc{GraphStoIHT}',
+                 '\\textsc{IHT}', '\\textsc{GraphIHT}'])),
+            print('\\\\')
+            print('\hline')
             for folding_i in trials_list:
                 row_list = []
+                find_min = [np.inf]
+                find_max = [-np.inf]
                 each_re = all_data[folding_i]
                 row_list.append('Error Folding %02d' % folding_i)
                 for method in method_list:
                     x1 = float(np.mean(each_re[method][metric]))
+                    find_min.append(x1)
+                    find_max.append(x1)
                     x2 = float(np.std(each_re[method][metric]))
                     mean_dict[method].extend(each_re[method][metric])
                     if metric == 'num_nonzeros':
                         row_list.append('%05.1f$\pm$%05.2f' % (x1, x2))
                     else:
                         row_list.append('%.3f$\pm$%.3f' % (x1, x2))
+                if metric == 'bacc':
+                    min_index = np.argmin(find_min)
+                    original_string = row_list[int(min_index)]
+                    mean_std = original_string.split('$\pm$')
+                    row_list[int(min_index)] = '\\textbf{%s}$\pm$%s' % (
+                        mean_std[0], mean_std[1])
+                elif metric == 'auc':
+                    max_index = np.argmax(find_max)
+                    original_string = row_list[int(max_index)]
+                    mean_std = original_string.split('$\pm$')
+                    row_list[int(max_index)] = '\\textbf{%s}$\pm$%s' % (
+                        mean_std[0], mean_std[1])
                 print(' & '.join(row_list)),
                 print('\\\\')
+            print('\hline')
             row_list = ['Averaged ']
+            find_min = [np.inf]
+            find_max = [-np.inf]
             for method in method_list:
                 x1 = float(np.mean(mean_dict[method]))
                 x2 = float(np.std(mean_dict[method]))
+                find_min.append(x1)
+                find_max.append(x1)
                 if metric == 'num_nonzeros':
                     row_list.append('%05.1f$\pm$%05.2f' % (x1, x2))
                 else:
                     row_list.append('%.3f$\pm$%.3f' % (x1, x2))
+            if metric == 'bacc':
+                min_index = np.argmin(find_min)
+                original_string = row_list[int(min_index)]
+                mean_std = original_string.split('$\pm$')
+                row_list[int(min_index)] = '\\textbf{%s}$\pm$%s' % (
+                    mean_std[0], mean_std[1])
+            elif metric == 'auc':
+                max_index = np.argmax(find_max)
+                original_string = row_list[int(max_index)]
+                mean_std = original_string.split('$\pm$')
+                row_list[int(max_index)] = '\\textbf{%s}$\pm$%s' % (
+                    mean_std[0], mean_std[1])
             print(' & '.join(row_list)),
             print('\\\\')
+            print('\hline')
         print('_' * 164)
     found_genes = {method: set() for method in method_list}
     for folding_i in trials_list:
@@ -911,73 +948,6 @@ def show_test01(trials_list, num_iterations, root_input, root_output,
     print('_' * 85)
 
 
-def show_test02(trials_list, num_iterations, root_input, root_output):
-    sum_data1 = summarize_data(trials_list, num_iterations, root_output)
-    all_data = pickle.load(open(root_input + 'overlap_data_summarized.pkl'))
-    method_list = ['re_path_re_lasso', 're_path_re_overlap',
-                   're_edge_re_lasso', 're_edge_re_overlap',
-                   're_sto-iht', 're_graph-sto-iht']
-    all_involved_genes = {method: set() for method in method_list}
-    for trial_i in sum_data1:
-        for method in ['graph-sto-iht', 'sto-iht', 'graph-iht', 'iht']:
-            all_data[trial_i]['re_%s' % method] = sum_data1[trial_i][method]
-        for method in ['re_graph-sto-iht', 're_sto-iht', 're_graph-iht',
-                       're_iht']:
-            re = all_data[trial_i][method]['found_genes']
-            all_data[trial_i]['found_related_genes'][method] = set(re)
-        for method in ['re_path_re_lasso', 're_path_re_overlap',
-                       're_edge_re_lasso', 're_edge_re_overlap']:
-            for fold_i in range(5):
-                re = np.nonzero(all_data[trial_i][method]['ws_%d' % fold_i])
-                all_involved_genes[method] = set(re[0]).union(
-                    all_involved_genes[method])
-        for method in ['re_sto-iht', 're_graph-sto-iht']:
-            for fold_i in range(5):
-                re = np.nonzero(all_data[trial_i][method]['w_hat_%d' % fold_i])
-                all_involved_genes[method] = set(re[0]).union(
-                    all_involved_genes[method])
-    for method in method_list:
-        all_involved_genes[method] = len(all_involved_genes[method])
-    method_list = ['re_path_re_lasso', 're_path_re_overlap',
-                   're_edge_re_lasso', 're_edge_re_overlap',
-                   're_sto-iht', 're_graph-sto-iht', 're_iht', 're_graph-iht']
-    for metric in ['bacc', 'auc', 'num_nonzeros']:
-        mean_dict = {method: [] for method in method_list}
-        print('-' * 30 + metric + '-' * 30)
-        print('            Path-Lasso   Path-Overlap'),
-        print('Edge-Lasso   Edge-Overlap    StoIHT '
-              'GraphStoIHT     IHT     GraphIHT')
-        for folding_i in trials_list:
-            each_re = all_data[folding_i]
-            print('Error Folding %02d &' % folding_i),
-            for method in method_list:
-                x1 = float(np.mean(each_re[method][metric]))
-                x2 = float(np.std(each_re[method][metric]))
-                mean_dict[method].extend(each_re[method][metric])
-                if metric == 'num_nonzeros':
-                    print('%05.1f$\pm$%05.2f &' % (x1, x2)),
-                else:
-                    print('%.3f$\pm$%.3f &' % (x1, x2)),
-            print('\\\\')
-        print('Averaged   &'),
-        for method in method_list:
-            x1 = float(np.mean(mean_dict[method]))
-            x2 = float(np.std(mean_dict[method]))
-            if metric == 'num_nonzeros':
-                print('%05.1f$\pm$%05.2f &' % (x1, x2)),
-            else:
-                print('%.3f$\pm$%.3f &' % (x1, x2)),
-        print('\\\\')
-    print('-' * 60)
-    found_genes = {method: set() for method in method_list}
-    for folding_i in trials_list:
-        for method in method_list:
-            re = all_data[folding_i]['found_related_genes'][method]
-            found_genes[method] = set(re).union(found_genes[method])
-    for method in method_list:
-        print(method, list(found_genes[method]))
-
-
 def main():
     command = sys.argv[1]
     if command == 'run_test':
@@ -987,21 +957,15 @@ def main():
         for folding_i in range(trial_start, trial_end):
             run_test(folding_i=folding_i, num_cpus=num_cpus,
                      root_input='data/', root_output='results/')
-    elif command == 'show_test01':
+    elif command == 'show_test':
         folding_list = [0, 1, 4, 5, 8, 9, 12, 13, 16, 17]
         folding_list = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18]
         folding_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
                         16, 17]
-        folding_list = [0, 1, 10, 11]
+        folding_list = [0, 1, 2, 3, 4, 10, 11, 12, 13, 14]
         num_iterations = 50
-        show_test01(folding_list, num_iterations,
-                    root_input='data/', root_output='results/')
-    elif command == 'show_test02':
-        folding_list = [0, 1, 10, 11]
-        # trials_list = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18]
-        num_iterations = 50
-        show_test02(folding_list, num_iterations,
-                    root_input='data/', root_output='results/')
+        show_test(folding_list, num_iterations,
+                  root_input='data/', root_output='results/')
 
 
 if __name__ == "__main__":
