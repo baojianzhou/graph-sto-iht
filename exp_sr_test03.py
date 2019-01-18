@@ -481,44 +481,42 @@ def summarize_results(
                  'results_pool': results_pool}, open(f_name, 'wb'))
 
 
-def show_test(b_list, method_list, title_list, root_p, noise_level_list):
+def show_test(b_list, method_list, root_p, noise_level_list):
     import matplotlib.pyplot as plt
     from matplotlib import rc
     from pylab import rcParams
     plt.rcParams["font.family"] = "Times New Roman"
     plt.rcParams["font.size"] = 18
     rc('text', usetex=True)
-    rcParams['figure.figsize'] = 8, 4
+    rcParams['figure.figsize'] = 6, 5
     all_results = pickle.load(open(root_p + 'results_exp_sr_test03.pkl'))
     results = all_results['trim_results']
     color_list = ['b', 'g', 'm', 'r']
     marker_list = ['X', 'o', 'P', 's']
-    fig, ax = plt.subplots(1, 2, sharey='all')
-    for i in range(2):
-        ax[i].grid(b=True, which='both', color='gray', linestyle='dotted',
-                   axis='both')
-        ax[i].set_xlim([0, 35])
-        ax[i].set_ylim([0, 75])
-    ax[0].set_xticks([4, 14, 24, 34])
-    ax[0].set_yticks([0, 25, 50, 75])
-    ax[1].set_xticks([4, 14, 24, 34, 44, 54, 64])
-    ax[0].set_title(r"$\displaystyle \|{\bf \epsilon}\|=0.0$")
-    ax[1].set_title(r"$\displaystyle \|{\bf \epsilon}\|=0.5$")
-    ax[0].set_ylabel('Number of Measurements Required')
+    fig, ax = plt.subplots(1, 1, sharey='all')
+    ax.grid(b=True, which='both', color='gray', linestyle='dotted',
+            axis='both')
+    ax.set_xlim([0, 35])
+    ax.set_ylim([25, 100])
+    ax.set_xticks([4, 14, 24, 34, 44, 54, 64])
+    ax.set_yticks([25, 35, 45, 55, 65, 75, 85, 95])
+    ax.set_xticks([4, 14, 24, 34, 44, 54, 64])
+    ax.set_title(r"$\displaystyle \|{\bf \epsilon}\|=0.0$")
+    ax.set_title(r"$\displaystyle \|{\bf \epsilon}\|=0.5$")
+    ax.set_ylabel('Number of Measurements Required')
     x_list = b_list
     for method_ind, method in enumerate(method_list):
         for ind, noise_level in enumerate(noise_level_list):
-            ax[0].plot(x_list, [results[noise_level][method][b]
-                                for b in b_list],
-                       label=str(noise_level),
-                       color=color_list[ind],
-                       marker=marker_list[ind]
-                       , markersize=4.0, markerfacecolor='none',
-                       linestyle='-', markeredgewidth=1.0, linewidth=1.0)
-    for i in range(2):
-        ax[i].set_xlabel('Block Size')
-    ax[1].legend(loc='lower right', fontsize=14., borderpad=0.01,
-                 labelspacing=0.0, handletextpad=0.05, framealpha=1.0)
+            ax.plot(x_list, [results[noise_level][method][b]
+                             for b in b_list],
+                    label=str(noise_level),
+                    color=color_list[ind],
+                    marker=marker_list[ind]
+                    , markersize=5.0, markerfacecolor='none',
+                    linestyle='-', markeredgewidth=1.5, linewidth=1.5)
+    ax.set_xlabel('Block Size')
+    ax.legend(loc='lower right', fontsize=18., borderpad=0.1,
+              labelspacing=0.1, handletextpad=0.1, framealpha=1.0)
     plt.subplots_adjust(wspace=0.0, hspace=0.0)
     f_name = root_p + 'results_exp_sr_test03.pdf'
     print('save fig to: %s' % f_name)
@@ -586,7 +584,8 @@ def main():
                  root_p=root_p,
                  noise_level_list=noise_level_list)
     elif command == 'summarize_results':
-        trial_range = [0, 1, 10, 11, 20, 21, 22, 23, 30, 31, 32, 40, 41]
+        trial_range = [0, 1, 2, 3, 10, 11, 12, 13, 14,
+                       20, 21, 22, 23, 24, 25, 30, 31, 32, 40, 41, 42, 43]
         summarize_results(trim_ratio=trim_ratio,
                           trial_range=trial_range,
                           b_list=b_list,
@@ -595,18 +594,8 @@ def main():
                           root_p=root_p,
                           noise_level_list=noise_level_list)
     elif command == 'show_test':
-        title_list = ['IHT', 'StoIHT', 'GraphIHT', 'GraphStoIHT']
-        trial_range = [0, 1, 10, 11, 20, 21, 22, 23, 30, 31, 32, 40, 41]
-        summarize_results(trim_ratio=trim_ratio,
-                          trial_range=trial_range,
-                          b_list=b_list,
-                          n_list=n_list,
-                          method_list=method_list,
-                          root_p=root_p,
-                          noise_level_list=noise_level_list)
         show_test(b_list=b_list,
                   method_list=method_list,
-                  title_list=title_list,
                   root_p=root_p,
                   noise_level_list=noise_level_list)
 
