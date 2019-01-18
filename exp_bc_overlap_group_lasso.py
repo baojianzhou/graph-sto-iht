@@ -9,19 +9,6 @@ from itertools import product
 from numpy.random import normal
 import multiprocessing
 
-root_p = '/network/rit/lab/ceashpc/bz383376/data/icml19/breast_cancer/'
-if not os.path.exists(root_p):
-    os.mkdir(root_p)
-root_input = root_p + 'input/'
-if not os.path.exists(root_p + 'input/'):
-    os.mkdir(root_p + 'input/')
-root_output = root_p + 'output/'
-if not os.path.exists(root_output):
-    os.mkdir(root_output)
-root_figs = root_p + 'figs/'
-if not os.path.exists(root_figs):
-    os.mkdir(root_figs)
-
 
 def is_member(a, b):
     # None can be replaced by any other "not in b" value

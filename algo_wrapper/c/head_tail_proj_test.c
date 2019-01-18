@@ -7,7 +7,7 @@ typedef struct {
     double *prizes;
     double *costs;
 } Data;
-char *file_name = "../data/mnist_test_case_0.txt";
+char *file_name = "../data/mnist_test_case.txt";
 
 Data *read_mnist_data() {
     int p = 784, m = 1512;
