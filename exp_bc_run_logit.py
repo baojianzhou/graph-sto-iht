@@ -696,15 +696,15 @@ def get_single_data(trial_i, root_input):
     return data
 
 
-def run_test(trial_i, num_cpus, root_input, root_output):
-    n_folds, num_iters = 5, 50
+def run_test(folding_i, num_cpus, root_input, root_output):
+    n_folds, num_iterations = 5, 50
     s_list = range(5, 100, 5)  # sparsity list
     b_list = [1, 2]  # number of block list.
     lambda_list = [1e-4]
     method_list = ['sto-iht', 'graph-sto-iht', 'iht', 'graph-iht']
     cv_res = {_: dict() for _ in range(n_folds)}
     for fold_i in range(n_folds):
-        data = get_single_data(trial_i, root_input)
+        data = get_single_data(folding_i, root_input)
         tr_idx = data['data_splits'][fold_i]['train']
         te_idx = data['data_splits'][fold_i]['test']
         f_data = data.copy()
@@ -731,7 +731,7 @@ def run_test(trial_i, num_cpus, root_input, root_output):
             s_te = data['data_subsplits'][fold_i][sf_ii]['test']
             sub_res[sf_ii] = run_parallel(
                 f_data, s_tr, s_te, s_list, b_list, lambda_list,
-                num_iters, num_cpus)
+                num_iterations, num_cpus)
             for _ in method_list:
                 s_auc[_] += sub_res[sf_ii][_]['auc'] / 1. * n_folds
                 s_acc[_] += sub_res[sf_ii][_]['acc'] / 1. * n_folds
@@ -742,7 +742,7 @@ def run_test(trial_i, num_cpus, root_input, root_output):
             cv_res[fold_i][_]['s_bacc'] = s_bacc[_]
         res = run_parallel(
             f_data, tr_idx, te_idx, s_list, b_list, lambda_list,
-            num_iters, num_cpus)
+            num_iterations, num_cpus)
         for _ in method_list:
             best_s = s_star[_]
             cv_res[fold_i][_]['s_star'] = best_s
@@ -753,7 +753,7 @@ def run_test(trial_i, num_cpus, root_input, root_output):
             s, b = (s_list[best_s[0]], b_list[best_s[1]])
             cv_res[fold_i][_]['w_hat'] = res[_]['w_hat'][(s, b)]
             cv_res[fold_i][_]['map_entrez'] = data['map_entrez']
-    f_name = 'results_exp_bc_%02d_%03d.pkl' % (trial_i, num_iters)
+    f_name = 'results_exp_bc_%02d_%03d.pkl' % (folding_i, num_iterations)
     pickle.dump(cv_res, open(root_output + f_name, 'wb'))
 
 
@@ -918,8 +918,8 @@ def main():
         num_cpus = int(sys.argv[2])
         trial_start = int(sys.argv[3])
         trial_end = int(sys.argv[4])
-        for trial_i in range(trial_start, trial_end):
-            run_test(trial_i=trial_i, num_cpus=num_cpus,
+        for folding_i in range(trial_start, trial_end):
+            run_test(folding_i=folding_i, num_cpus=num_cpus,
                      root_input='data/', root_output='results/')
     elif command == 'show_test01':
         folding_list = [0, 1, 4, 5, 8, 9, 12, 13, 16, 17]
