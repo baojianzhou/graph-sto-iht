@@ -584,9 +584,7 @@ def main():
                  root_p=root_p,
                  noise_level_list=noise_level_list)
     elif command == 'summarize_results':
-        trial_range = [0, 1, 2, 3, 4, 10, 11, 12, 13, 14,
-                       20, 21, 22, 23, 24, 25, 26, 30, 31, 32, 40, 41, 42, 43,
-                       44]
+        trial_range = range(50)
         summarize_results(trim_ratio=trim_ratio,
                           trial_range=trial_range,
                           b_list=b_list,
