@@ -85,6 +85,7 @@ def get_img_data(root_p):
         'p': re_height * re_width,
         's': {_: s_list[ind] for ind, _ in enumerate(img_name_list)},
         's_list': s_list,
+        'g_dict': {'background': 1, 'angio': 1, 'icml': 4},
         'graph': simu_grid_graph(height=re_height, width=re_width)
     }
     return img_data
@@ -577,7 +578,7 @@ def run_single_test(data):
 
     edges = data['proj_para']['edges']
     costs = data['proj_para']['costs']
-    g = data['proj_para']['g'][s]
+    g = data['proj_para']['g']
     if method == 'niht':
         err, num_epochs, run_time = algo_niht(
             x_tr_mat_, y_tr, max_epochs, s, x_star, x0, tol_algo)
@@ -623,6 +624,7 @@ def run_test(trial_range, max_epochs, tol_algo, tol_rec,
     for img_name in img_data['img_list']:
         p = img_data['p']
         s = img_data['s'][img_name]
+        g = img_data['g_dict'][img_name]
         x_star = img_data[img_name]
         n_list = [int(_ * s) for _ in sample_ratio_arr]
         for trial_i in trial_range:
@@ -648,7 +650,7 @@ def run_test(trial_range, max_epochs, tol_algo, tol_rec,
                         'img_data': img_data,
                         'verbose': 0,
                         'method': method,
-                        'proj_para': {'edges': edges, 'costs': costs}
+                        'proj_para': {'edges': edges, 'costs': costs, 'g': g}
                     }
                     input_data_list.append(data)
     pool = multiprocessing.Pool(processes=int(num_cpus))
