@@ -12,22 +12,6 @@ import numpy as np
 from os import path
 import multiprocessing
 
-sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-from algo_wrapper.algo_wrapper import algo_head_tail_binsearch
-
-root_p = '/network/rit/lab/ceashpc/bz383376/data/icml19/breast_cancer/'
-if not os.path.exists(root_p):
-    os.mkdir(root_p)
-root_input = root_p + 'input/'
-if not os.path.exists(root_input):
-    os.mkdir(root_input)
-root_output = root_p + 'output/'
-if not os.path.exists(root_output):
-    os.mkdir(root_output)
-root_figs = root_p + 'figs/'
-if not os.path.exists(root_figs):
-    os.mkdir(root_figs)
-
 
 def expit(x):
     """ expit function. 1 /(1+exp(-x)) """
