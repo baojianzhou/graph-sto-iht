@@ -962,7 +962,7 @@ def main():
         folding_list = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18]
         folding_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
                         16, 17]
-        folding_list = [0, 1, 2, 3, 4, 10, 11, 12, 13, 14]
+        folding_list = range(20)
         num_iterations = 50
         show_test(folding_list, num_iterations,
                   root_input='data/', root_output='results/')
