@@ -1,22 +1,138 @@
 # -*- coding: utf-8 -*-
-
 import os
 import csv
 import sys
-import time
-import math
 import pickle
 import numpy as np
 import multiprocessing
-from os import path
 from itertools import product
 from numpy.random import randint
 
-sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-from algo_wrapper.algo_wrapper import algo_head_tail_binsearch
-from algo_wrapper.base import logistic_predict
-from algo_wrapper.base import logit_loss_bl
-from algo_wrapper.base import logit_loss_grad_bl
+try:
+    import sparse_module
+
+    try:
+        from sparse_module import wrap_head_tail_bisearch
+    except ImportError:
+        print('cannot find wrap_head_tail_bisearch method in sparse_module')
+        sparse_module = None
+        exit(0)
+except ImportError:
+    print('\n'.join([
+        'cannot find the module: sparse_module',
+        'try run: \'python setup.py build_ext --inplace\' first! ']))
+
+
+def expit(x):
+    """
+    expit function. 1 /(1+exp(-x)). quote from Scipy:
+    The expit function, also known as the logistic function,
+    is defined as expit(x) = 1/(1+exp(-x)).
+    It is the inverse of the logit function.
+    expit is also known as logistic. Please see logistic
+    :param x: np.ndarray
+    :return: 1/(1+exp(-x)).
+    """
+    out = np.zeros_like(x)
+    posi = np.where(x > 0.0)
+    nega = np.where(x <= 0.0)
+    out[posi] = 1. / (1. + np.exp(-x[posi]))
+    exp_x = np.exp(x[nega])
+    out[nega] = exp_x / (1. + exp_x)
+    return out
+
+
+def log_logistic(x):
+    """ return log( 1/(1+exp(-x)) )"""
+    out = np.zeros_like(x)
+    posi = np.where(x > 0.0)
+    nega = np.where(x <= 0.0)
+    out[posi] = -np.log(1. + np.exp(-x[posi]))
+    out[nega] = x[nega] - np.log(1. + np.exp(x[nega]))
+    return out
+
+
+def logit_loss_grad_bl(x_tr, y_tr, wt, l2_reg, cp, cn):
+    """
+    Calculate the balanced loss and gradient of the logistic function.
+    :param x_tr: (n,p), where p is the number of features.
+    :param y_tr: (n,), where n is the number of labels.
+    :param wt: current model. wt[-1] is the intercept.
+    :param l2_reg: regularization to avoid overfitting.
+    :param cp:
+    :param cn:
+    :return:
+    """
+    """ return {+1,-1} Logistic (val,grad) on training samples. """
+    assert len(wt) == (x_tr.shape[1] + 1)
+    c, n, p = wt[-1], x_tr.shape[0], x_tr.shape[1]
+    posi_idx = np.where(y_tr > 0)  # corresponding to positive labels.
+    nega_idx = np.where(y_tr < 0)  # corresponding to negative labels.
+    grad = np.zeros_like(wt)
+    wt = wt[:p]
+    yz = y_tr * (np.dot(x_tr, wt) + c)
+    z = expit(yz)
+    loss = -cp * np.sum(log_logistic(yz[posi_idx]))
+    loss += -cn * np.sum(log_logistic(yz[nega_idx]))
+    loss = loss / n + .5 * l2_reg * np.dot(wt, wt)
+    bl_y_tr = np.zeros_like(y_tr)
+    bl_y_tr[posi_idx] = cp * np.asarray(y_tr[posi_idx], dtype=float)
+    bl_y_tr[nega_idx] = cn * np.asarray(y_tr[nega_idx], dtype=float)
+    z0 = (z - 1) * bl_y_tr  # z0 = (z - 1) * y_tr
+    grad[:p] = np.dot(x_tr.T, z0) / n + l2_reg * wt
+    grad[-1] = z0.sum()  # do not need to regularize the intercept.
+    return loss, grad
+
+
+def logit_loss_bl(x_tr, y_tr, wt, l2_reg, cp, cn):
+    """
+    Calculate the balanced loss and gradient of the logistic function.
+    :param x_tr: (n,p), where p is the number of features.
+    :param y_tr: (n,), where n is the number of labels.
+    :param wt: current model. wt[-1] is the intercept.
+    :param l2_reg: regularization to avoid overfitting.
+    :param cp:
+    :param cn:
+    :return:
+    """
+    """ return {+1,-1} Logistic (val,grad) on training samples. """
+    assert len(wt) == (x_tr.shape[1] + 1)
+    c, n, p = wt[-1], x_tr.shape[0], x_tr.shape[1]
+    posi_idx = np.where(y_tr > 0)  # corresponding to positive labels.
+    nega_idx = np.where(y_tr < 0)  # corresponding to negative labels.
+    wt = wt[:p]
+    yz = y_tr * (np.dot(x_tr, wt) + c)
+    loss = -cp * np.sum(log_logistic(yz[posi_idx]))
+    loss += -cn * np.sum(log_logistic(yz[nega_idx]))
+    loss = loss / n + .5 * l2_reg * np.dot(wt, wt)
+    return loss
+
+
+def algo_head_tail_bisearch(
+        edges, x, costs, g, root, s_low, s_high, max_num_iter, verbose):
+    """ This is the wrapper of head/tail-projection proposed in [2].
+    :param edges:           edges in the graph.
+    :param x:               projection vector x.
+    :param costs:           edge costs in the graph.
+    :param g:               the number of connected components.
+    :param root:            root of subgraph. Usually, set to -1: no root.
+    :param s_low:           the lower bound of the sparsity.
+    :param s_high:          the upper bound of the sparsity.
+    :param max_num_iter:    the maximum number of iterations used in
+                            binary search procedure.
+    :param verbose: print out some information.
+    :return:            1.  the support of the projected vector
+                        2.  the projected vector
+    """
+    prizes = x * x
+    # to avoid too large upper bound problem.
+    if s_high >= len(prizes) - 1:
+        s_high = len(prizes) - 1
+    re_nodes = wrap_head_tail_bisearch(
+        edges, prizes, costs, g, root, s_low, s_high, max_num_iter, verbose)
+    proj_w = np.zeros_like(x)
+    proj_w[re_nodes[0]] = x[re_nodes[0]]
+    return re_nodes[0], proj_w
 
 
 def algo_graph_sto_iht_backtracking(
@@ -42,7 +158,7 @@ def algo_graph_sto_iht_backtracking(
             loss_sto, grad_sto = logit_loss_grad_bl(
                 x_tr=x_tr_b, y_tr=y_tr_b, wt=w_hat,
                 l2_reg=lambda_, cp=cp, cn=cn)
-            h_nodes, p_grad = algo_head_tail_binsearch(
+            h_nodes, p_grad = algo_head_tail_bisearch(
                 edges, grad_sto[:p], costs, g, root, h_low, h_high,
                 max_num_iter, verbose)
             p_grad = np.append(p_grad, grad_sto[-1])
@@ -61,7 +177,7 @@ def algo_graph_sto_iht_backtracking(
                 tmp_num_iter += 1
             bt_sto = np.zeros_like(w_hat)
             bt_sto[:p] = w_hat[:p] - ad_step * p_grad[:p]
-            t_nodes, proj_bt = algo_head_tail_binsearch(
+            t_nodes, proj_bt = algo_head_tail_bisearch(
                 edges, bt_sto[:p], costs, g, root, t_low, t_high, max_num_iter,
                 verbose)
             w_hat[:p] = proj_bt[:p]
@@ -135,87 +251,6 @@ def algo_sto_iht_backtracking(
                 len(np.unique(w_error_list[-5:])) == 1 and epoch_i >= 10:
             print('found to be at a local minimal!!')
             break
-    return w_hat
-
-
-def algo_sto_iht(
-        x_tr, y_tr, w0, lr, max_epochs, s, num_blocks, with_replace=True,
-        verbose=0):
-    np.random.seed()  # do not forget it.
-    w_hat = np.copy(w0)
-    (m, p) = x_tr.shape
-    # if the block size is too large. just use single block
-    b = int(m) / int(num_blocks)
-    num_epochs = 0
-    np_ = np.sum(y_tr == 1)
-    nn_ = np.sum(y_tr == -1)
-    cp = float(nn_) / float(len(y_tr))
-    cn = float(np_) / float(len(y_tr))
-    w_error_list, loss_list = [], []
-    for epoch_i in range(max_epochs):
-        rand_perm = np.random.permutation(num_blocks)
-        for ind, _ in enumerate(range(num_blocks)):
-            ii = randint(0, num_blocks) if with_replace else rand_perm[_]
-            block = range(b * ii, b * (ii + 1))
-            x_tr_b, y_tr_b = x_tr[block, :], y_tr[block]
-            loss_sto, grad_sto = logit_loss_grad_bl(
-                x_tr=x_tr_b, y_tr=y_tr_b, wt=w_hat, l2_reg=1e-4, cp=cp, cn=cn)
-            bt_sto = w_hat - lr * grad_sto
-            bt_sto[np.argsort(np.abs(bt_sto))[:p - s]] = 0.
-            w_hat = bt_sto
-            if verbose > 0:
-                print('iter: %03d sparsity: %02d loss_sto: %.10f'
-                      % (epoch_i * num_blocks + ind, s, loss_sto))
-            w_error_list.append(np.linalg.norm(w_hat))
-        num_epochs += 1
-
-        # diverge cases because of the large learning rate: early stopping
-        if np.linalg.norm(w_hat) >= 1e3:
-            break
-        # we reach a local minimum point.
-        if len(np.unique(loss_list[-5:])) == 1 and \
-                len(np.unique(w_error_list[-5:])) == 1 and epoch_i >= 10:
-            print('found to be at a local minimal!!')
-            break
-    return w_hat
-
-
-def algo_graph_sto_iht(
-        x_tr, y_tr, w0, lr, max_epochs, h_low, h_high, t_low, t_high, edges,
-        costs, root, g, max_num_iter, verbose, num_blocks, with_replace=True):
-    np.random.seed()  # do not forget it.
-    w_hat = np.copy(w0)
-    (m, p) = x_tr.shape
-    # if the block size is too large. just use single block
-    b = int(m) / int(num_blocks)
-    num_epochs = 0
-    np_ = np.sum(y_tr == 1)
-    nn_ = np.sum(y_tr == -1)
-    cp = float(nn_) / float(len(y_tr))
-    cn = float(np_) / float(len(y_tr))
-    for epoch_i in range(max_epochs):
-        rand_perm = np.random.permutation(num_blocks)
-        for ind, _ in enumerate(range(num_blocks)):
-            ii = randint(0, num_blocks) if with_replace else rand_perm[_]
-            block = range(b * ii, b * (ii + 1))
-            x_tr_b, y_tr_b = x_tr[block, :], y_tr[block]
-            loss_sto, grad_sto = logit_loss_grad_bl(
-                x_tr=x_tr_b, y_tr=y_tr_b, wt=w_hat, l2_reg=1e-4, cp=cp, cn=cn)
-            h_nodes, p_grad = algo_head_tail_binsearch(
-                edges, grad_sto[:p], costs, g, root, h_low, h_high,
-                max_num_iter, verbose)
-            bt_sto = np.zeros_like(w_hat)
-            bt_sto[:p] = w_hat[:p] - lr * p_grad[:p]
-            t_nodes, proj_bt = algo_head_tail_binsearch(
-                edges, bt_sto[:p], costs, g, root, t_low, t_high, max_num_iter,
-                verbose)
-            w_hat[:p] = proj_bt[:p]
-            w_hat[p] = w_hat[p] - lr * grad_sto[p]  # intercept.
-            print('iter: %03d sparsity: %02d num_blocks: %02d loss_sto: %.4f '
-                  'head_nodes: %03d tail_nodes: %03d' %
-                  (epoch_i * num_blocks + ind, t_low, num_blocks, loss_sto,
-                   len(h_nodes), len(t_nodes)))
-        num_epochs += 1
     return w_hat
 
 
@@ -599,6 +634,137 @@ def get_single_graph_data(folding_i):
     return results
 
 
+def get_single_data(trial_i, root_input):
+    import scipy.io as sio
+    cancer_related_genes = {
+        4288: 'MKI67', 1026: 'CDKN1A', 472: 'ATM', 7033: 'TFF3', 2203: 'FBP1',
+        7494: 'XBP1', 1824: 'DSC2', 1001: 'CDH3', 11200: 'CHEK2',
+        7153: 'TOP2A', 672: 'BRCA1', 675: 'BRCA2', 580: 'BARD1', 9: 'NAT1',
+        771: 'CA12', 367: 'AR', 7084: 'TK2', 5892: 'RAD51D', 2625: 'GATA3',
+        7155: 'TOP2B', 896: 'CCND3', 894: 'CCND2', 10551: 'AGR2',
+        3169: 'FOXA1', 2296: 'FOXC1'}
+    data = dict()
+    f_name = 'overlap_data_%02d.mat' % trial_i
+    re = sio.loadmat(root_input + f_name)['save_data'][0][0]
+    data['data_X'] = np.asarray(re['data_X'], dtype=np.float64)
+    data_y = [_[0] for _ in re['data_Y']]
+    data['data_Y'] = np.asarray(data_y, dtype=np.float64)
+    data_edges = [[_[0] - 1, _[1] - 1] for _ in re['data_edges']]
+    data['data_edges'] = np.asarray(data_edges, dtype=int)
+    data_pathways = [[_[0], _[1]] for _ in re['data_pathways']]
+    data['data_pathways'] = np.asarray(data_pathways, dtype=int)
+    data_entrez = [_[0] for _ in re['data_entrez']]
+    data['data_entrez'] = np.asarray(data_entrez, dtype=int)
+    data['data_splits'] = {i: dict() for i in range(5)}
+    data['data_subsplits'] = {i: {j: dict() for j in range(5)}
+                              for i in range(5)}
+    for i in range(5):
+        xx = re['data_splits'][0][i][0][0]['train']
+        data['data_splits'][i]['train'] = [_ - 1 for _ in xx[0]]
+        xx = re['data_splits'][0][i][0][0]['test']
+        data['data_splits'][i]['test'] = [_ - 1 for _ in xx[0]]
+        for j in range(5):
+            xx = re['data_subsplits'][0][i][0][j]['train'][0][0]
+            data['data_subsplits'][i][j]['train'] = [_ - 1 for _ in xx[0]]
+            xx = re['data_subsplits'][0][i][0][j]['test'][0][0]
+            data['data_subsplits'][i][j]['test'] = [_ - 1 for _ in xx[0]]
+    re_path = [_[0] for _ in re['re_path_varInPath']]
+    data['re_path_varInPath'] = np.asarray(re_path)
+    re_path_entrez = [_[0] for _ in re['re_path_entrez']]
+    data['re_path_entrez'] = np.asarray(re_path_entrez)
+    re_path_ids = [_[0] for _ in re['re_path_ids']]
+    data['re_path_ids'] = np.asarray(re_path_ids)
+    re_path_lambdas = [_ for _ in re['re_path_lambdas'][0]]
+    data['re_path_lambdas'] = np.asarray(re_path_lambdas)
+    re_path_groups = [_[0][0] for _ in re['re_path_groups_lasso'][0]]
+    data['re_path_groups_lasso'] = np.asarray(re_path_groups)
+    re_path_groups_overlap = [_[0][0] for _ in re['re_path_groups_overlap'][0]]
+    data['re_path_groups_overlap'] = np.asarray(re_path_groups_overlap)
+    re_edge = [_[0] for _ in re['re_edge_varInGraph']]
+    data['re_edge_varInGraph'] = np.asarray(re_edge)
+    re_edge_entrez = [_[0] for _ in re['re_edge_entrez']]
+    data['re_edge_entrez'] = np.asarray(re_edge_entrez)
+    data['re_edge_groups_lasso'] = np.asarray(re['re_edge_groups_lasso'])
+    data['re_edge_groups_overlap'] = np.asarray(re['re_edge_groups_overlap'])
+    for method in ['re_path_re_lasso', 're_path_re_overlap',
+                   're_edge_re_lasso', 're_edge_re_overlap']:
+        res = {fold_i: dict() for fold_i in range(5)}
+        for fold_ind, fold_i in enumerate(range(5)):
+            res[fold_i]['lambdas'] = re[method][0][fold_i]['lambdas'][0][0][0]
+            res[fold_i]['kidx'] = re[method][0][fold_i]['kidx'][0][0][0]
+            res[fold_i]['kgroups'] = re[method][0][fold_i]['kgroups'][0][0][0]
+            res[fold_i]['kgroupidx'] = re[method][0][fold_i]['kgroupidx'][0][0]
+            res[fold_i]['groups'] = re[method][0][fold_i]['groups'][0]
+            res[fold_i]['sbacc'] = re[method][0][fold_i]['sbacc'][0]
+            res[fold_i]['AS'] = re[method][0][fold_i]['AS'][0]
+            res[fold_i]['completeAS'] = re[method][0][fold_i]['completeAS'][0]
+            res[fold_i]['lstar'] = re[method][0][fold_i]['lstar'][0][0][0][0]
+            res[fold_i]['auc'] = re[method][0][fold_i]['auc'][0]
+            res[fold_i]['acc'] = re[method][0][fold_i]['acc'][0]
+            res[fold_i]['bacc'] = re[method][0][fold_i]['bacc'][0]
+            res[fold_i]['perf'] = re[method][0][fold_i]['perf'][0][0]
+            res[fold_i]['pred'] = re[method][0][fold_i]['pred']
+            res[fold_i]['Ws'] = re[method][0][fold_i]['Ws'][0][0]
+            res[fold_i]['oWs'] = re[method][0][fold_i]['oWs'][0][0]
+            res[fold_i]['nextGrad'] = re[method][0][fold_i]['nextGrad'][0]
+        data[method] = res
+    import networkx as nx
+    g = nx.Graph()
+    ind_pathways = {_: i for i, _ in enumerate(data['data_entrez'])}
+    all_nodes = {ind_pathways[_]: '' for _ in data['re_path_entrez']}
+    maximum_nodes, maximum_list_edges = set(), []
+    for edge in data['data_edges']:
+        if edge[0] in all_nodes and edge[1] in all_nodes:
+            g.add_edge(edge[0], edge[1])
+    isolated_genes = set()
+    maximum_genes = set()
+    for cc in nx.connected_component_subgraphs(g):
+        if len(cc) <= 5:
+            for item in list(cc):
+                isolated_genes.add(data['data_entrez'][item])
+        else:
+            for item in list(cc):
+                maximum_nodes = set(list(cc))
+                maximum_genes.add(data['data_entrez'][item])
+    maximum_nodes = np.asarray(list(maximum_nodes))
+    subgraph = nx.Graph()
+    for edge in data['data_edges']:
+        if edge[0] in maximum_nodes and edge[1] in maximum_nodes:
+            if edge[0] != edge[1]:  # remove some self-loops
+                maximum_list_edges.append(edge)
+            subgraph.add_edge(edge[0], edge[1])
+    print(nx.number_connected_components(subgraph))
+    data['map_entrez'] = np.asarray([data['data_entrez'][_]
+                                     for _ in maximum_nodes])
+    data['edges'] = np.asarray(maximum_list_edges, dtype=int)
+    data['costs'] = np.asarray([1.] * len(maximum_list_edges),
+                               dtype=np.float64)
+    data['x'] = data['data_X'][:, maximum_nodes]
+    data['y'] = data['data_Y']
+    data['nodes'] = np.asarray(range(len(maximum_nodes)), dtype=int)
+    data['cancer_related_genes'] = cancer_related_genes
+    for edge_ind, edge in enumerate(data['edges']):
+        uu = list(maximum_nodes).index(edge[0])
+        vv = list(maximum_nodes).index(edge[1])
+        data['edges'][edge_ind][0] = uu
+        data['edges'][edge_ind][1] = vv
+    method_list = ['re_path_re_lasso', 're_path_re_overlap',
+                   're_edge_re_lasso', 're_edge_re_overlap']
+    found_set = {method: set() for method in method_list}
+    for method in method_list:
+        for fold_i in range(5):
+            best_lambda = data[method][fold_i]['lstar']
+            kidx = data[method][fold_i]['kidx']
+            re = list(data[method][fold_i]['lambdas']).index(best_lambda)
+            ws = data[method][fold_i]['oWs'][:, re]
+            for item in [kidx[_] for _ in np.nonzero(ws[1:])[0]]:
+                if item in cancer_related_genes:
+                    found_set[method].add(cancer_related_genes[item])
+        print(method, found_set[method])
+    data['found_related_genes'] = found_set
+    return data
+
+
 def run_test(trial_i, num_cpus, root_input, root_output):
     n_folds, num_iters = 5, 50
     s_list = range(5, 100, 5)  # sparsity list
@@ -607,8 +773,7 @@ def run_test(trial_i, num_cpus, root_input, root_output):
     method_list = ['sto-iht', 'graph-sto-iht', 'iht', 'graph-iht']
     cv_res = {_: dict() for _ in range(n_folds)}
     for fold_i in range(n_folds):
-        f_name = root_input + 'overlap_data_%02d.pkl' % trial_i
-        data = pickle.load(open(f_name))
+        data = get_single_data(trial_i, root_input)
         tr_idx = data['data_splits'][fold_i]['train']
         te_idx = data['data_splits'][fold_i]['test']
         f_data = data.copy()
@@ -819,10 +984,10 @@ def show_test02(trials_list, num_iterations):
 def main():
     command = sys.argv[1]
     if command == 'run_test':
-        trial_start = int(sys.argv[2])
-        trial_end = int(sys.argv[3])
+        num_cpus = int(sys.argv[2])
+        trial_start = int(sys.argv[3])
+        trial_end = int(sys.argv[4])
         for trial_i in range(trial_start, trial_end):
-            num_cpus = int(sys.argv[4])
             run_test(trial_i=trial_i, num_cpus=num_cpus,
                      root_input='data/', root_output='results/')
     elif command == 'show_test':
