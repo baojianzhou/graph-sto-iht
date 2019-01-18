@@ -620,10 +620,8 @@ def run_single_test(data):
     y_va = np.dot(x_va_mat, x_star)
 
     # graph information and projection parameters
-    gamma = data['proj_para']['gamma']
-    edges, costs = data['proj_para']['edges'], data['proj_para']['costs']
-    g, root = data['proj_para']['g'], data['proj_para']['root']
-    proj_max_num_iter = data['proj_para']['proj_max_num_iter']
+    edges = data['proj_para']['edges']
+    costs = data['proj_para']['costs']
     rec_err = []
 
     # ------------ NIHT -----------
