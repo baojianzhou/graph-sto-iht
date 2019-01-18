@@ -835,7 +835,7 @@ def main():
                      sample_ratio_arr=sample_ratio_arr,
                      method_list=method_list,
                      num_cpus=num_cpus,
-                     root_p=root_p)
+                     root_p='data/')
     elif command == 'summarize_results':
         trial_range = range(num_trials)
         summarize_results(
