@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-In this test, we compare GraphStoIHT with three baseline methods including
-IHT, StoIHT, and GraphIHT. IHT is proposed in [3]. StoIHT is proposed in [1].
-GraphIHT is proposed [4] with head/tail projections in [2].
+In this test, we test GraphStoIHT under different noise setting.
 
 References:
     [1] Nguyen, Nam, Deanna Needell, and Tina Woolf. "Linear convergence of
@@ -413,7 +411,7 @@ def run_test(s, n_list, p, lr, height, width, max_epochs, tol_algo,
         results_pool = pool.map(run_single_test, input_data_list)
         pool.close()
         pool.join()
-        f_name = root_p + 'sr_simu_test03_trial_%02d.pkl' % trial_i
+        f_name = root_p + 'results_exp_sr_test03_trial_%02d.pkl' % trial_i
         print('save results to file: %s' % f_name)
         pickle.dump({'results_pool': results_pool},
                     open(f_name, 'wb'))
@@ -427,7 +425,7 @@ def summarize_results(
     results_pool = []
     num_trials = len(trial_range)
     for trial_i in trial_range:
-        f_name = root_p + 'sr_simu_test03_trial_%02d.pkl' % trial_i
+        f_name = root_p + 'results_exp_sr_test03_trial_%02d.pkl' % trial_i
         print('load file: %s' % f_name)
         for item in pickle.load(open(f_name))['results_pool']:
             results_pool.append(item)
@@ -564,8 +562,8 @@ def main():
 
     if len(os.sys.argv) <= 1:
         print('\n'.join(['please use one of the following commands: ',
-                         '1. python exp_sr_test02.py run_test',
-                         '2. python exp_sr_test02.py show_test']))
+                         '1. python exp_sr_test03.py run_test 50 0 10',
+                         '2. python exp_sr_test03.py show_test']))
         exit(0)
 
     command = os.sys.argv[1]

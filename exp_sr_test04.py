@@ -10,7 +10,6 @@ import os
 import time
 import pickle
 import random
-from os import sys
 from itertools import product
 
 import multiprocessing
@@ -22,7 +21,7 @@ try:
     import sparse_module
 
     try:
-        from sparse_module import wrap_head_tail_binsearch
+        from sparse_module import wrap_head_tail_bisearch
     except ImportError:
         print('cannot find some function(s) in sparse_module')
         sparse_module = None
@@ -31,13 +30,13 @@ except ImportError:
     print('cannot find the module: sparse_module')
 
 
-def algo_head_tail_binsearch(
+def algo_head_tail_bisearch(
         edges, x, costs, g, root, s_low, s_high, max_num_iter, verbose):
     prizes = x * x
     # to avoid too large upper bound problem.
     if s_high >= len(prizes) - 1:
         s_high = len(prizes) - 1
-    re_nodes = wrap_head_tail_binsearch(
+    re_nodes = wrap_head_tail_bisearch(
         edges, prizes, costs, g, root, s_low, s_high, max_num_iter, verbose)
     proj_w = np.zeros_like(x)
     proj_w[re_nodes[0]] = x[re_nodes[0]]
@@ -229,11 +228,11 @@ def algo_graph_iht(
     for epoch_i in range(max_epochs):
         num_epochs += 1
         grad = -1. * (xty - np.dot(xtx, x_hat))
-        head_nodes, proj_gradient = algo_head_tail_binsearch(
+        head_nodes, proj_gradient = algo_head_tail_bisearch(
             edges, grad, costs, g, root, h_low, h_high,
             proj_max_num_iter, verbose)
         bt = x_hat - lr * proj_gradient
-        tail_nodes, proj_bt = algo_head_tail_binsearch(
+        tail_nodes, proj_bt = algo_head_tail_bisearch(
             edges, bt, costs, g, root, t_low, t_high,
             proj_max_num_iter, verbose)
         x_hat = proj_bt
@@ -294,11 +293,11 @@ def algo_graph_sto_iht(
             xtx = np.dot(x_tr_t[:, block], x_mat[block])
             xty = np.dot(x_tr_t[:, block], y_tr[block])
             gradient = -2. * (xty - np.dot(xtx, x_hat))
-            head_nodes, proj_grad = algo_head_tail_binsearch(
+            head_nodes, proj_grad = algo_head_tail_bisearch(
                 edges, gradient, costs, g, root, h_low, h_high,
                 proj_max_num_iter, verbose)
             bt = x_hat - (lr / (prob[ii] * num_blocks)) * proj_grad
-            tail_nodes, proj_bt = algo_head_tail_binsearch(
+            tail_nodes, proj_bt = algo_head_tail_bisearch(
                 edges, bt, costs, g, root,
                 t_low, t_high, proj_max_num_iter, verbose)
             x_hat = proj_bt
@@ -438,7 +437,7 @@ def run_test(trial_range, fig_list, n_range_list, num_va, lr_list,
             sum_results[trial_i] = []
         sum_results[trial_i].append((fig_i, trial_i, n, rec_err))
     for trial_i in sum_results:
-        f_name = root_p + 'sr_anomalous_trial_%02d.pkl' % trial_i
+        f_name = root_p + 'results_exp_sr_test04_trial_%02d.pkl' % trial_i
         print('save results to file: %s' % f_name)
         pickle.dump({'results_pool': sum_results[trial_i]},
                     open(f_name, 'wb'))
@@ -588,19 +587,28 @@ def main():
     num_va = 100
     # learning rate
     lr_list = [0.2, 0.4, 0.6, 0.8]
-    command = sys.argv[1]
+
     fig_list = ['fig_1', 'fig_2', 'fig_3', 'fig_4']
     method_list = ['iht', 'sto-iht', 'graph-iht', 'graph-sto-iht']
     title_list = ['IHT', 'StoIHT', 'GraphIHT', 'GraphStoIHT']
     n_range_list = [range(30, 201, 10), range(70, 250, 10),
                     range(170, 400, 10), range(250, 500, 10)]
 
-    # TODO config by yourself.
-    root_p = '/network/rit/lab/ceashpc/bz383376/data/icml19/publish/'
+    # TODO config the path by yourself.
+    root_p = 'results/'
     if not os.path.exists(root_p):
         os.mkdir(root_p)
+    save_data_path = root_p + 'results_exp_sr_test04.pkl'
+
+    if len(os.sys.argv) <= 1:
+        print('\n'.join(['please use one of the following commands: ',
+                         '1. python exp_sr_test02.py run_test',
+                         '2. python exp_sr_test02.py show_test']))
+        exit(0)
+
+    command = os.sys.argv[1]
     if command == 'run_test':
-        num_cpus = int(sys.argv[2])
+        num_cpus = int(os.sys.argv[2])
         for trial_i in range(num_trials):
             run_test(trial_range=[trial_i],
                      fig_list=fig_list,
