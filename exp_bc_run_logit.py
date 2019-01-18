@@ -768,7 +768,7 @@ def summarize_data(trial_list, num_iterations, root_output):
         3169: 'FOXA1', 2296: 'FOXC1'}
     for trial_i in trial_list:
         sum_data[trial_i] = dict()
-        f_name = root_output + 'results_bc_%02d_%03d.pkl' % \
+        f_name = root_output + 'results_exp_bc_%02d_%03d.pkl' % \
                  (trial_i, num_iterations)
         data = pickle.load(open(f_name))
         for method in ['graph-sto-iht', 'sto-iht', 'graph-iht', 'iht']:
@@ -797,7 +797,7 @@ def summarize_data(trial_list, num_iterations, root_output):
 
 def show_test(trials_list, num_iterations, root_input, root_output):
     sum_data1 = summarize_data(trials_list, num_iterations, root_output)
-    all_data = pickle.load(open(root_input + 'summarized_data.pkl'))
+    all_data = pickle.load(open(root_input + 'overlap_data_summarized.pkl'))
     for trial_i in sum_data1:
         for method in ['graph-sto-iht', 'sto-iht', 'graph-iht', 'iht']:
             all_data[trial_i]['re_%s' % method] = sum_data1[trial_i][method]
@@ -847,7 +847,7 @@ def show_test(trials_list, num_iterations, root_input, root_output):
 
 def show_test02(trials_list, num_iterations, root_input, root_output):
     sum_data1 = summarize_data(trials_list, num_iterations, root_output)
-    all_data = pickle.load(open(root_input + 'summarized_data.pkl'))
+    all_data = pickle.load(open(root_input + 'overlap_data_summarized.pkl'))
     method_list = ['re_path_re_lasso', 're_path_re_overlap',
                    're_edge_re_lasso', 're_edge_re_overlap',
                    're_sto-iht', 're_graph-sto-iht']
@@ -926,8 +926,7 @@ def main():
         folding_list = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18]
         folding_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
                         16, 17]
-        folding_list = range(0, 20)
-        # trials_list = [0, 4, 8, 12, 16]
+        folding_list = [0, 10]
         num_iterations = 50
         show_test(folding_list, num_iterations,
                   root_input='data/', root_output='results/')

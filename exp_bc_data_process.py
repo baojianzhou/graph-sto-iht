@@ -66,7 +66,7 @@ def get_related_genes():
     return all_related_genes
 
 
-def raw_data_process():
+def raw_data_process(root_input):
     import scipy.io as sio
     import networkx as nx
     raw = sio.loadmat(root_p + 'raw/vant.mat')
@@ -169,7 +169,7 @@ def raw_data_process():
     pickle.dump(data, open(root_input + 'overlap_data.pkl', 'wb'))
 
 
-def generate_original_data():
+def generate_original_data(root_input):
     row_samples_list = []
     col_gene_substance_list = []
     col_gene_name_list = []
@@ -224,7 +224,7 @@ def generate_original_data():
     pickle.dump(data, open(f_name, 'wb'))
 
 
-def map_entrez_gene_name():
+def map_entrez_gene_name(root_input):
     test_entrez_gene_names = dict()
     with open(root_input + 'entrez_gene_map_from_match_miner.txt') as csvfile:
         line_reader = csv.reader(csvfile, delimiter='\t', quotechar='|')
@@ -296,7 +296,7 @@ def map_entrez_gene_name():
     return final_results
 
 
-def run_test():
+def run_test(root_input, root_output):
     import scipy.io as sio
     f_name = root_input + 'original_data.pkl'
     original_data = pickle.load(open(f_name))
@@ -310,7 +310,7 @@ def run_test():
     pass
 
 
-def get_query():
+def get_query(root_input):
     # install mygene
     import mygene
 
@@ -350,7 +350,7 @@ def get_query():
     f_open.close()
 
 
-def test_03():
+def test_03(root_input):
     import csv
 
     entrez_ids = dict()
@@ -387,7 +387,7 @@ def test_03():
     pass
 
 
-def get_single_data(trial_i):
+def get_single_data(trial_i, root_input):
     import scipy.io as sio
     cancer_related_genes = {
         4288: 'MKI67', 1026: 'CDKN1A', 472: 'ATM', 7033: 'TFF3', 2203: 'FBP1',
@@ -515,35 +515,33 @@ def get_single_data(trial_i):
                     found_set[method].add(cancer_related_genes[item])
         print(method, found_set[method])
     data['found_related_genes'] = found_set
-    f_name = root_input + 'overlap_data_%02d.pkl' % trial_i
-    pickle.dump(data, open(f_name, 'wb'))
+    return data
 
 
-def summary_data():
+def summary_data(root_input):
     method_list = ['re_path_re_lasso', 're_path_re_overlap',
                    're_edge_re_lasso', 're_edge_re_overlap']
     summarized_data = dict()
-    for trial_i in range(0, 20):
-        print(trial_i)
-        summarized_data[trial_i] = dict()
-        f_name = root_input + 'overlap_data_%02d.pkl' % trial_i
-        data = pickle.load(open(f_name))
-        summarized_data[trial_i]['data_entrez'] = data['data_entrez']
-        summarized_data[trial_i]['cancer_related_genes'] = \
+    for folding_i in range(0, 20):
+        print('processing folding_%02d' % folding_i)
+        summarized_data[folding_i] = dict()
+        data = get_single_data(folding_i, root_input)
+        summarized_data[folding_i]['data_entrez'] = data['data_entrez']
+        summarized_data[folding_i]['cancer_related_genes'] = \
             data['cancer_related_genes']
-        summarized_data[trial_i]['found_related_genes'] = \
+        summarized_data[folding_i]['found_related_genes'] = \
             data['found_related_genes']
         for method in method_list:
-            summarized_data[trial_i][method] = dict()
+            summarized_data[folding_i][method] = dict()
         for method in method_list:
             all_involved_genes = set()
             bacc = [data[method][fold_i]['perf'][0][0]
                     for fold_i in range(5)]
-            summarized_data[trial_i][method]['bacc'] = bacc
+            summarized_data[folding_i][method]['bacc'] = bacc
             auc, nonzeros_list = [], []
             for fold_i in range(5):
                 kidx = data[method][fold_i]['kidx']
-                summarized_data[trial_i][method]['kidx_%d' % fold_i] = kidx
+                summarized_data[folding_i][method]['kidx_%d' % fold_i] = kidx
                 all_related_entrez = [data['data_entrez'][_] for _ in kidx]
                 all_involved_genes = all_involved_genes.union(
                     set([data['cancer_related_genes'][_]
@@ -553,23 +551,21 @@ def summary_data():
                 ii = list(data[method][fold_i]['lambdas']).index(best_lambda)
                 ws = data[method][fold_i]['oWs'][:, ii]
                 nonzeros = np.nonzero(ws[1:])[0]
-                summarized_data[trial_i][method]['ws_%d' % fold_i] = ws[1:]
-                summarized_data[trial_i][method]['ws_nonzeros_%d' % fold_i] = \
+                summarized_data[folding_i][method]['ws_%d' % fold_i] = ws[1:]
+                summarized_data[folding_i][method]['ws_nonzeros_%d' % fold_i] = \
                     nonzeros
                 auc.append(data[method][fold_i]['auc'][0][0][ii])
                 nonzeros_list.append(len(nonzeros))
-            summarized_data[trial_i][method]['auc'] = auc
-            summarized_data[trial_i][method]['num_nonzeros'] = nonzeros_list
+            summarized_data[folding_i][method]['auc'] = auc
+            summarized_data[folding_i][method]['num_nonzeros'] = nonzeros_list
             print(all_involved_genes)
-    f_name = root_input + 'summarized_data.pkl'
+    f_name = root_input + 'overlap_data_summarized.pkl'
     pickle.dump(summarized_data, open(f_name, 'wb'))
 
 
 def main():
-    for trial_i in range(0, 21):
-        get_single_data(trial_i)
+    summary_data(root_input='data/')
 
 
 if __name__ == '__main__':
-    summary_data()
-    # main()
+    main()
