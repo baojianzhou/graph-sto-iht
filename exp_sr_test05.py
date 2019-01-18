@@ -710,23 +710,23 @@ def run_test(trial_range, n_list, tol_algo, tol_rec,
             if trial_i not in saved_data:
                 saved_data[trial_i] = data
             input_data_list.append(data)
-    pool = multiprocessing.Pool(processes=num_cpus)
-    results_pool = pool.map(run_single_test, input_data_list)
-    pool.close()
-    pool.join()
+        pool = multiprocessing.Pool(processes=num_cpus)
+        results_pool = pool.map(run_single_test, input_data_list)
+        pool.close()
+        pool.join()
 
-    sum_results = dict()  # trial_i, n, rec_err
-    for trial_i, n, rec_err in results_pool:
-        if trial_i not in sum_results:
-            sum_results[trial_i] = []
-        sum_results[trial_i].append((trial_i, n, rec_err))
-    for trial_i in sum_results:
-        f_name = root_p + 'results_exp_sr_test05_trial_%02d.pkl' % trial_i
-        print('save results to file: %s' % f_name)
-        pickle.dump({'results_pool': sum_results[trial_i]},
-                    open(f_name, 'wb'))
-    print('total run time of %02d trials: %.2f seconds.' %
-          (len(trial_range), time.time() - start_time))
+        sum_results = dict()  # trial_i, n, rec_err
+        for _, n, rec_err in results_pool:
+            if trial_i not in sum_results:
+                sum_results[trial_i] = []
+            sum_results[trial_i].append((trial_i, n, rec_err))
+        for _ in sum_results:
+            f_name = root_p + 'results_exp_sr_test05_trial_%02d.pkl' % trial_i
+            print('save results to file: %s' % f_name)
+            pickle.dump({'results_pool': sum_results[trial_i]},
+                        open(f_name, 'wb'))
+        print('total run time of %02d trials: %.2f seconds.' %
+              (len(trial_range), time.time() - start_time))
 
 
 def summarize_results(trials_range, n_list, method_list, tol_rec, root_p):
