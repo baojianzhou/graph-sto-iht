@@ -733,7 +733,7 @@ def summarize_results(trials_range, n_list, method_list, tol_rec, root_p):
     results_pool = []
     num_trials = len(trials_range)
     for trial_i in trials_range:
-        f_name = root_p + 'sr_simu_test05_trial_%02d.pkl' % trial_i
+        f_name = root_p + 'results_exp_sr_test05_trial_%02d.pkl' % trial_i
         print('load file: %s' % f_name)
         for item in pickle.load(open(f_name))['results_pool']:
             results_pool.append(item)
@@ -755,7 +755,7 @@ def summarize_results(trials_range, n_list, method_list, tol_rec, root_p):
         trim_re = re
         trim_re = np.mean(trim_re, axis=0)
         trim_results[method] = trim_re
-    f_name = root_p + 'sr_grid.pkl'
+    f_name = root_p + 'results_exp_sr_test05.pkl'
     print('save file to: %s' % f_name)
     pickle.dump({'trim_results': trim_results,
                  'sum_result': sum_results,
@@ -797,7 +797,7 @@ def show_test(n_list, method_list, method_label_list, root_p):
                  extent=[0, height, 0, width], zorder=0)
     ax[0].axes.get_xaxis().set_visible(False)
     ax[0].axes.get_yaxis().set_visible(False)
-    results = pickle.load(open(root_p + 'sr_grid.pkl'))
+    results = pickle.load(open(root_p + 'results_exp_sr_test05.pkl'))
     trim_results = results['trim_results']
     for method_ind, method in enumerate(method_list):
         ax[1].plot(np.asarray(n_list) / float(grid_data['s']),
