@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-This benchmark dataset can be found in reference [1].
+In this test, we compare GraphStoIHT with three baseline methods
+on the benchmark dataset, which can be found in reference [1].
 References:
     [1] Arias-Castro, Ery, Emmanuel J. Candes, and Arnaud Durand.
     "Detection of an anomalous cluster in a network."

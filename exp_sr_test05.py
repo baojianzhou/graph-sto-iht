@@ -1,4 +1,37 @@
 # -*- coding: utf-8 -*-
+
+"""
+In this test, we compare GraphStoIHT with six baseline methods
+on the grid dataset, which can be found in reference [2].
+
+References:
+    [1] Nguyen, Nam, Deanna Needell, and Tina Woolf. "Linear convergence of
+        stochastic iterative greedy algorithms with sparse constraints."
+        IEEE Transactions on Information Theory 63.11 (2017): 6869-6895.
+    [2] Hegde, Chinmay, Piotr Indyk, and Ludwig Schmidt. "A nearly-linear time
+        framework for graph-structured sparsity." International Conference on
+        Machine Learning. 2015.
+    [3] Blumensath, Thomas, and Mike E. Davies. "Iterative hard thresholding
+        for compressed sensing." Applied and computational harmonic analysis
+        27.3 (2009): 265-274.
+    [4] Hegde, Chinmay, Piotr Indyk, and Ludwig Schmidt. "Fast recovery from
+        a union of subspaces." Advances in Neural Information Processing
+        Systems. 2016.
+    [5] Lovász, László. "Random walks on graphs: A survey." Combinatorics,
+        Paul erdos is eighty 2.1 (1993): 1-46.
+    [6] Needell, Deanna, and Joel A. Tropp. "CoSaMP: Iterative signal recovery
+        from incomplete and inaccurate samples."
+        Applied and computational harmonic analysis 26.3 (2009): 301-321.
+    [7] Blumensath, Thomas, and Mike E. Davies. "Normalized iterative hard
+        thresholding: Guaranteed stability and performance." IEEE Journal
+        of selected topics in signal processing 4.2 (2010): 298-309.
+
+# TODO You need to:
+    1.  install numpy, matplotlib (optional), and networkx (optional).
+    2.  build our sparse_module by executing ./build.sh please check our
+        readme.md file. If you do not know how to compile this library.
+"""
+
 import os
 import time
 import pickle
@@ -15,7 +48,7 @@ try:
     import sparse_module
 
     try:
-        from sparse_module import wrap_head_tail_binsearch
+        from sparse_module import wrap_head_tail_bisearch
     except ImportError:
         print('cannot find some function(s) in sparse_module')
         sparse_module = None
@@ -29,13 +62,27 @@ if not os.path.exists(root_p):
     os.mkdir(root_p)
 
 
-def algo_head_tail_binsearch(
+def algo_head_tail_bisearch(
         edges, x, costs, g, root, s_low, s_high, max_num_iter, verbose):
+    """ This is the wrapper of head/tail-projection proposed in [2].
+    :param edges:           edges in the graph.
+    :param x:               projection vector x.
+    :param costs:           edge costs in the graph.
+    :param g:               the number of connected components.
+    :param root:            root of subgraph. Usually, set to -1: no root.
+    :param s_low:           the lower bound of the sparsity.
+    :param s_high:          the upper bound of the sparsity.
+    :param max_num_iter:    the maximum number of iterations used in
+                            binary search procedure.
+    :param verbose: print out some information.
+    :return:            1.  the support of the projected vector
+                        2.  the projected vector
+    """
     prizes = x * x
     # to avoid too large upper bound problem.
     if s_high >= len(prizes) - 1:
         s_high = len(prizes) - 1
-    re_nodes = wrap_head_tail_binsearch(
+    re_nodes = wrap_head_tail_bisearch(
         edges, prizes, costs, g, root, s_low, s_high, max_num_iter, verbose)
     proj_w = np.zeros_like(x)
     proj_w[re_nodes[0]] = x[re_nodes[0]]
@@ -43,6 +90,14 @@ def algo_head_tail_binsearch(
 
 
 def simu_grid_graph(width, height, rand_weight=False):
+    """ Generate a grid graph with size, width x height. Totally there will be
+                width x height number of nodes in this generated graph.
+    :param width:       the width of the grid graph.
+    :param height:      the height of the grid graph.
+    :param rand_weight: the edge costs in this generated grid graph.
+    :return:            1.  list of edges
+                        2.  list of edge costs
+    """
     np.random.seed()
     if width < 0 and height < 0:
         print('Error: width and height should be positive.')
@@ -73,6 +128,16 @@ def simu_grid_graph(width, height, rand_weight=False):
 
 
 def sensing_matrix(n, x, norm_noise=0.0):
+    """ Generate sensing matrix (design matrix). This generated sensing
+            matrix is a Gaussian matrix, i.e., each entry ~ N(0,\sigma/\sqrt(n)).
+            Please see more details in equation (1.2) shown in reference [6].
+    :param n:           the number of measurements required.
+    :param x:           the input signal.
+    :param norm_noise:  plus ||norm_noise|| noise on the measurements.
+    :return:            1.  the design matrix
+                        2.  the vector of measurements
+                        3.  the noised vector.
+    """
     p = len(x)
     x_mat = np.random.normal(0.0, 1.0, size=(n * p)) / np.sqrt(n)
     x_mat = x_mat.reshape((n, p))
@@ -83,6 +148,19 @@ def sensing_matrix(n, x, norm_noise=0.0):
 
 
 def algo_iht(x_mat, y_tr, max_epochs, lr, s, x0, tol_algo):
+    """ Iterative Hard Thresholding Method proposed in reference [3]. The
+            standard iterative hard thresholding method for compressive sensing.
+    :param x_mat:       the design matrix.
+    :param y_tr:        the array of measurements.
+    :param max_epochs:  the maximum epochs (iterations) allowed.
+    :param lr:          the learning rate (should be 1.0).
+    :param s:           the sparsity parameter.
+    :param x0:          x0 is the initial point.
+    :param tol_algo:    tolerance parameter for early stopping.
+    :return:            1.  the final estimation error,
+                        2.  number of epochs(iterations) used,
+                        3.  and the run time.
+    """
     start_time = time.time()
     x_hat = x0
     (n, p) = x_mat.shape
@@ -126,6 +204,19 @@ def cv_iht(x_tr_mat, y_tr, x_va_mat, y_va,
 
 
 def algo_sto_iht(x_mat, y_tr, max_epochs, lr, s, x0, tol_algo, b):
+    """ Stochastic Iterative Hard Thresholding Method proposed in [1].
+    :param x_mat:       the design matrix.
+    :param y_tr:        the array of measurements.
+    :param max_epochs:  the maximum epochs (iterations) allowed.
+    :param lr:          the learning rate (should be 1.0).
+    :param s:           the sparsity parameter.
+    :param x0:          x0 is the initial point.
+    :param tol_algo:    tolerance parameter for early stopping.
+    :param b:           block size
+    :return:            1.  the final estimation error,
+                        2.  number of epochs(iterations) used,
+                        3.  and the run time.
+    """
     np.random.seed()
     start_time = time.time()
     x_hat = x0
@@ -168,25 +259,43 @@ def cv_sto_iht(x_tr_mat, y_tr, x_va_mat, y_va, max_epochs, s, x_star, x0,
         test_err_mat[index] = y_err
         para_dict[index] = (lr, b)
         x_hat_dict[(lr, b)] = (num_epochs, run_time, x_hat)
-    min_index = np.argmin(test_err_mat)
-    lr, b = para_dict[min_index]
+    lr, b = para_dict[int(np.argmin(test_err_mat))]
     err = np.linalg.norm(x_star - x_hat_dict[(lr, b)][2])
     num_epochs, run_time = x_hat_dict[(lr, b)][:2]
     return err, num_epochs, run_time
 
 
 def algo_graph_iht(
-        x_mat, y_tr, max_epochs, lr, x0, tol_algo, edges, costs, g,
-        root, s, h_factor, gamma, proj_max_num_iter, verbose):
+        x_mat, y_tr, max_epochs, lr, x0, tol_algo, edges, costs, s,
+        g=1, root=-1, gamma=0.1, proj_max_num_iter=50, verbose=0):
+    """ Graph Iterative Hard Thresholding proposed in [4] and projection
+                operator is proposed in [2].
+    :param x_mat:       the design matrix.
+    :param y_tr:        the array of measurements.
+    :param max_epochs:  the maximum epochs (iterations) allowed.
+    :param lr:          the learning rate (should be 1.0).
+    :param x0:          x0 is the initial point.
+    :param tol_algo:    tolerance parameter for early stopping.
+    :param edges:       edges in the graph.
+    :param costs:       edge costs
+    :param s:           sparsity
+    :param g:           number of connected component in the true signal.
+    :param root:        the root included in the result (default -1: no root).
+    :param gamma:       to control the upper bound of sparsity.
+    :param proj_max_num_iter: maximum number of iterations of projection.
+    :param verbose:     print out some information.
+    :return:            1.  the final estimation error,
+                        2.  number of epochs(iterations) used,
+                        3.  and the run time.
+    """
     start_time = time.time()
-    x_hat, num_iter = x0, 0
-    x_tr_t = np.transpose(x_mat)
-    xtx = np.dot(x_tr_t, x_mat)
-    xty = np.dot(x_tr_t, y_tr)
+    x_hat = np.copy(x0)
+    xtx = np.dot(np.transpose(x_mat), x_mat)
+    xty = np.dot(np.transpose(x_mat), y_tr)
 
-    # graph info
-    h_low = int(h_factor * s)
-    h_high = int(h_factor * s * (1. + gamma))
+    # graph projection para
+    h_low = int(len(x0) / 2)
+    h_high = int(h_low * (1. + gamma))
     t_low = int(s)
     t_high = int(s * (1. + gamma))
 
@@ -194,11 +303,11 @@ def algo_graph_iht(
     for epoch_i in range(max_epochs):
         num_epochs += 1
         grad = -1. * (xty - np.dot(xtx, x_hat))
-        head_nodes, proj_gradient = algo_head_tail_binsearch(
+        head_nodes, proj_gradient = algo_head_tail_bisearch(
             edges, grad, costs, g, root, h_low, h_high,
             proj_max_num_iter, verbose)
         bt = x_hat - lr * proj_gradient
-        tail_nodes, proj_bt = algo_head_tail_binsearch(
+        tail_nodes, proj_bt = algo_head_tail_bisearch(
             edges, bt, costs, g, root, t_low, t_high,
             proj_max_num_iter, verbose)
         x_hat = proj_bt
@@ -211,7 +320,7 @@ def algo_graph_iht(
 
 
 def cv_graph_iht(x_tr_mat, y_tr, x_va_mat, y_va, max_epochs, lr_list, x_star,
-                 x0, tol_algo, edges, costs, g, root, s, h_factor, gamma,
+                 x0, tol_algo, edges, costs, g, root, s, gamma,
                  proj_max_num_iter, verbose):
     """ Tuning parameter by using additional validation dataset. """
     test_err_mat = np.zeros(len(lr_list))
@@ -220,8 +329,8 @@ def cv_graph_iht(x_tr_mat, y_tr, x_va_mat, y_va, max_epochs, lr_list, x_star,
         num_epochs, run_time, x_hat = algo_graph_iht(
             x_mat=x_tr_mat, y_tr=y_tr, max_epochs=max_epochs,
             lr=lr, x0=x0, tol_algo=tol_algo, edges=edges,
-            costs=costs, g=g, s=s, root=root, h_factor=h_factor,
-            gamma=gamma, proj_max_num_iter=proj_max_num_iter,
+            costs=costs, g=g, s=s, root=root, gamma=gamma,
+            proj_max_num_iter=proj_max_num_iter,
             verbose=verbose)
         y_err = np.linalg.norm(y_va - np.dot(x_va_mat, x_hat)) ** 2.
         test_err_mat[lr_ind] = y_err
@@ -234,21 +343,42 @@ def cv_graph_iht(x_tr_mat, y_tr, x_va_mat, y_va, max_epochs, lr_list, x_star,
 
 
 def algo_graph_sto_iht(
-        x_mat, y_tr, max_epochs, lr, x0, tol_algo, edges, costs, g,
-        root, s, h_factor, gamma, proj_max_num_iter, verbose, b):
+        x_mat, y_tr, max_epochs, lr, x0, tol_algo, edges, costs, s, b, g=1,
+        root=-1, gamma=0.1, proj_max_num_iter=50, verbose=0):
+    """ Graph Stochastic Iterative Hard Thresholding.
+    :param x_mat:       the design matrix.
+    :param y_tr:        the array of measurements.
+    :param max_epochs:  the maximum epochs (iterations) allowed.
+    :param lr:          the learning rate (should be 1.0).
+    :param x0:          x0 is the initial point.
+    :param tol_algo:    tolerance parameter for early stopping.
+    :param edges:       edges in the graph.
+    :param costs:       edge costs
+    :param s:           sparsity
+    :param b: the block size
+    :param g:           number of connected component in the true signal.
+    :param root:        the root included in the result (default -1: no root).
+    :param gamma:       to control the upper bound of sparsity.
+    :param proj_max_num_iter: maximum number of iterations of projection.
+    :param verbose: print out some information.
+    :return:            1.  the final estimation error,
+                        2.  number of epochs(iterations) used,
+                        3.  and the run time.
+    """
     np.random.seed()
     start_time = time.time()
-    x_hat = x0
+    x_hat = np.copy(x0)
     (n, p) = x_mat.shape
     x_tr_t = np.transpose(x_mat)
     b = n if n < b else b
     num_blocks = int(n) / int(b)
     prob = [1. / num_blocks] * num_blocks
 
-    # graph info
-    h_low = int(h_factor * s)
-    h_high = int(h_factor * s * (1. + gamma))
-    t_low, t_high = int(s), int(s * (1. + gamma))
+    # graph projection para
+    h_low = int(len(x0) / 2)
+    h_high = int(h_low * (1. + gamma))
+    t_low = int(s)
+    t_high = int(s * (1. + gamma))
 
     num_epochs = 0
     for epoch_i in range(max_epochs):
@@ -259,11 +389,11 @@ def algo_graph_sto_iht(
             xtx = np.dot(x_tr_t[:, block], x_mat[block])
             xty = np.dot(x_tr_t[:, block], y_tr[block])
             gradient = -2. * (xty - np.dot(xtx, x_hat))
-            head_nodes, proj_grad = algo_head_tail_binsearch(
+            head_nodes, proj_grad = algo_head_tail_bisearch(
                 edges, gradient, costs, g, root, h_low, h_high,
                 proj_max_num_iter, verbose)
             bt = x_hat - (lr / (prob[ii] * num_blocks)) * proj_grad
-            tail_nodes, proj_bt = algo_head_tail_binsearch(
+            tail_nodes, proj_bt = algo_head_tail_bisearch(
                 edges, bt, costs, g, root,
                 t_low, t_high, proj_max_num_iter, verbose)
             x_hat = proj_bt
@@ -277,7 +407,7 @@ def algo_graph_sto_iht(
 
 def cv_graph_sto_iht(x_tr_mat, y_tr, x_va_mat, y_va, b_list, lr_list, s,
                      max_epochs, tol_algo, x_star, x0, verbose, edges, costs,
-                     g, root, proj_max_num_iter, h_factor, gamma):
+                     g, root, proj_max_num_iter, gamma):
     """ Tuning parameter by using additional validation dataset. """
     test_err_mat = np.zeros(len(lr_list) * len(b_list))
     para_dict = dict()
@@ -286,21 +416,30 @@ def cv_graph_sto_iht(x_tr_mat, y_tr, x_va_mat, y_va, b_list, lr_list, s,
         num_epochs, run_time, x_hat = algo_graph_sto_iht(
             x_mat=x_tr_mat, y_tr=y_tr, max_epochs=max_epochs,
             lr=lr, x0=x0, tol_algo=tol_algo, edges=edges,
-            costs=costs, g=g, root=root, s=s, h_factor=h_factor,
-            gamma=gamma, proj_max_num_iter=proj_max_num_iter,
+            costs=costs, g=g, root=root, s=s, gamma=gamma,
+            proj_max_num_iter=proj_max_num_iter,
             verbose=verbose, b=b)
         y_err = np.linalg.norm(y_va - np.dot(x_va_mat, x_hat)) ** 2.
         test_err_mat[index] = y_err
         para_dict[index] = (lr, b)
         x_hat_dict[(lr, b)] = (num_epochs, run_time, x_hat)
-    min_index = np.argmin(test_err_mat)
-    lr, b = para_dict[min_index]
+    lr, b = para_dict[int(np.argmin(test_err_mat))]
     err = np.linalg.norm(x_star - x_hat_dict[(lr, b)][2])
     num_epochs, run_time = x_hat_dict[(lr, b)][:2]
     return err, num_epochs, run_time
 
 
 def algo_niht(x_mat, y_tr, max_epochs, s, x_star, x0, tol_algo):
+    """ Normalized Iterative Hard Thresholding (NIHT) proposed in [7].
+    :param x_mat:       the design matrix.
+    :param y_tr:        the array of measurements.
+    :param max_epochs:  the maximum epochs (iterations) allowed.
+    :param x0:          x0 is the initial point.
+    :param s:
+    :param x_star:
+    :param tol_algo:
+    :return:
+    """
     start_time = time.time()
     x_hat = x0
     c = 0.01
@@ -364,43 +503,65 @@ def algo_graph_cosamp(
         x_mat, y_tr, max_epochs, x_star, x0, tol_algo, edges, costs,
         h_g, t_g, root, h_low, h_high, t_low, t_high, proj_max_num_iter,
         verbose):
+    """ Graph-CoSaMP proposed in [2].
+    :param x_mat:
+    :param y_tr:
+    :param max_epochs:
+    :param x_star:
+    :param x0:
+    :param tol_algo:
+    :param edges:
+    :param costs:
+    :param h_g:
+    :param t_g:
+    :param root:
+    :param h_low:
+    :param h_high:
+    :param t_low:
+    :param t_high:
+    :param proj_max_num_iter:
+    :param verbose:
+    :return:
+    """
     start_time = time.time()
     x_hat = np.zeros_like(x0)
     x_tr_t = np.transpose(x_mat)
     xtx, xty = np.dot(x_tr_t, x_mat), np.dot(x_tr_t, y_tr)
     num_epochs = 0
-    y_err_list = []
-    x_err_list = []
     for epoch_i in range(max_epochs):
         num_epochs += 1
         grad = -2. * (np.dot(xtx, x_hat) - xty)  # proxy
-        head_nodes, proj_grad = algo_head_tail_binsearch(
+        head_nodes, proj_grad = algo_head_tail_bisearch(
             edges, grad, costs, h_g, root,
             h_low, h_high, proj_max_num_iter, verbose)
         gamma = np.union1d(x_hat.nonzero()[0], head_nodes)
         bt = np.zeros_like(x_hat)
         bt[gamma] = np.dot(np.linalg.pinv(x_mat[:, gamma]), y_tr)
-        tail_nodes, proj_bt = algo_head_tail_binsearch(
+        tail_nodes, proj_bt = algo_head_tail_bisearch(
             edges, bt, costs, t_g, root,
             t_low, t_high, proj_max_num_iter, verbose)
         x_hat = proj_bt
-
-        y_err_list.append(np.linalg.norm(y_tr - np.dot(x_mat, x_hat)) ** 2.)
-        x_err_list.append(np.linalg.norm(x_hat - x_star))
 
         if np.linalg.norm(x_hat) >= 1e3:
             break
         if np.linalg.norm(y_tr - np.dot(x_mat, x_hat)) <= tol_algo:
             break
-
-        if verbose > 0:
-            print(epoch_i, t_low, x_err_list[-1])
     x_err = np.linalg.norm(x_hat - x_star)
     run_time = time.time() - start_time
     return x_err, num_epochs, run_time
 
 
 def algo_cosamp(x_mat, y_tr, max_epochs, x_star, x0, tol_algo, s):
+    """ CoSaMP algorithm proposed in [6]
+    :param x_mat:
+    :param y_tr:
+    :param max_epochs:
+    :param x_star:
+    :param x0:
+    :param tol_algo:
+    :param s:
+    :return:
+    """
     start_time = time.time()
     x_hat = np.zeros_like(x0)
     x_tr_t = np.transpose(x_mat)
@@ -469,7 +630,6 @@ def run_single_test(data):
     gamma = data['proj_para']['gamma']
     edges, costs = data['proj_para']['edges'], data['proj_para']['costs']
     g, root = data['proj_para']['g'], data['proj_para']['root']
-    h_factor = data['proj_para']['h_factor'][s]
     proj_max_num_iter = data['proj_para']['proj_max_num_iter']
     rec_err = []
 
@@ -501,8 +661,8 @@ def run_single_test(data):
         x_tr_mat=x_tr_mat, y_tr=y_tr, x_va_mat=x_va_mat, y_va=y_va,
         max_epochs=max_epochs, lr_list=lr_list,
         x_star=x_star, x0=x0, tol_algo=tol_algo, edges=edges,
-        costs=costs, g=g, root=root, s=s, h_factor=h_factor,
-        gamma=gamma, proj_max_num_iter=proj_max_num_iter, verbose=verbose)
+        costs=costs, g=g, root=root, s=s, gamma=gamma,
+        proj_max_num_iter=proj_max_num_iter, verbose=verbose)
     rec_err.append(('graph-iht', err))
     print_helper('graph-iht', trial_i, n, err, num_epochs, run_time)
 
@@ -510,8 +670,8 @@ def run_single_test(data):
     err, num_epochs, run_time = cv_graph_sto_iht(
         x_tr_mat, y_tr, x_va_mat, y_va, b_list=b_list, lr_list=lr_list, s=s,
         max_epochs=max_epochs, tol_algo=tol_algo, x0=x0, x_star=x_star,
-        edges=edges, costs=costs, g=g, root=root, h_factor=h_factor,
-        gamma=gamma, proj_max_num_iter=proj_max_num_iter, verbose=verbose)
+        edges=edges, costs=costs, g=g, root=root, gamma=gamma,
+        proj_max_num_iter=proj_max_num_iter, verbose=verbose)
     rec_err.append(('graph-sto-iht', err))
     print_helper('graph-sto-iht', trial_i, n, err, num_epochs, run_time)
 
@@ -557,7 +717,6 @@ def run_test(trial_range, n_list, tol_algo, tol_rec, max_epochs, num_cpus):
                 'n_list': n_list,
                 'lr_list': [0.2, 0.4, 0.6, 0.8],
                 'b_list': [int(n) / 5, int(n) / 10],
-                'num_fold': 10,
                 'x_star': x_star,
                 'x0': np.zeros(p),
                 'subgraph': grid_data['subgraph'],
@@ -569,17 +728,7 @@ def run_test(trial_range, n_list, tol_algo, tol_rec, max_epochs, num_cpus):
                 'verbose': 0,
                 'proj_para': {
                     'edges': edges,
-                    'costs': costs,
-                    'g': 1,
-                    'root': -1,
-                    'proj_max_num_iter': 50,
-                    'verbose': 0,
-                    'gamma': 0.1,
-                    'h_factor': {
-                        s: h_factor for s, h_factor in
-                        zip([grid_data['s']], [20.0])
-                    }
-                }
+                    'costs': costs}
             }
             if trial_i not in saved_data:
                 saved_data[trial_i] = data
