@@ -675,8 +675,8 @@ def run_test(trial_range, n_list, tol_algo, tol_rec,
              max_epochs, num_cpus, root_p):
     np.random.seed()
     start_time = time.time()
-    input_data_list, saved_data = [], dict()
     for trial_i in trial_range:
+        input_data_list, saved_data = [], dict()
         for n in n_list:
             height = grid_data['height']
             width = grid_data['width']

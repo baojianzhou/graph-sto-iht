@@ -474,7 +474,7 @@ def summarize_results(
                 else:
                     least_n = n_list[feasible_indices[0]]
                 trim_results[noise_level][method][b] = least_n
-    f_name = root_p + 'sr_simu_test03.pkl'
+    f_name = root_p + 'results_exp_sr_test03.pkl'
     print('save results to file: %s' % f_name)
     pickle.dump({'trim_results': trim_results,
                  'sum_results': sum_results,
@@ -489,7 +489,7 @@ def show_test(b_list, method_list, title_list, root_p, noise_level_list):
     plt.rcParams["font.size"] = 18
     rc('text', usetex=True)
     rcParams['figure.figsize'] = 8, 4
-    all_results = pickle.load(open(root_p + 'sr_simu_test03.pkl'))
+    all_results = pickle.load(open(root_p + 'results_exp_sr_test03.pkl'))
     results = all_results['trim_results']
     color_list = ['b', 'g', 'm', 'r']
     marker_list = ['X', 'o', 'P', 's']
@@ -520,7 +520,7 @@ def show_test(b_list, method_list, title_list, root_p, noise_level_list):
     ax[1].legend(loc='lower right', fontsize=14., borderpad=0.01,
                  labelspacing=0.0, handletextpad=0.05, framealpha=1.0)
     plt.subplots_adjust(wspace=0.0, hspace=0.0)
-    f_name = root_p + 'sr_simu_test03.pdf'
+    f_name = root_p + 'results_exp_sr_test03.pdf'
     print('save fig to: %s' % f_name)
     plt.savefig(f_name, dpi=600, bbox_inches='tight', pad_inches=0,
                 format='pdf')
@@ -586,7 +586,7 @@ def main():
                  root_p=root_p,
                  noise_level_list=noise_level_list)
     elif command == 'summarize_results':
-        trial_range = range(num_trials)
+        trial_range = [0, 1, 10, 11, 20, 21, 22, 23, 30, 31, 32, 40, 41]
         summarize_results(trim_ratio=trim_ratio,
                           trial_range=trial_range,
                           b_list=b_list,
@@ -596,7 +596,7 @@ def main():
                           noise_level_list=noise_level_list)
     elif command == 'show_test':
         title_list = ['IHT', 'StoIHT', 'GraphIHT', 'GraphStoIHT']
-        trial_range = range(50, 52)
+        trial_range = [0, 1, 10, 11, 20, 21, 22, 23, 30, 31, 32, 40, 41]
         summarize_results(trim_ratio=trim_ratio,
                           trial_range=trial_range,
                           b_list=b_list,
