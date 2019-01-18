@@ -71,7 +71,7 @@ def algo_head_tail_bisearch(
     # to avoid too large upper bound problem.
     if s_high >= len(prizes) - 1:
         s_high = len(prizes) - 1
-    re_nodes = wrap_head_tail_binsearch(
+    re_nodes = wrap_head_tail_bisearch(
         edges, prizes, costs, g, root, s_low, s_high, max_num_iter, verbose)
     proj_w = np.zeros_like(x)
     proj_w[re_nodes[0]] = x[re_nodes[0]]

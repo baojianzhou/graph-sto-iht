@@ -71,7 +71,7 @@ def algo_head_tail_bisearch(
     # to avoid too large upper bound problem.
     if s_high >= len(prizes) - 1:
         s_high = len(prizes) - 1
-    re_nodes = wrap_head_tail_binsearch(
+    re_nodes = wrap_head_tail_bisearch(
         edges, prizes, costs, g, root, s_low, s_high, max_num_iter, verbose)
     proj_w = np.zeros_like(x)
     proj_w[re_nodes[0]] = x[re_nodes[0]]
@@ -655,7 +655,7 @@ def main():
     method_list = ['iht', 'sto-iht', 'graph-iht', 'graph-sto-iht']
     label_list = ['IHT', 'StoIHT', 'GraphIHT', 'GraphStoIHT']
     # 4 different sparsity parameters considered.
-    s_list = np.asarray([12, 20, 28, 36])
+    s_list = np.asarray([8, 20, 28, 36])
     # number of measurements list
     n_list = np.arange(5, 251, 5)
     # try 50 different trials

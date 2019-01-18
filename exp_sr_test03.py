@@ -42,16 +42,17 @@ try:
     import sparse_module
 
     try:
-        from sparse_module import wrap_head_tail_binsearch
+        from sparse_module import wrap_head_tail_bisearch
     except ImportError:
-        print('cannot find some function(s) in sparse_module')
+        print('cannot find wrap_head_tail_bisearch method in sparse_module')
         sparse_module = None
         exit(0)
 except ImportError:
-    print('cannot find the module: sparse_module')
+    print('\n'.join(['cannot find the module: sparse_module',
+                     'use ./build.sh build sparse_module.so library.']))
 
 
-def algo_head_tail_binsearch(
+def algo_head_tail_bisearch(
         edges, x, costs, g, root, s_low, s_high, max_num_iter, verbose):
     """ This is the wrapper of head/tail-projection proposed in [2].
     :param edges:           edges in the graph.
@@ -71,7 +72,7 @@ def algo_head_tail_binsearch(
     # to avoid too large upper bound problem.
     if s_high >= len(prizes) - 1:
         s_high = len(prizes) - 1
-    re_nodes = wrap_head_tail_binsearch(
+    re_nodes = wrap_head_tail_bisearch(
         edges, prizes, costs, g, root, s_low, s_high, max_num_iter, verbose)
     proj_w = np.zeros_like(x)
     proj_w[re_nodes[0]] = x[re_nodes[0]]
@@ -228,11 +229,11 @@ def algo_graph_iht(
     for epoch_i in range(max_epochs):
         num_epochs += 1
         grad = -1. * (xty - np.dot(xtx, x_hat))
-        head_nodes, proj_gradient = algo_head_tail_binsearch(
+        head_nodes, proj_gradient = algo_head_tail_bisearch(
             edges, grad, costs, g, root, h_low, h_high,
             proj_max_num_iter, verbose)
         bt = x_hat - lr * proj_gradient
-        tail_nodes, proj_bt = algo_head_tail_binsearch(
+        tail_nodes, proj_bt = algo_head_tail_bisearch(
             edges, bt, costs, g, root, t_low, t_high,
             proj_max_num_iter, verbose)
         x_hat = proj_bt
@@ -299,11 +300,11 @@ def algo_graph_sto_iht(
             xtx = np.dot(x_tr_t[:, block], x_mat[block])
             xty = np.dot(x_tr_t[:, block], y_tr[block])
             gradient = -2. * (xty - np.dot(xtx, x_hat))
-            head_nodes, proj_grad = algo_head_tail_binsearch(
+            head_nodes, proj_grad = algo_head_tail_bisearch(
                 edges, gradient, costs, g, root, h_low, h_high,
                 proj_max_num_iter, verbose)
             bt = x_hat - (lr / (prob[ii] * num_blocks)) * proj_grad
-            tail_nodes, proj_bt = algo_head_tail_binsearch(
+            tail_nodes, proj_bt = algo_head_tail_bisearch(
                 edges, bt, costs, g, root,
                 t_low, t_high, proj_max_num_iter, verbose)
             x_hat = proj_bt
@@ -547,7 +548,7 @@ def main():
     # number of measurements list
     n_list = range(20, 201, 5)
     # sparsity considered.
-    s = 20
+    s = 8
     # learning rate
     lr = 1.0
     # list of methods
