@@ -822,7 +822,7 @@ def run_test(trial_i, num_cpus, root_input, root_output):
             s, b = (s_list[best_s[0]], b_list[best_s[1]])
             cv_res[fold_i][_]['w_hat'] = res[_]['w_hat'][(s, b)]
             cv_res[fold_i][_]['map_entrez'] = data['map_entrez']
-    f_name = 'results_bc_%02d_%03d.pkl' % (trial_i, num_iters)
+    f_name = 'results_exp_bc_%02d_%03d.pkl' % (trial_i, num_iters)
     pickle.dump(cv_res, open(root_output + f_name, 'wb'))
 
 
