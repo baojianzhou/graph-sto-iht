@@ -18,23 +18,10 @@ from algo_wrapper.base import logistic_predict
 from algo_wrapper.base import logit_loss_bl
 from algo_wrapper.base import logit_loss_grad_bl
 
-root_p = '/network/rit/lab/ceashpc/bz383376/data/icml19/breast_cancer/'
-if not os.path.exists(root_p):
-    os.mkdir(root_p)
-root_input = root_p + 'input/'
-if not os.path.exists(root_input):
-    os.mkdir(root_input)
-root_output = root_p + 'output/'
-if not os.path.exists(root_output):
-    os.mkdir(root_output)
-root_figs = root_p + 'figs/'
-if not os.path.exists(root_figs):
-    os.mkdir(root_figs)
-
 
 def algo_graph_sto_iht_backtracking(
         x_tr, y_tr, w0, max_epochs, h_low, h_high, t_low, t_high, edges,
-        costs, root, g, max_num_iter, verbose, num_blocks):
+        costs, root, g, max_num_iter, verbose, num_blocks, lambda_):
     np.random.seed()  # do not forget it.
     w_hat = np.copy(w0)
     (m, p) = x_tr.shape
@@ -53,7 +40,8 @@ def algo_graph_sto_iht_backtracking(
             block = range(b * ii, b * (ii + 1))
             x_tr_b, y_tr_b = x_tr[block, :], y_tr[block]
             loss_sto, grad_sto = logit_loss_grad_bl(
-                x_tr=x_tr_b, y_tr=y_tr_b, wt=w_hat, l2_reg=1e-4, cp=cp, cn=cn)
+                x_tr=x_tr_b, y_tr=y_tr_b, wt=w_hat,
+                l2_reg=lambda_, cp=cp, cn=cn)
             h_nodes, p_grad = algo_head_tail_binsearch(
                 edges, grad_sto[:p], costs, g, root, h_low, h_high,
                 max_num_iter, verbose)
@@ -65,7 +53,7 @@ def algo_graph_sto_iht_backtracking(
                 x_tmp = w_hat - ad_step * p_grad
                 fun_val_left = logit_loss_bl(
                     x_tr=x_tr_b, y_tr=y_tr_b, wt=x_tmp,
-                    l2_reg=1e-4, cp=cp, cn=cn)
+                    l2_reg=lambda_, cp=cp, cn=cn)
                 if fun_val_left > fun_val_right - ad_step / 2. * reg_term:
                     ad_step *= beta
                 else:
@@ -97,7 +85,7 @@ def algo_graph_sto_iht_backtracking(
 
 
 def algo_sto_iht_backtracking(
-        x_tr, y_tr, w0, max_epochs, s, num_blocks, verbose=0):
+        x_tr, y_tr, w0, max_epochs, s, num_blocks, lambda_, verbose=0):
     np.random.seed()  # do not forget it.
     w_hat = w0
     (m, p) = x_tr.shape
@@ -115,7 +103,8 @@ def algo_sto_iht_backtracking(
             block = range(b * ii, b * (ii + 1))
             x_tr_b, y_tr_b = x_tr[block, :], y_tr[block]
             loss_sto, grad_sto = logit_loss_grad_bl(
-                x_tr=x_tr_b, y_tr=y_tr_b, wt=w_hat, l2_reg=1e-4, cp=cp, cn=cn)
+                x_tr=x_tr_b, y_tr=y_tr_b, wt=w_hat,
+                l2_reg=lambda_, cp=cp, cn=cn)
             fun_val_right = loss_sto
             tmp_num_iter, ad_step, beta = 0, 1.0, 0.8
             reg_term = np.linalg.norm(grad_sto) ** 2.
@@ -123,7 +112,7 @@ def algo_sto_iht_backtracking(
                 x_tmp = w_hat - ad_step * grad_sto
                 fun_val_left = logit_loss_bl(
                     x_tr=x_tr_b, y_tr=y_tr_b, wt=x_tmp,
-                    l2_reg=1e-4, cp=cp, cn=cn)
+                    l2_reg=lambda_, cp=cp, cn=cn)
                 if fun_val_left > fun_val_right - ad_step / 2. * reg_term:
                     ad_step *= beta
                 else:
@@ -417,7 +406,7 @@ def expand_data(data):
 
 
 def run_single_test(para):
-    data, tr_idx, te_idx, ii, s, jj, num_blocks, num_iterations = para
+    data, tr_idx, te_idx, ii, s, jj, num_blocks, kk, lambda_, num_iterations = para
     from sklearn.metrics import roc_auc_score
     from sklearn.metrics import accuracy_score
     res = {'iht': dict(),
@@ -434,7 +423,7 @@ def run_single_test(para):
     w0 = np.zeros(np.shape(x_tr)[1] + 1)
     # ----------------------------------------------------------------
     w_hat = algo_sto_iht_backtracking(
-        x_tr, y_tr, w0, num_iterations, s, 1, verbose=0)
+        x_tr, y_tr, w0, num_iterations, s, 1, lambda_, verbose=0)
     x_te, y_te = te_data['x'], te_data['y']
     pred_prob, pred_y = logistic_predict(x_te, w_hat)
     posi_idx = np.nonzero(y_te == 1)[0]
@@ -455,7 +444,7 @@ def run_single_test(para):
           (s, w_hat[-1], res['iht']['bacc']))
     # ----------------------------------------------------------------
     w_hat = algo_sto_iht_backtracking(
-        x_tr, y_tr, w0, num_iterations, s, num_blocks, verbose=0)
+        x_tr, y_tr, w0, num_iterations, s, num_blocks, lambda_, verbose=0)
     x_te, y_te = te_data['x'], te_data['y']
     pred_prob, pred_y = logistic_predict(x_te, w_hat)
     posi_idx = np.nonzero(y_te == 1)[0]
@@ -489,7 +478,7 @@ def run_single_test(para):
     w0 = np.zeros(np.shape(x_tr)[1] + 1)
     w_hat = algo_graph_sto_iht_backtracking(
         x_tr, y_tr, w0, num_iterations, h_low, h_high, t_low, t_high,
-        data['edges'], data['costs'], -1, 1, 50, 0, num_blocks)
+        data['edges'], data['costs'], -1, 1, 50, 0, num_blocks, lambda_)
     x_te, y_te = te_data['x'], te_data['y']
     pred_prob, pred_y = logistic_predict(x_te, w_hat)
     posi_idx = np.nonzero(y_te == 1)[0]
@@ -512,7 +501,7 @@ def run_single_test(para):
     # ----------------------------------------------------------
     w_hat = algo_graph_sto_iht_backtracking(
         x_tr, y_tr, w0, 1, h_low, h_high, t_low, t_high,
-        data['edges'], data['costs'], -1, 1, 50, 0, num_blocks)
+        data['edges'], data['costs'], -1, 1, 50, 0, num_blocks, lambda_)
     x_te, y_te = te_data['x'], te_data['y']
     pred_prob, pred_y = logistic_predict(x_te, w_hat)
     posi_idx = np.nonzero(y_te == 1)[0]
@@ -535,21 +524,26 @@ def run_single_test(para):
 
 
 def run_parallel(
-        data, tr_idx, te_idx, s_list, b_list, num_iters, num_cpus):
+        data, tr_idx, te_idx, s_list, b_list, lambda_list, num_iters,
+        num_cpus):
     method_list = ['sto-iht', 'graph-sto-iht', 'iht', 'graph-iht']
     res = {_: dict() for _ in method_list}
     for _ in method_list:
         res[_]['s_list'] = s_list
         res[_]['b_list'] = b_list
+        res[_]['lambda_list'] = lambda_list
         res[_]['auc'] = np.zeros((len(s_list), len(b_list)))
         res[_]['acc'] = np.zeros((len(s_list), len(b_list)))
         res[_]['bacc'] = np.zeros((len(s_list), len(b_list)))
         res[_]['perf'] = np.zeros((len(s_list), len(b_list)))
         res[_]['w_hat'] = {(s, b): None for (s, b) in product(s_list, b_list)}
-    input_paras = [(data, tr_idx, te_idx, ii, s, jj, num_block, num_iters)
-                   for (ii, s), (jj, num_block) in
-                   product(enumerate(s_list), enumerate(b_list))]
+    input_paras = [(data, tr_idx, te_idx, ii, s, jj, num_block, kk, lambda_,
+                    num_iters)
+                   for (ii, s), (jj, num_block), (kk, lambda_) in
+                   product(enumerate(s_list), enumerate(b_list),
+                           enumerate(lambda_list))]
     pool = multiprocessing.Pool(processes=num_cpus)
+    # data, tr_idx, te_idx, ii, s, jj, num_blocks, lambda_, num_iterations
     results_pool = pool.map(run_single_test, input_paras)
     pool.close()
     pool.join()
@@ -605,10 +599,11 @@ def get_single_graph_data(folding_i):
     return results
 
 
-def run_test(trial_i, num_cpus, num_iterations):
-    n_folds, num_iters = 5, num_iterations
+def run_test(trial_i, num_cpus, root_input, root_output):
+    n_folds, num_iters = 5, 50
     s_list = range(5, 100, 5)  # sparsity list
     b_list = [1, 2]  # number of block list.
+    lambda_list = [1e-4]
     method_list = ['sto-iht', 'graph-sto-iht', 'iht', 'graph-iht']
     cv_res = {_: dict() for _ in range(n_folds)}
     for fold_i in range(n_folds):
@@ -639,7 +634,8 @@ def run_test(trial_i, num_cpus, num_iterations):
             s_tr = data['data_subsplits'][fold_i][sf_ii]['train']
             s_te = data['data_subsplits'][fold_i][sf_ii]['test']
             sub_res[sf_ii] = run_parallel(
-                f_data, s_tr, s_te, s_list, b_list, num_iters, num_cpus)
+                f_data, s_tr, s_te, s_list, b_list, lambda_list,
+                num_iters, num_cpus)
             for _ in method_list:
                 s_auc[_] += sub_res[sf_ii][_]['auc'] / 1. * n_folds
                 s_acc[_] += sub_res[sf_ii][_]['acc'] / 1. * n_folds
@@ -649,7 +645,8 @@ def run_test(trial_i, num_cpus, num_iterations):
             cv_res[fold_i][_] = dict()
             cv_res[fold_i][_]['s_bacc'] = s_bacc[_]
         res = run_parallel(
-            f_data, tr_idx, te_idx, s_list, b_list, num_iters, num_cpus)
+            f_data, tr_idx, te_idx, s_list, b_list, lambda_list,
+            num_iters, num_cpus)
         for _ in method_list:
             best_s = s_star[_]
             cv_res[fold_i][_]['s_star'] = best_s
@@ -819,149 +816,6 @@ def show_test02(trials_list, num_iterations):
         print(method, list(found_genes[method]))
 
 
-def run_single_debug(para):
-    data, tr_idx, te_idx, ii, s, jj, num_blocks, num_iterations = para
-    from sklearn.metrics import roc_auc_score
-    from sklearn.metrics import accuracy_score
-    res = {'sto-iht': dict(), 'graph-sto-iht': dict()}
-    print('sto-iht starting optimization with sparsity=%02d' % s)
-    tr_data = dict()
-    tr_data['x'] = data['x'][tr_idx, :]
-    tr_data['y'] = data['y'][tr_idx]
-    te_data = dict()
-    te_data['x'] = data['x'][te_idx, :]
-    te_data['y'] = data['y'][te_idx]
-    x_tr, y_tr = tr_data['x'], tr_data['y']
-    w0 = np.zeros(np.shape(x_tr)[1] + 1)
-    w_hat = algo_sto_iht_backtracking(
-        x_tr, y_tr, w0, num_iterations, s, num_blocks, True, 1)
-    x_te, y_te = te_data['x'], te_data['y']
-    pred_prob, pred_y = logistic_predict(x_te, w_hat)
-    posi_idx = np.nonzero(y_te == 1)[0]
-    nega_idx = np.nonzero(y_te == -1)[0]
-    print('-' * 80)
-    print('number of positive: %02d, missed: %02d '
-          'number of negative: %02d, missed: %02d ' %
-          (len(posi_idx), float(np.sum(pred_y[posi_idx] != 1)),
-           len(nega_idx), float(np.sum(pred_y[nega_idx] != -1))))
-    v1 = np.sum(pred_y[posi_idx] != 1) / float(len(posi_idx))
-    v2 = np.sum(pred_y[nega_idx] != -1) / float(len(nega_idx))
-    res['sto-iht']['bacc'] = (v1 + v2) / 2.
-    res['sto-iht']['acc'] = accuracy_score(y_true=y_te, y_pred=pred_y)
-    res['sto-iht']['auc'] = roc_auc_score(y_true=y_te, y_score=pred_prob)
-    res['sto-iht']['perf'] = res['sto-iht']['bacc']
-    print('sto-iht   -- sparsity: %02d intercept: %.4f bacc: %.4f' %
-          (s, w_hat[-1], res['sto-iht']['bacc']))
-
-    print('graph-sto-iht starting optimization with sparsity=%02d' % s)
-    tr_data = dict()
-    tr_data['x'] = data['x'][tr_idx, :]
-    tr_data['y'] = data['y'][tr_idx]
-    te_data = dict()
-    te_data['x'] = data['x'][te_idx, :]
-    te_data['y'] = data['y'][te_idx]
-    gamma = 0.1
-    h_low, h_high = int(10 * s), int(10 * s * (1. + gamma))
-    t_low, t_high = s, int(s * (1. + gamma))
-    x_tr, y_tr = tr_data['x'], tr_data['y']
-    w0 = np.zeros(np.shape(x_tr)[1] + 1)
-    w_hat = algo_graph_sto_iht_backtracking(
-        x_tr, y_tr, w0, num_iterations, h_low, h_high, t_low, t_high,
-        data['edges'], data['costs'], -1, 1, 50, 0, num_blocks, True)
-    x_te, y_te = te_data['x'], te_data['y']
-    pred_prob, pred_y = logistic_predict(x_te, w_hat)
-    posi_idx = np.nonzero(y_te == 1)[0]
-    nega_idx = np.nonzero(y_te == -1)[0]
-    print('-' * 80)
-    print('number of positive: %02d, missed: %02d '
-          'number of negative: %02d, missed: %02d ' %
-          (len(posi_idx), float(np.sum(pred_y[posi_idx] != 1)),
-           len(nega_idx), float(np.sum(pred_y[nega_idx] != -1))))
-    v1 = np.sum(pred_y[posi_idx] != 1) / float(len(posi_idx))
-    v2 = np.sum(pred_y[nega_idx] != -1) / float(len(nega_idx))
-    res['graph-sto-iht']['bacc'] = (v1 + v2) / 2.
-    res['graph-sto-iht']['acc'] = accuracy_score(y_true=y_te, y_pred=pred_y)
-    res['graph-sto-iht']['auc'] = roc_auc_score(y_true=y_te, y_score=pred_prob)
-    res['graph-sto-iht']['perf'] = res['graph-sto-iht']['bacc']
-    print('graph-iht -- sparsity: %02d intercept: %.4f bacc: %.4f' %
-          (s, w_hat[-1], res['graph-sto-iht']['bacc']))
-    return ii, s, jj, num_blocks, res
-
-
-def run_parallel_debug(
-        data, tr_idx, te_idx, s_list, b_list, num_iters):
-    method_list = ['sto-iht', 'graph-sto-iht']
-    res = {_: dict() for _ in method_list}
-    for _ in method_list:
-        res[_]['s_list'] = s_list
-        res[_]['b_list'] = b_list
-        res[_]['auc'] = np.zeros((len(s_list), len(b_list)))
-        res[_]['acc'] = np.zeros((len(s_list), len(b_list)))
-        res[_]['bacc'] = np.zeros((len(s_list), len(b_list)))
-        res[_]['perf'] = np.zeros((len(s_list), len(b_list)))
-    input_paras = [(data, tr_idx, te_idx, ii, s, jj, num_block, num_iters)
-                   for (ii, s), (jj, num_block) in
-                   product(enumerate(s_list), enumerate(b_list))]
-    for input_para in input_paras:
-        run_single_debug(input_para)
-    return res
-
-
-def run_debug(trial_i):
-    n_folds, num_iters = 5, 50
-    s_list = range(20, 100, 5)  # sparsity list
-    b_list = [1, 2]  # number of block list.
-    method_list = ['sto-iht', 'graph-sto-iht']
-    cv_res = {_: dict() for _ in range(n_folds)}
-    for fold_i in range(n_folds):
-        data = get_single_data(trial_i)['data'][0]
-        tr_idx = data['splits'][fold_i]['train']
-        te_idx = data['splits'][fold_i]['test']
-        f_data = data.copy()
-        tr_data = dict()
-        tr_data['x'] = f_data['x'][tr_idx, :]
-        tr_data['y'] = f_data['y'][tr_idx]
-        tr_data['entrez'] = f_data['entrez']
-        tr_data, k_idx, nodes = process(tr_data, data['edges'])
-        f_data['x'] = data['x'][:, nodes]
-        x_mean = np.tile(np.mean(f_data['x'], axis=0), (len(f_data['x']), 1))
-        x_std = np.tile(np.std(f_data['x'], axis=0), (len(f_data['x']), 1))
-        f_data['x'] = np.nan_to_num(np.divide(f_data['x'] - x_mean, x_std))
-        f_data['edges'] = tr_data['edges']
-        f_data['costs'] = tr_data['costs']
-        cv_res[fold_i]['s_list'] = s_list
-        cv_res[fold_i]['b_list'] = b_list
-        cv_res[fold_i]['k_idx'] = k_idx
-
-        s_auc = {_: np.zeros((len(s_list), len(b_list))) for _ in method_list}
-        s_acc = {_: np.zeros((len(s_list), len(b_list))) for _ in method_list}
-        s_bacc = {_: np.zeros((len(s_list), len(b_list))) for _ in method_list}
-        s_star = {_: None for _ in method_list}  # save the best.
-        sub_res = dict()
-        for sf_ii in range(len(data['subsplits'][fold_i])):
-            s_tr = data['subsplits'][fold_i][sf_ii]['train']
-            s_te = data['subsplits'][fold_i][sf_ii]['test']
-            sub_res[sf_ii] = run_parallel_debug(
-                f_data, s_tr, s_te, s_list, b_list, num_iters)
-            for _ in method_list:
-                s_auc[_] += sub_res[sf_ii][_]['auc'] / 1. * n_folds
-                s_acc[_] += sub_res[sf_ii][_]['acc'] / 1. * n_folds
-                s_bacc[_] += sub_res[sf_ii][_]['bacc'] / 1. * n_folds
-        for _ in method_list:
-            s_star[_] = np.unravel_index(s_bacc[_].argmin(), s_bacc[_].shape)
-            cv_res[fold_i][_] = dict()
-            cv_res[fold_i][_]['s_bacc'] = s_bacc[_]
-        res = run_parallel_debug(
-            f_data, tr_idx, te_idx, s_list, b_list, num_iters)
-        for _ in method_list:
-            best_s = s_star[_]
-            cv_res[fold_i][_]['s_star'] = best_s
-            cv_res[fold_i][_]['auc'] = res[_]['auc']
-            cv_res[fold_i][_]['acc'] = res[_]['acc']
-            cv_res[fold_i][_]['bacc'] = res[_]['bacc']
-            cv_res[fold_i][_]['perf'] = res[_]['bacc'][best_s]
-
-
 def main():
     command = sys.argv[1]
     if command == 'run_test':
@@ -969,11 +823,8 @@ def main():
         trial_end = int(sys.argv[3])
         for trial_i in range(trial_start, trial_end):
             num_cpus = int(sys.argv[4])
-            num_iterations = int(sys.argv[5])
             run_test(trial_i=trial_i, num_cpus=num_cpus,
-                     num_iterations=num_iterations)
-    elif command == 'run_debug':
-        run_debug(trial_i=0)
+                     root_input='data/', root_output='results/')
     elif command == 'show_test':
         trials_list = [0, 1, 4, 5, 8, 9, 12, 13, 16, 17]
         trials_list = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18]
