@@ -860,7 +860,7 @@ def main():
                  num_cpus=num_cpus,
                  root_p=root_p)
     elif command == 'summarize_results':
-        trials_range = range(44)
+        trials_range = range(45)
         summarize_results(trials_range=trials_range, n_list=n_list,
                           method_list=method_list, tol_rec=tol_rec,
                           root_p=root_p)

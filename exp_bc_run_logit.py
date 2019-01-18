@@ -42,6 +42,21 @@ def expit(x):
     return out
 
 
+def logistic_predict(x, wt):
+    """
+    To predict the probability for sample xi. {+1,-1}
+    :param x: (n,p) dimension, where p is the number of features.
+    :param wt: (p+1,) dimension, where wt[p] is the intercept.
+    :return: (n,1) dimension of predict probability of positive class
+            and labels.
+    """
+    n, p = x.shape
+    pred_prob = expit(np.dot(x, wt[:p]) + wt[p])
+    pred_y = np.ones(n)
+    pred_y[pred_prob < 0.5] = -1.
+    return pred_prob, pred_y
+
+
 def log_logistic(x):
     """ return log( 1/(1+exp(-x)) )"""
     out = np.zeros_like(x)
