@@ -820,7 +820,7 @@ def show_test(n_list, method_list, method_label_list, root_p):
     ax[1].spines['right'].set_visible(False)
     ax[1].spines['top'].set_visible(False)
     plt.subplots_adjust(wspace=0.25, hspace=0.0)
-    f_name = root_p + 'sr_grid.pdf'
+    f_name = root_p + 'results_exp_sr_test05.pdf'
     print('save fig to: %s' % f_name)
     fig.savefig(f_name, dpi=600, bbox_inches='tight', pad_inches=0,
                 format='pdf')
@@ -860,7 +860,7 @@ def main():
                  num_cpus=num_cpus,
                  root_p=root_p)
     elif command == 'summarize_results':
-        trials_range = range(50)
+        trials_range = range(40)
         summarize_results(trials_range=trials_range, n_list=n_list,
                           method_list=method_list, tol_rec=tol_rec,
                           root_p=root_p)

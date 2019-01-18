@@ -818,8 +818,8 @@ def main():
 
     if len(os.sys.argv) <= 1:
         print('\n'.join(['please use one of the following commands: ',
-                         '1. python exp_sr_test05.py run_test 50 0 10',
-                         '2. python exp_sr_test05.py show_test']))
+                         '1. python exp_sr_test06.py run_test 50 0 10',
+                         '2. python exp_sr_test06.py show_test']))
         exit(0)
 
     command = os.sys.argv[1]
