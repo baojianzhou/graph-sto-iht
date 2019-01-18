@@ -922,20 +922,20 @@ def main():
             run_test(trial_i=trial_i, num_cpus=num_cpus,
                      root_input='data/', root_output='results/')
     elif command == 'show_test':
-        trials_list = [0, 1, 4, 5, 8, 9, 12, 13, 16, 17]
-        trials_list = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18]
-        trials_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-                       16, 17]
-        trials_list = range(0, 20)
+        folding_list = [0, 1, 4, 5, 8, 9, 12, 13, 16, 17]
+        folding_list = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18]
+        folding_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                        16, 17]
+        folding_list = range(0, 20)
         # trials_list = [0, 4, 8, 12, 16]
         num_iterations = 50
-        show_test(trials_list, num_iterations,
+        show_test(folding_list, num_iterations,
                   root_input='data/', root_output='results/')
     elif command == 'show_test02':
-        trials_list = range(0, 20)
+        folding_list = range(0, 20)
         # trials_list = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18]
         num_iterations = 50
-        show_test02(trials_list, num_iterations,
+        show_test02(folding_list, num_iterations,
                     root_input='data/', root_output='results/')
 
 
