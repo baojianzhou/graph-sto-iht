@@ -488,7 +488,7 @@ def show_test(b_list, method_list, root_p, noise_level_list):
     plt.rcParams["font.family"] = "Times New Roman"
     plt.rcParams["font.size"] = 18
     rc('text', usetex=True)
-    rcParams['figure.figsize'] = 8, 4
+    rcParams['figure.figsize'] = 6, 5
     all_results = pickle.load(open(root_p + 'results_exp_sr_test03.pkl'))
     results = all_results['trim_results']
     color_list = ['b', 'g', 'm', 'r']
@@ -499,7 +499,7 @@ def show_test(b_list, method_list, root_p, noise_level_list):
     ax.set_xlim([0, 35])
     ax.set_ylim([25, 100])
     ax.set_xticks([4, 14, 24, 34, 44, 54, 64])
-    ax.set_yticks([25, 50, 75, 100])
+    ax.set_yticks([25, 35, 45, 55, 65, 75, 85, 95])
     ax.set_xticks([4, 14, 24, 34, 44, 54, 64])
     ax.set_title(r"$\displaystyle \|{\bf \epsilon}\|=0.0$")
     ax.set_title(r"$\displaystyle \|{\bf \epsilon}\|=0.5$")
@@ -512,11 +512,11 @@ def show_test(b_list, method_list, root_p, noise_level_list):
                     label=str(noise_level),
                     color=color_list[ind],
                     marker=marker_list[ind]
-                    , markersize=4.0, markerfacecolor='none',
-                    linestyle='-', markeredgewidth=1.0, linewidth=1.0)
+                    , markersize=5.0, markerfacecolor='none',
+                    linestyle='-', markeredgewidth=1.5, linewidth=1.5)
     ax.set_xlabel('Block Size')
-    ax.legend(loc='lower right', fontsize=14., borderpad=0.01,
-              labelspacing=0.0, handletextpad=0.05, framealpha=1.0)
+    ax.legend(loc='lower right', fontsize=18., borderpad=0.1,
+              labelspacing=0.1, handletextpad=0.1, framealpha=1.0)
     plt.subplots_adjust(wspace=0.0, hspace=0.0)
     f_name = root_p + 'results_exp_sr_test03.pdf'
     print('save fig to: %s' % f_name)
