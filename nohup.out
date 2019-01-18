@@ -1,0 +1,16 @@
+Traceback (most recent call last):
+  File "exp_sr_test06.py", line 870, in <module>
+    main()
+  File "exp_sr_test06.py", line 840, in main
+    root_p='results/')
+  File "exp_sr_test06.py", line 621, in run_test
+    img_data = get_img_data(root_p)  # 236, 383, 411
+  File "exp_sr_test06.py", line 73, in get_img_data
+    img = sio.loadmat(root_p + 'sr_image_%s.mat' % _)['x_gray']
+  File "/network/rit/lab/ceashpc/bz383376/opt/env-python2.7.14/lib/python2.7/site-packages/scipy/io/matlab/mio.py", line 141, in loadmat
+    MR, file_opened = mat_reader_factory(file_name, appendmat, **kwargs)
+  File "/network/rit/lab/ceashpc/bz383376/opt/env-python2.7.14/lib/python2.7/site-packages/scipy/io/matlab/mio.py", line 64, in mat_reader_factory
+    byte_stream, file_opened = _open_file(file_name, appendmat)
+  File "/network/rit/lab/ceashpc/bz383376/opt/env-python2.7.14/lib/python2.7/site-packages/scipy/io/matlab/mio.py", line 39, in _open_file
+    return open(file_like, 'rb'), True
+IOError: [Errno 2] No such file or directory: 'results/sr_image_background.mat'
