@@ -76,9 +76,8 @@ def logit_loss_grad_bl(x_tr, y_tr, wt, l2_reg, cp, cn):
     :param l2_reg: regularization to avoid overfitting.
     :param cp:
     :param cn:
-    :return:
+    :return: {+1,-1} Logistic (val,grad) on training samples.
     """
-    """ return {+1,-1} Logistic (val,grad) on training samples. """
     assert len(wt) == (x_tr.shape[1] + 1)
     c, n, p = wt[-1], x_tr.shape[0], x_tr.shape[1]
     posi_idx = np.where(y_tr > 0)  # corresponding to positive labels.
@@ -108,9 +107,8 @@ def logit_loss_bl(x_tr, y_tr, wt, l2_reg, cp, cn):
     :param l2_reg: regularization to avoid overfitting.
     :param cp:
     :param cn:
-    :return:
+    :return: return {+1,-1} Logistic (val,grad) on training samples.
     """
-    """ return {+1,-1} Logistic (val,grad) on training samples. """
     assert len(wt) == (x_tr.shape[1] + 1)
     c, n, p = wt[-1], x_tr.shape[0], x_tr.shape[1]
     posi_idx = np.where(y_tr > 0)  # corresponding to positive labels.
@@ -299,46 +297,6 @@ def cv_split_bal(y, n_folds):
             nega = na[i * n_size_fold:nn_]
             splits[i]['x_te'] = np.append(posi, nega)
     return splits
-
-
-def get_data(nfolds):
-    data = dict()
-    splits = dict()
-    raw_data = pickle.load(open(root_input + 'data.pkl'))
-    x = raw_data['x']
-    y = raw_data['y']
-    entrez = raw_data['entrez']
-    data['x'] = np.asarray(x, dtype=float)
-    data['y'] = np.asarray(y, dtype=float)
-    data['entrez'] = np.asarray([_[0] for _ in entrez], dtype=int)
-
-    nodes, edges = set(), []
-    with open(root_p + 'raw/edge.txt') as csvfile:
-        edge_reader = csv.reader(csvfile, delimiter='\t', quotechar='|')
-        for row in edge_reader:
-            uu, vv = int(row[0]) - 1, int(row[1]) - 1
-            nodes.add(uu)
-            nodes.add(vv)
-            edges.append([uu, vv])
-    edges = np.asarray(edges, dtype=int)
-    print('number of nodes: %d' % len(nodes))
-    print(len(data['x'][0]))
-    print(np.max(edges))
-    var_in_graph = np.unique(edges.flatten())
-    print('nodes in x: %d' % len(var_in_graph))
-    data['edges'] = edges
-
-    sub_splits = dict()
-    super_splits = cv_split_bal(y, nfolds[0])
-    for i in range(0, nfolds[0]):
-        sub_splits[i] = cv_split_bal(y[super_splits[i]['x_tr']], nfolds[1])
-
-    splits['splits'] = super_splits
-    splits['sub_splits'] = sub_splits
-    print(np.shape(data['x']))
-    print(np.shape(data['y']))
-    print(np.shape(data['entrez']))
-    return data, splits
 
 
 def process(data, edges):
@@ -607,48 +565,6 @@ def run_parallel(
     return res
 
 
-def load_dataset():
-    method_list = ['re_graph_lasso', 're_graph_overlap', 're_path_lasso',
-                   're_path_overlap']
-    num_folding = 9
-    all_data = {i: pickle.load(open(root_input + '')) for i in
-                range(num_folding)}
-    print('-' * 80)
-    summary_results = {method: [] for method in method_list}
-    for folding_i in range(num_folding):
-        re = {method: [0.0, 0.0] for method in method_list}
-        for method in method_list:
-            perf_list = [all_data[folding_i][method][fold_i]['perf']
-                         for fold_i in range(5)]
-            summary_results[method].extend(perf_list)
-            perf_list = np.asarray(perf_list)
-            re[method][0] = np.mean(perf_list)
-            re[method][1] = np.std(perf_list)
-        print('Error folding_%02d   %.4f,%.4f   %.4f,%.4f   '
-              '%.4f,%.4f   %.4f,%.4f' % (
-                  folding_i + 1, re['re_graph_lasso'][0],
-                  re['re_graph_lasso'][1], re['re_graph_overlap'][0],
-                  re['re_graph_overlap'][1], re['re_path_lasso'][0],
-                  re['re_path_lasso'][1], re['re_path_overlap'][0],
-                  re['re_path_overlap'][1]))
-    print('Summarized         %.4f,%.4f   %.4f,%.4f   '
-          '%.4f,%.4f   %.4f,%.4f' % (
-              float(np.mean(summary_results['re_graph_lasso'])),
-              float(np.std(summary_results['re_graph_lasso'])),
-              float(np.mean(summary_results['re_graph_overlap'])),
-              float(np.std(summary_results['re_graph_overlap'])),
-              float(np.mean(summary_results['re_path_lasso'])),
-              float(np.std(summary_results['re_path_lasso'])),
-              float(np.mean(summary_results['re_path_overlap'])),
-              float(np.std(summary_results['re_path_overlap']))))
-
-
-def get_single_graph_data(folding_i):
-    f_name = root_output + 'results_bc_%02d_020.pkl' % folding_i
-    results = pickle.load(open(f_name))
-    return results
-
-
 def get_single_data(trial_i, root_input):
     import scipy.io as sio
     cancer_related_genes = {
@@ -841,7 +757,7 @@ def run_test(trial_i, num_cpus, root_input, root_output):
     pickle.dump(cv_res, open(root_output + f_name, 'wb'))
 
 
-def summarize_data(trial_list, num_iterations):
+def summarize_data(trial_list, num_iterations, root_output):
     sum_data = dict()
     cancer_related_genes = {
         4288: 'MKI67', 1026: 'CDKN1A', 472: 'ATM', 7033: 'TFF3', 2203: 'FBP1',
@@ -879,8 +795,8 @@ def summarize_data(trial_list, num_iterations):
     return sum_data
 
 
-def show_test(trials_list, num_iterations):
-    sum_data1 = summarize_data(trials_list, num_iterations)
+def show_test(trials_list, num_iterations, root_input, root_output):
+    sum_data1 = summarize_data(trials_list, num_iterations, root_output)
     all_data = pickle.load(open(root_input + 'summarized_data.pkl'))
     for trial_i in sum_data1:
         for method in ['graph-sto-iht', 'sto-iht', 'graph-iht', 'iht']:
@@ -929,8 +845,8 @@ def show_test(trials_list, num_iterations):
         print(method, list(found_genes[method]))
 
 
-def show_test02(trials_list, num_iterations):
-    sum_data1 = summarize_data(trials_list, num_iterations)
+def show_test02(trials_list, num_iterations, root_input, root_output):
+    sum_data1 = summarize_data(trials_list, num_iterations, root_output)
     all_data = pickle.load(open(root_input + 'summarized_data.pkl'))
     method_list = ['re_path_re_lasso', 're_path_re_overlap',
                    're_edge_re_lasso', 're_edge_re_overlap',
@@ -1013,12 +929,14 @@ def main():
         trials_list = range(0, 20)
         # trials_list = [0, 4, 8, 12, 16]
         num_iterations = 50
-        show_test(trials_list, num_iterations)
+        show_test(trials_list, num_iterations,
+                  root_input='data/', root_output='results/')
     elif command == 'show_test02':
         trials_list = range(0, 20)
         # trials_list = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18]
         num_iterations = 50
-        show_test02(trials_list, num_iterations)
+        show_test02(trials_list, num_iterations,
+                    root_input='data/', root_output='results/')
 
 
 if __name__ == "__main__":
