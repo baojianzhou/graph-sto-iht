@@ -12,13 +12,15 @@ try:
     import sparse_module
 
     try:
-        from sparse_module import wrap_head_tail_binsearch
+        from sparse_module import wrap_head_tail_bisearch
     except ImportError:
-        print('cannot find some function(s) in sparse_module')
+        print('cannot find wrap_head_tail_bisearch method in sparse_module')
         sparse_module = None
         exit(0)
 except ImportError:
-    print('cannot find the module: sparse_module')
+    print('\n'.join([
+        'cannot find the module: sparse_module',
+        'try run: \'python setup.py build_ext --inplace\' first! ']))
 
 
 def simu_grid_graph(width, height):
@@ -257,7 +259,7 @@ def cluster_k_approx(coeffs, k, c, gamma, edges, costs, verbose, use_cpp=True):
         s_high = int(np.round((1 + gamma) * k))
         max_num_iter = opts['max_num_iter']
         verbose = opts['verbose']
-        proj_nodes = wrap_head_tail_binsearch(
+        proj_nodes = wrap_head_tail_bisearch(
             edges, coeffs, costs, c, -1, s_low, s_high, max_num_iter, verbose)
         x = np.zeros_like(coeffs)
         x[proj_nodes] = 1.

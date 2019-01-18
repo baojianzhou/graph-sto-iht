@@ -2,13 +2,8 @@
 import os
 import time
 import pickle
-import random
-from os import sys
 import multiprocessing
-
 from itertools import product
-
-# you need to install numpy
 import numpy as np
 import scipy.io as sio
 
@@ -16,13 +11,15 @@ try:
     import sparse_module
 
     try:
-        from sparse_module import wrap_head_tail_binsearch
+        from sparse_module import wrap_head_tail_bisearch
     except ImportError:
-        print('cannot find some function(s) in sparse_module')
+        print('cannot find wrap_head_tail_bisearch method in sparse_module')
         sparse_module = None
         exit(0)
 except ImportError:
-    print('cannot find the module: sparse_module')
+    print('\n'.join([
+        'cannot find the module: sparse_module',
+        'try run: \'python setup.py build_ext --inplace\' first! ']))
 
 np.random.seed()
 g_x_tr_mat = np.random.normal(0.0, 1.0, 3000 * 10000)
@@ -85,13 +82,13 @@ def simu_grid_graph(width, height):
     return edges, weights
 
 
-def algo_head_tail_binsearch(
+def algo_head_tail_bisearch(
         edges, x, costs, g, root, s_low, s_high, max_num_iter, verbose):
     prizes = x * x
     # to avoid too large upper bound problem.
     if s_high >= len(prizes) - 1:
         s_high = len(prizes) - 1
-    re_nodes = wrap_head_tail_binsearch(
+    re_nodes = wrap_head_tail_bisearch(
         edges, prizes, costs, g, root, s_low, s_high, max_num_iter, verbose)
     proj_w = np.zeros_like(x)
     proj_w[re_nodes[0]] = x[re_nodes[0]]
@@ -213,11 +210,11 @@ def algo_graph_iht(
     for epoch_i in range(max_epochs):
         num_epochs += 1
         grad = -1. * (xty - np.dot(xtx, x_hat))
-        head_nodes, proj_gradient = algo_head_tail_binsearch(
+        head_nodes, proj_gradient = algo_head_tail_bisearch(
             edges, grad, costs, 2 * g, root, h_low, h_high,
             proj_max_num_iter, verbose)
         bt = x_hat - lr * proj_gradient
-        tail_nodes, proj_bt = algo_head_tail_binsearch(
+        tail_nodes, proj_bt = algo_head_tail_bisearch(
             edges, bt, costs, g, root, t_low, t_high,
             proj_max_num_iter, verbose)
         x_hat = proj_bt
@@ -280,11 +277,11 @@ def algo_graph_sto_iht(
             xtx = np.dot(x_tr_t[:, block], x_mat[block])
             xty = np.dot(x_tr_t[:, block], y_tr[block])
             gradient = -2. * (xty - np.dot(xtx, x_hat))
-            head_nodes, proj_grad = algo_head_tail_binsearch(
+            head_nodes, proj_grad = algo_head_tail_bisearch(
                 edges, gradient, costs, 2 * g, root, h_low, h_high,
                 proj_max_num_iter, verbose)
             bt = x_hat - (lr / (prob[ii] * num_blocks)) * proj_grad
-            tail_nodes, proj_bt = algo_head_tail_binsearch(
+            tail_nodes, proj_bt = algo_head_tail_bisearch(
                 edges, bt, costs, g, root,
                 t_low, t_high, proj_max_num_iter, verbose)
             x_hat = proj_bt
@@ -310,7 +307,7 @@ def cv_graph_sto_iht(x_tr_mat, y_tr, x_va_mat, y_va, max_epochs, lr_list,
         test_err_mat[index] = y_err
         para_dict[index] = (lr, b)
         x_hat_dict[(lr, b)] = (num_epochs, run_time, x_hat)
-    lr, b = para_dict[np.argmin(test_err_mat)]
+    lr, b = para_dict[int(np.argmin(test_err_mat))]
     err = np.linalg.norm(x_star - x_hat_dict[(lr, b)][2])
     num_epochs, run_time = x_hat_dict[(lr, b)][:2]
     return err, num_epochs, run_time
@@ -396,13 +393,13 @@ def algo_graph_cosamp(
         num_epochs += 1
         grad = -2. * (np.dot(xtx, x_hat) - xty)  # proxy
         # edges, x, costs, g, root, s_low, s_high, max_num_iter, verbose
-        head_nodes, proj_grad = algo_head_tail_binsearch(
+        head_nodes, proj_grad = algo_head_tail_bisearch(
             edges, grad, costs, select_atom * g, root,
             h_low, h_high, proj_max_num_iter, verbose)
         gamma = np.union1d(x_hat.nonzero()[0], head_nodes)
         bt = np.zeros_like(x_hat)
         bt[gamma] = np.dot(np.linalg.pinv(x_tr_mat[:, gamma]), y_tr)
-        tail_nodes, proj_bt = algo_head_tail_binsearch(
+        tail_nodes, proj_bt = algo_head_tail_bisearch(
             edges, bt, costs, g, root,
             t_low, t_high, proj_max_num_iter, verbose)
         x_hat = proj_bt
@@ -704,7 +701,7 @@ def summarize_results(
 
 def main():
     sample_ratio_arr = np.arange(start=2., stop=4.1, step=0.1)
-    command = sys.argv[1]
+    command = os.sys.argv[1]
     max_epochs = 200
     tol_algo = 1e-7
     tol_rec = 1e-2
@@ -717,8 +714,8 @@ def main():
     if not os.path.exists(root_p):
         os.mkdir(root_p)
     if command == 'run_test':
-        num_cpus = int(sys.argv[2])
-        trial_range = range(int(sys.argv[3]), int(sys.argv[4]))
+        num_cpus = int(os.sys.argv[2])
+        trial_range = range(int(os.sys.argv[3]), int(os.sys.argv[4]))
         run_test(trial_range=trial_range,
                  max_epochs=max_epochs,
                  tol_algo=tol_algo,
