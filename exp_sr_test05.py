@@ -313,18 +313,14 @@ def algo_graph_iht(
 
 
 def cv_graph_iht(x_tr_mat, y_tr, x_va_mat, y_va, max_epochs, lr_list, x_star,
-                 x0, tol_algo, edges, costs, g, root, s, gamma,
-                 proj_max_num_iter, verbose):
+                 x0, tol_algo, edges, costs, s):
     """ Tuning parameter by using additional validation dataset. """
     test_err_mat = np.zeros(len(lr_list))
     x_hat_dict = dict()
     for lr_ind, lr in enumerate(lr_list):
         num_epochs, run_time, x_hat = algo_graph_iht(
             x_mat=x_tr_mat, y_tr=y_tr, max_epochs=max_epochs,
-            lr=lr, x0=x0, tol_algo=tol_algo, edges=edges,
-            costs=costs, g=g, s=s, root=root, gamma=gamma,
-            proj_max_num_iter=proj_max_num_iter,
-            verbose=verbose)
+            lr=lr, x0=x0, tol_algo=tol_algo, edges=edges, costs=costs, s=s)
         y_err = np.linalg.norm(y_va - np.dot(x_va_mat, x_hat)) ** 2.
         test_err_mat[lr_ind] = y_err
         x_hat_dict[lr] = (num_epochs, run_time, x_hat)
@@ -399,19 +395,15 @@ def algo_graph_sto_iht(
 
 
 def cv_graph_sto_iht(x_tr_mat, y_tr, x_va_mat, y_va, b_list, lr_list, s,
-                     max_epochs, tol_algo, x_star, x0, verbose, edges, costs,
-                     g, root, proj_max_num_iter, gamma):
+                     max_epochs, tol_algo, x_star, x0, edges, costs):
     """ Tuning parameter by using additional validation dataset. """
     test_err_mat = np.zeros(len(lr_list) * len(b_list))
     para_dict = dict()
     x_hat_dict = dict()
     for index, (lr, b) in enumerate(product(lr_list, b_list)):
         num_epochs, run_time, x_hat = algo_graph_sto_iht(
-            x_mat=x_tr_mat, y_tr=y_tr, max_epochs=max_epochs,
-            lr=lr, x0=x0, tol_algo=tol_algo, edges=edges,
-            costs=costs, g=g, root=root, s=s, gamma=gamma,
-            proj_max_num_iter=proj_max_num_iter,
-            verbose=verbose, b=b)
+            x_mat=x_tr_mat, y_tr=y_tr, max_epochs=max_epochs, lr=lr, x0=x0,
+            tol_algo=tol_algo, edges=edges, costs=costs, s=s, b=b)
         y_err = np.linalg.norm(y_va - np.dot(x_va_mat, x_hat)) ** 2.
         test_err_mat[index] = y_err
         para_dict[index] = (lr, b)
@@ -494,8 +486,7 @@ def algo_niht(x_mat, y_tr, max_epochs, s, x_star, x0, tol_algo):
 
 def algo_graph_cosamp(
         x_mat, y_tr, max_epochs, x_star, x0, tol_algo, edges, costs,
-        h_g, t_g, root, h_low, h_high, t_low, t_high, proj_max_num_iter,
-        verbose):
+        h_g, t_g, s, root=-1, gamma=0.1, proj_max_num_iter=50, verbose=0):
     """ Graph-CoSaMP proposed in [2].
     :param x_mat:
     :param y_tr:
@@ -505,13 +496,11 @@ def algo_graph_cosamp(
     :param tol_algo:
     :param edges:
     :param costs:
+    :param s:
     :param h_g:
     :param t_g:
     :param root:
-    :param h_low:
-    :param h_high:
-    :param t_low:
-    :param t_high:
+    :param gamma:
     :param proj_max_num_iter:
     :param verbose:
     :return:
@@ -521,6 +510,10 @@ def algo_graph_cosamp(
     x_tr_t = np.transpose(x_mat)
     xtx, xty = np.dot(x_tr_t, x_mat), np.dot(x_tr_t, y_tr)
     num_epochs = 0
+
+    h_low, h_high = int(2 * s), int(2 * s * (1.0 + gamma))
+    t_low, t_high = int(s), int(s * (1.0 + gamma))
+
     for epoch_i in range(max_epochs):
         num_epochs += 1
         grad = -2. * (np.dot(xtx, x_hat) - xty)  # proxy
@@ -610,7 +603,6 @@ def run_single_test(data):
     x0, tol_algo, tol_rec = data['x0'], data['tol_algo'], data['tol_rec']
     max_epochs = data['max_epochs']
     b_list, lr_list = data['b_list'], data['lr_list']
-    verbose = data['verbose']
     trial_i = data['trial_i']
     x_tr_mat = np.random.normal(0.0, 1.0, size=n * p)
     x_va_mat = np.random.normal(0.0, 1.0, size=100 * p)
@@ -652,8 +644,7 @@ def run_single_test(data):
         x_tr_mat=x_tr_mat, y_tr=y_tr, x_va_mat=x_va_mat, y_va=y_va,
         max_epochs=max_epochs, lr_list=lr_list,
         x_star=x_star, x0=x0, tol_algo=tol_algo, edges=edges,
-        costs=costs, g=g, root=root, s=s, gamma=gamma,
-        proj_max_num_iter=proj_max_num_iter, verbose=verbose)
+        costs=costs, s=s)
     rec_err.append(('graph-iht', err))
     print_helper('graph-iht', trial_i, n, err, num_epochs, run_time)
 
@@ -661,20 +652,14 @@ def run_single_test(data):
     err, num_epochs, run_time = cv_graph_sto_iht(
         x_tr_mat, y_tr, x_va_mat, y_va, b_list=b_list, lr_list=lr_list, s=s,
         max_epochs=max_epochs, tol_algo=tol_algo, x0=x0, x_star=x_star,
-        edges=edges, costs=costs, g=g, root=root, gamma=gamma,
-        proj_max_num_iter=proj_max_num_iter, verbose=verbose)
+        edges=edges, costs=costs)
     rec_err.append(('graph-sto-iht', err))
     print_helper('graph-sto-iht', trial_i, n, err, num_epochs, run_time)
 
     # ------------ GraphCoSaMP ------------
-    h_low, h_high = int(2 * s), int(2 * s * (1.0 + gamma))
-    t_low, t_high = int(s), int(s * (1.0 + gamma))
     err, num_epochs, run_time = algo_graph_cosamp(
         x_mat=x_tr_mat, y_tr=y_tr, max_epochs=max_epochs, x_star=x_star,
-        x0=x0, tol_algo=tol_algo, edges=edges, costs=costs,
-        h_g=1, t_g=1, root=root, h_low=h_low, h_high=h_high,
-        t_low=t_low, t_high=t_high, proj_max_num_iter=proj_max_num_iter,
-        verbose=verbose)
+        x0=x0, tol_algo=tol_algo, edges=edges, costs=costs, h_g=1, t_g=1, s=s)
     rec_err.append(('graph-cosamp', err))
     print_helper('graph-cosamp', trial_i, n, err, num_epochs, run_time)
 
@@ -744,7 +729,7 @@ def run_test(trial_range, n_list, tol_algo, tol_rec,
           (len(trial_range), time.time() - start_time))
 
 
-def summarize_results(trials_range, n_list, method_list, tol_rec):
+def summarize_results(trials_range, n_list, method_list, tol_rec, root_p):
     results_pool = []
     num_trials = len(trials_range)
     for trial_i in trials_range:
@@ -777,7 +762,7 @@ def summarize_results(trials_range, n_list, method_list, tol_rec):
                  'results_pool': results_pool}, open(f_name, 'wb'))
 
 
-def show_test(n_list, method_list, method_label_list):
+def show_test(n_list, method_list, method_label_list, root_p):
     import matplotlib.pyplot as plt
     from matplotlib import rc
     from pylab import rcParams
@@ -878,12 +863,13 @@ def main():
     elif command == 'summarize_results':
         trials_range = range(50)
         summarize_results(trials_range=trials_range, n_list=n_list,
-                          method_list=method_list, tol_rec=tol_rec)
+                          method_list=method_list, tol_rec=tol_rec,
+                          root_p=root_p)
     elif command == 'show_test':
         method_label_list = ['NIHT', 'IHT', 'StoIHT', 'CoSaMP',
                              'GraphIHT', 'GraphCoSaMP', 'GraphStoIHT']
         show_test(n_list=n_list, method_list=method_list,
-                  method_label_list=method_label_list)
+                  method_label_list=method_label_list, root_p=root_p)
 
 
 if __name__ == '__main__':
