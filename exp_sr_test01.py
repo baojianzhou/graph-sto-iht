@@ -640,7 +640,7 @@ def show_test_2(s_list, n_list, method_list, label_list, save_data_path):
         ttl.set_position([.5, 0.97])
 
     for i in range(2):
-        ax[1, i].set_xlabel(r"$\displaystyle n$", labelpad=-0.5)
+        ax[1, i].set_xlabel(r"$\displaystyle m$", labelpad=-0.5)
         ax[i, 0].set_ylabel(r"Probability of Recovery")
     ax[1, 1].legend(loc='center right', framealpha=1.,
                     bbox_to_anchor=(0.55, 0.5),
