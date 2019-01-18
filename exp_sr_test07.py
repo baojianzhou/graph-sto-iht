@@ -186,7 +186,7 @@ def cv_sto_iht(x_tr_mat, y_tr, x_va_mat, y_va, max_epochs, s, x_star, x0,
         test_err_mat[index] = y_err
         para_dict[index] = (lr, b)
         x_hat_dict[(lr, b)] = (num_epochs, run_time, x_hat)
-    lr, b = para_dict[np.argmin(test_err_mat)]
+    lr, b = para_dict[int(np.argmin(test_err_mat))]
     err = np.linalg.norm(x_star - x_hat_dict[(lr, b)][2])
     num_epochs, run_time = x_hat_dict[(lr, b)][:2]
     return err, num_epochs, run_time

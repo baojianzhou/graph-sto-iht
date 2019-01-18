@@ -681,7 +681,6 @@ def main():
     root_p = 'results/'
     if not os.path.exists(root_p):
         os.mkdir(root_p)
-    save_data_path = root_p + 'results_exp_sr_test04.pkl'
 
     if len(os.sys.argv) <= 1:
         print('\n'.join(['please use one of the following commands: ',

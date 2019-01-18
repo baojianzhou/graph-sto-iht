@@ -259,8 +259,8 @@ def cv_sto_iht(x_tr_mat, y_tr, x_va_mat, y_va, max_epochs, s, x_star, x0,
 
 
 def algo_graph_iht(
-        x_mat, y_tr, max_epochs, lr, x0, tol_algo, edges, costs, s,
-        g=1, root=-1, gamma=0.1, proj_max_num_iter=50, verbose=0):
+        x_mat, y_tr, max_epochs, lr, x0, tol_algo, edges, costs, g, s,
+        root=-1, gamma=0.1, proj_max_num_iter=50, verbose=0):
     """ Graph Iterative Hard Thresholding proposed in [4] and projection
                 operator is proposed in [2].
     :param x_mat:       the design matrix.
@@ -319,8 +319,8 @@ def cv_graph_iht(x_tr_mat, y_tr, x_va_mat, y_va, max_epochs, lr_list, x_star,
     x_hat_dict = dict()
     for lr_ind, lr in enumerate(lr_list):
         num_epochs, run_time, x_hat = algo_graph_iht(
-            x_mat=x_tr_mat, y_tr=y_tr, max_epochs=max_epochs,
-            lr=lr, x0=x0, tol_algo=tol_algo, edges=edges, costs=costs, s=s)
+            x_mat=x_tr_mat, y_tr=y_tr, max_epochs=max_epochs, lr=lr, x0=x0,
+            tol_algo=tol_algo, edges=edges, costs=costs, g=1, s=s)
         y_err = np.linalg.norm(y_va - np.dot(x_va_mat, x_hat)) ** 2.
         test_err_mat[lr_ind] = y_err
         x_hat_dict[lr] = (num_epochs, run_time, x_hat)
@@ -332,7 +332,7 @@ def cv_graph_iht(x_tr_mat, y_tr, x_va_mat, y_va, max_epochs, lr_list, x_star,
 
 
 def algo_graph_sto_iht(
-        x_mat, y_tr, max_epochs, lr, x0, tol_algo, edges, costs, s, b, g=1,
+        x_mat, y_tr, max_epochs, lr, x0, tol_algo, edges, costs, g, s, b,
         root=-1, gamma=0.1, proj_max_num_iter=50, verbose=0):
     """ Graph Stochastic Iterative Hard Thresholding.
     :param x_mat:       the design matrix.
@@ -403,7 +403,7 @@ def cv_graph_sto_iht(x_tr_mat, y_tr, x_va_mat, y_va, b_list, lr_list, s,
     for index, (lr, b) in enumerate(product(lr_list, b_list)):
         num_epochs, run_time, x_hat = algo_graph_sto_iht(
             x_mat=x_tr_mat, y_tr=y_tr, max_epochs=max_epochs, lr=lr, x0=x0,
-            tol_algo=tol_algo, edges=edges, costs=costs, s=s, b=b)
+            tol_algo=tol_algo, edges=edges, costs=costs, g=1, s=s, b=b)
         y_err = np.linalg.norm(y_va - np.dot(x_va_mat, x_hat)) ** 2.
         test_err_mat[index] = y_err
         para_dict[index] = (lr, b)
@@ -642,9 +642,8 @@ def run_single_test(data):
     # ------------ GraphIHT ------------
     err, num_epochs, run_time = cv_graph_iht(
         x_tr_mat=x_tr_mat, y_tr=y_tr, x_va_mat=x_va_mat, y_va=y_va,
-        max_epochs=max_epochs, lr_list=lr_list,
-        x_star=x_star, x0=x0, tol_algo=tol_algo, edges=edges,
-        costs=costs, s=s)
+        max_epochs=max_epochs, lr_list=lr_list, x_star=x_star, x0=x0,
+        tol_algo=tol_algo, edges=edges, costs=costs, s=s)
     rec_err.append(('graph-iht', err))
     print_helper('graph-iht', trial_i, n, err, num_epochs, run_time)
 
@@ -841,7 +840,6 @@ def main():
     root_p = 'results/'
     if not os.path.exists(root_p):
         os.mkdir(root_p)
-    save_data_path = root_p + 'results_exp_sr_test05.pkl'
 
     if len(os.sys.argv) <= 1:
         print('\n'.join(['please use one of the following commands: ',
