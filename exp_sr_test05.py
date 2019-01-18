@@ -36,12 +36,8 @@ import os
 import time
 import pickle
 import random
-from os import sys
 import multiprocessing
-
 from itertools import product
-
-# you need to install numpy
 import numpy as np
 
 try:
@@ -50,16 +46,13 @@ try:
     try:
         from sparse_module import wrap_head_tail_bisearch
     except ImportError:
-        print('cannot find some function(s) in sparse_module')
+        print('cannot find wrap_head_tail_bisearch method in sparse_module')
         sparse_module = None
         exit(0)
 except ImportError:
-    print('cannot find the module: sparse_module')
-
-# TODO config by yourself.
-root_p = '/network/rit/lab/ceashpc/bz383376/data/icml19/publish_2/'
-if not os.path.exists(root_p):
-    os.mkdir(root_p)
+    print('\n'.join([
+        'cannot find the module: sparse_module',
+        'try run: \'python setup.py build_ext --inplace\' first! ']))
 
 
 def algo_head_tail_bisearch(
@@ -91,7 +84,7 @@ def algo_head_tail_bisearch(
 
 def simu_grid_graph(width, height, rand_weight=False):
     """ Generate a grid graph with size, width x height. Totally there will be
-                width x height number of nodes in this generated graph.
+        width x height number of nodes in this generated graph.
     :param width:       the width of the grid graph.
     :param height:      the height of the grid graph.
     :param rand_weight: the edge costs in this generated grid graph.
@@ -129,8 +122,8 @@ def simu_grid_graph(width, height, rand_weight=False):
 
 def sensing_matrix(n, x, norm_noise=0.0):
     """ Generate sensing matrix (design matrix). This generated sensing
-            matrix is a Gaussian matrix, i.e., each entry ~ N(0,\sigma/\sqrt(n)).
-            Please see more details in equation (1.2) shown in reference [6].
+        matrix is a Gaussian matrix, i.e., each entry ~ N(0,\sigma/\sqrt(n)).
+        Please see more details in equation (1.2) shown in reference [6].
     :param n:           the number of measurements required.
     :param x:           the input signal.
     :param norm_noise:  plus ||norm_noise|| noise on the measurements.
@@ -149,7 +142,7 @@ def sensing_matrix(n, x, norm_noise=0.0):
 
 def algo_iht(x_mat, y_tr, max_epochs, lr, s, x0, tol_algo):
     """ Iterative Hard Thresholding Method proposed in reference [3]. The
-            standard iterative hard thresholding method for compressive sensing.
+        standard iterative hard thresholding method for compressive sensing.
     :param x_mat:       the design matrix.
     :param y_tr:        the array of measurements.
     :param max_epochs:  the maximum epochs (iterations) allowed.
@@ -696,7 +689,8 @@ def run_single_test(data):
     return trial_i, n, rec_err
 
 
-def run_test(trial_range, n_list, tol_algo, tol_rec, max_epochs, num_cpus):
+def run_test(trial_range, n_list, tol_algo, tol_rec,
+             max_epochs, num_cpus, root_p):
     np.random.seed()
     start_time = time.time()
     input_data_list, saved_data = [], dict()
@@ -744,7 +738,7 @@ def run_test(trial_range, n_list, tol_algo, tol_rec, max_epochs, num_cpus):
             sum_results[trial_i] = []
         sum_results[trial_i].append((trial_i, n, rec_err))
     for trial_i in sum_results:
-        f_name = root_p + 'sr_simu_test05_trial_%02d.pkl' % trial_i
+        f_name = root_p + 'results_exp_sr_test05_trial_%02d.pkl' % trial_i
         print('save results to file: %s' % f_name)
         pickle.dump({'results_pool': sum_results[trial_i]},
                     open(f_name, 'wb'))
@@ -855,19 +849,34 @@ def main():
     max_epochs = 500
     tol_algo = 1e-7
     tol_rec = 1e-6
-    command = sys.argv[1]
+
     n_list = range(20, 151, 5)
     method_list = ['niht', 'iht', 'sto-iht', 'cosamp',
                    'graph-iht', 'graph-cosamp', 'graph-sto-iht']
+
+    # TODO config the path by yourself.
+    root_p = 'results/'
+    if not os.path.exists(root_p):
+        os.mkdir(root_p)
+    save_data_path = root_p + 'results_exp_sr_test05.pkl'
+
+    if len(os.sys.argv) <= 1:
+        print('\n'.join(['please use one of the following commands: ',
+                         '1. python exp_sr_test05.py run_test 50 0 10',
+                         '2. python exp_sr_test05.py show_test']))
+        exit(0)
+
+    command = os.sys.argv[1]
     if command == 'run_test':
-        num_cpus = int(sys.argv[2])
-        trial_range = range(int(sys.argv[3]), int(sys.argv[4]))
+        num_cpus = int(os.sys.argv[2])
+        trial_range = range(int(os.sys.argv[3]), int(os.sys.argv[4]))
         run_test(trial_range=trial_range,
                  n_list=n_list,
                  tol_algo=tol_algo,
                  tol_rec=tol_rec,
                  max_epochs=max_epochs,
-                 num_cpus=num_cpus)
+                 num_cpus=num_cpus,
+                 root_p=root_p)
     elif command == 'summarize_results':
         trials_range = range(50)
         summarize_results(trials_range=trials_range, n_list=n_list,
