@@ -41,9 +41,9 @@ try:
     import sparse_module
 
     try:
-        from sparse_module import wrap_head_tail_binsearch
+        from sparse_module import wrap_head_tail_bisearch
     except ImportError:
-        print('cannot find wrap_head_tail_binsearch method in sparse_module')
+        print('cannot find wrap_head_tail_bisearch method in sparse_module')
         sparse_module = None
         exit(0)
 except ImportError:

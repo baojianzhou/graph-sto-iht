@@ -25,7 +25,7 @@ static PyObject *test(PyObject *self, PyObject *args) {
     return results;
 }
 
-static PyObject *wrap_head_tail_binsearch(PyObject *self, PyObject *args) {
+static PyObject *wrap_head_tail_bisearch(PyObject *self, PyObject *args) {
     if (self != NULL) {
         printf("error: unknown error !!\n");
         return NULL;
@@ -53,7 +53,7 @@ static PyObject *wrap_head_tail_binsearch(PyObject *self, PyObject *args) {
         para->edges[i].second = *(int *) PyArray_GETPTR2(edges_, i, 1);
     }
     GraphStat *graph_stat = make_graph_stat(para->p, para->m);
-    head_tail_binsearch(
+    head_tail_bisearch(
             para->edges, para->costs, para->prizes, para->p, para->m, para->g,
             para->root, para->sparsity_low, para->sparsity_high,
             para->max_num_iter, GWPruning, para->verbose, graph_stat);
@@ -74,8 +74,8 @@ static PyObject *wrap_head_tail_binsearch(PyObject *self, PyObject *args) {
 static PyMethodDef sparse_methods[] = {
         {"just a simple test function!", (PyCFunction) test,
                 METH_VARARGS, "test docs"},
-        {"wrap_head_tail_binsearch",     (PyCFunction) wrap_head_tail_binsearch,
-                METH_VARARGS, "wrap_head_tail_binsearch docs"},
+        {"wrap_head_tail_bisearch",     (PyCFunction) wrap_head_tail_bisearch,
+                METH_VARARGS, "wrap_head_tail_bisearch docs"},
         {NULL, NULL, 0, NULL}};
 
 /** Python version 2 for module initialization */

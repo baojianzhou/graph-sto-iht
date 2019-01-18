@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-command:    python setup.py build_ext --inplace
+this is a wrapper of head and tail projection.
+try to use the following command:
+    python setup.py build_ext --inplace
 """
 import os
 import numpy
@@ -17,11 +19,8 @@ compile_args = ['-shared', '-Wall', '-g', '-fPIC',
                 '-std=c11', '-lpython2.7', '-lm']
 # calling the setup function
 setup(
-    # sparse_learning package.
     name='sparse_module',
-    # current version is 0.0.1
     version='0.0.1',
-    # this is a wrapper of head and tail projection.
     description='----',
     long_description='----',
     url='----',
@@ -29,16 +28,14 @@ setup(
     author_email='----',
     include_dirs=[numpy.get_include()],
     license='MIT',
-    packages=['sparse_learning'],
+    packages=['sparse_modules'],
     classifiers=("Programming Language :: Python :: 2",
                  "License :: OSI Approved :: MIT License",
                  "Operating System :: POSIX :: Linux",),
-    # specify requirements of your package here
     install_requires=['numpy'],
     headers=['algo_wrapper/c/head_tail_proj.h',
              'algo_wrapper/c/fast_pcst.h',
              'algo_wrapper/c/sort.h'],
-    # define the extension module
     ext_modules=[Extension('sparse_module',
                            sources=src_files,
                            language="C",

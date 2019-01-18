@@ -254,7 +254,7 @@ bool test_cluster_grid_pcst_bisearch() {
     int k_high = 8;
     int max_num_iter = 10;
     GraphStat *stat = make_graph_stat(n, m);
-    cluster_grid_pcst_binsearch(
+    cluster_grid_pcst_bisearch(
             edges, costs, prizes, n, m, target_num_clusters, root, k_low,
             k_high, max_num_iter, GWPruning, verbose, stat);
     printf("result nodes: ");
@@ -298,7 +298,7 @@ bool test_head_tail_bisearch() {
     int k_high = 8;
     int max_num_iter = 10;
     GraphStat *stat = make_graph_stat(n, m);
-    head_tail_binsearch(
+    head_tail_bisearch(
             edges, costs, prizes, n, m, target_num_clusters, root, k_low,
             k_high, max_num_iter, GWPruning, verbose, stat);
     printf("result nodes: ");

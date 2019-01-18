@@ -674,7 +674,7 @@ bool cluster_grid_pcst(
 
 }
 
-bool cluster_grid_pcst_binsearch(
+bool cluster_grid_pcst_bisearch(
         const EdgePair *edges, const double *costs, const double *prizes,
         int n, int m, int target_num_clusters, int root, int sparsity_low,
         int sparsity_high, int max_num_iter, PruningMethod pruning,
@@ -795,7 +795,7 @@ bool cluster_grid_pcst_binsearch(
 }
 
 
-bool head_tail_binsearch(
+bool head_tail_bisearch(
         const EdgePair *edges, const double *costs, const double *prizes,
         int n, int m, int target_num_clusters, int root, int sparsity_low,
         int sparsity_high, int max_num_iter, PruningMethod pruning,
