@@ -691,7 +691,8 @@ def main():
     command = os.sys.argv[1]
     if command == 'run_test':
         num_cpus = int(os.sys.argv[2])
-        for trial_i in range(num_trials):
+        trial_range = range(int(os.sys.argv[3]), int(os.sys.argv[4]))
+        for trial_i in trial_range:
             run_test(trial_range=[trial_i],
                      fig_list=fig_list,
                      n_range_list=n_range_list,
