@@ -70,7 +70,7 @@ def get_img_data(root_p):
     resized_data = dict()
     s_list = []
     for img_ind, _ in enumerate(img_name_list):
-        img = sio.loadmat(root_p + 'image_%s.mat' % _)['x_gray']
+        img = sio.loadmat(root_p + 'sr_image_%s.mat' % _)['x_gray']
         im = Image.fromarray(img).resize((re_height, re_width), Image.BILINEAR)
         im = np.asarray(im.getdata()).reshape((re_height, re_width))
         resized_data[_] = im
@@ -540,7 +540,7 @@ def show_resized_figures(root_p, re_height=50, re_width=50):
     fig, ax = plt.subplots(2, 3)
     title_list = ['BackGround', 'Angiogram', 'Text']
     for img_ind, img_name in enumerate(['background', 'angio', 'icml']):
-        img = sio.loadmat(root_p + 'image_%s.mat' % img_name)['x_gray']
+        img = sio.loadmat(root_p + 'sr_image_%s.mat' % img_name)['x_gray']
         im = Image.fromarray(img).resize((re_height, re_width), Image.BILINEAR)
         im = np.asarray(im.getdata()).reshape((re_height, re_width))
         ax[0, img_ind].imshow(img, cmap='gray')

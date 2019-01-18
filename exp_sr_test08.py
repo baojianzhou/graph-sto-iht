@@ -71,19 +71,19 @@ def generate_dataset(root):
     g = nx.Graph()
     [g.add_edge(edge[0], edge[1]) for edge in edges]
     # 415 nodes, 4 components
-    img_icml = sio.loadmat(root + 'image_icml.mat')['x_gray']
+    img_icml = sio.loadmat(root + 'sr_image_icml.mat')['x_gray']
     w_icml = img_icml.flatten()
     sub_graph = np.nonzero(w_icml)[0]
     num_cc = nx.number_connected_components(g.subgraph(sub_graph))
     print('icml has %d nodes and %d components' % (len(sub_graph), num_cc))
     # 622 nodes, 1 component
-    img_angio = sio.loadmat(root + 'image_angio.mat')['x_gray']
+    img_angio = sio.loadmat(root + 'sr_image_angio.mat')['x_gray']
     w_angio = img_angio.flatten()
     sub_graph = np.nonzero(w_angio)[0]
     num_cc = nx.number_connected_components(g.subgraph(sub_graph))
     print('angio has %d nodes and %d components' % (len(sub_graph), num_cc))
     # 613 nodes, 3 components
-    img_background = sio.loadmat(root + 'image_background.mat')['x_gray']
+    img_background = sio.loadmat(root + 'sr_image_background.mat')['x_gray']
     w_background = img_background.flatten()
     sub_graph = np.nonzero(w_background)[0]
     num_cc = nx.number_connected_components(g.subgraph(sub_graph))
@@ -603,7 +603,7 @@ def cv_graph_iht(y0, y_va, omega_va, k, c, opts, x_gray, edges, costs, omega):
 def test_single_algo():
     root = '/network/rit/lab/ceashpc/bz383376/data/icml19/images/'
     import scipy.io as sio
-    img_icml = sio.loadmat(root + 'image_icml.mat')['x_gray']
+    img_icml = sio.loadmat(root + 'sr_image_icml.mat')['x_gray']
     w = img_icml.flatten()
     x_gray = w
     n = 10000
