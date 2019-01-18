@@ -46,8 +46,9 @@ try:
         sparse_module = None
         exit(0)
 except ImportError:
-    print('\n'.join(['cannot find the module: sparse_module',
-                     'use ./build.sh build sparse_module.so library.']))
+    print('\n'.join([
+        'cannot find the module: sparse_module',
+        'try run: \'python setup.py build_ext --inplace\' first! ']))
 
 
 def algo_head_tail_bisearch(
