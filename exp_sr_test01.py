@@ -537,6 +537,65 @@ def show_test(s_list, n_list, method_list, label_list, save_data_path):
     from matplotlib import rc
     from pylab import rcParams
     plt.rcParams["font.family"] = "Times New Roman"
+    plt.rcParams["font.size"] = 20
+    rc('text', usetex=True)
+
+    rcParams['figure.figsize'] = 16, 4
+    color_list = ['b', 'g', 'm', 'r']
+    marker_list = ['X', 'o', 'P', 's']
+    results = pickle.load(open(save_data_path))['trim_results']
+    fig, ax = plt.subplots(1, 4, sharex='all', sharey='all')
+    for ii in range(4):
+        ax[ii].grid(b=True, which='both', color='gray',
+                    linestyle='dotted', axis='both')
+        ax[ii].spines['right'].set_visible(False)
+        ax[ii].spines['top'].set_visible(False)
+    for i in range(4):
+        ax[i].set_xticks(np.arange(0, max(n_list) + 1, 50))
+    ax[0].set_yticks([0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
+    for s in s_list:
+        print(' '.join(method_list))
+        re_mat = np.zeros(shape=(len(n_list), 4))
+        for method_ind, method in enumerate(method_list):
+            for ind, _ in enumerate(
+                    np.mean(results[method_list[method_ind]][s], axis=0)):
+                re_mat[ind][method_ind] = _
+        for ind, _ in enumerate(n_list):
+            row = [str(_)]
+            row.extend([str('%.3f' % _) for _ in re_mat[ind]])
+            print(', '.join(row))
+    for m_ind, s in enumerate(s_list):
+        ii = m_ind
+        for method_ind, method in enumerate(method_list):
+            re = np.mean(results[method_list[method_ind]][s], axis=0)
+            ax[ii].plot(n_list, re, c=color_list[method_ind],
+                        markerfacecolor='none',
+                        linestyle='-', marker=marker_list[method_ind],
+                        markersize=6., markeredgewidth=1.,
+                        linewidth=1.5, label=label_list[method_ind])
+        ax[ii].set_title(r"$\displaystyle s=%d$" % s)
+        ttl = ax[ii].title
+        ttl.set_position([.5, 0.97])
+    for i in range(4):
+        ax[i].set_xlabel(r"$\displaystyle n$", labelpad=-0.5)
+    ax[0].set_ylabel(r"Probability of Recovery")
+    ax[3].legend(loc='center right', framealpha=1.,
+                 bbox_to_anchor=(0.55, 0.5),
+                 fontsize=14., frameon=True, borderpad=0.1,
+                 labelspacing=0.1, handletextpad=0.1, markerfirst=True)
+    plt.subplots_adjust(wspace=0.0, hspace=0.2)
+    save_data_path = save_data_path.replace('pkl', 'pdf')
+    print('save fig to: %s' % save_data_path)
+    plt.savefig(save_data_path, dpi=600, bbox_inches='tight', pad_inches=0,
+                format='pdf')
+    plt.close()
+
+
+def show_test_2(s_list, n_list, method_list, label_list, save_data_path):
+    import matplotlib.pyplot as plt
+    from matplotlib import rc
+    from pylab import rcParams
+    plt.rcParams["font.family"] = "Times New Roman"
     plt.rcParams["font.size"] = 16
     rc('text', usetex=True)
 
@@ -706,11 +765,11 @@ def main():
                  method_list=method_list,
                  save_data_path=save_data_path)
     elif command == 'show_test':
-        show_test(s_list=s_list,
-                  n_list=n_list,
-                  method_list=method_list,
-                  label_list=label_list,
-                  save_data_path=save_data_path)
+        show_test_2(s_list=s_list,
+                    n_list=n_list,
+                    method_list=method_list,
+                    label_list=label_list,
+                    save_data_path=save_data_path)
     elif command == 'gen_figures':
         generate_figures(root_p=root_p,
                          save_data_path=save_data_path)

@@ -865,9 +865,18 @@ def show_test(trials_list, num_iterations, root_input, root_output,
         print('_' * 164)
         print('_' * 164)
         print(' '.join(['-' * 75, 'latex tables', '-' * 75]))
-        for metric in ['bacc', 'auc', 'num_nonzeros']:
-            mean_dict = {method: [] for method in method_list}
+        caption_list = ['BACC on Gene expression dataset.',
+                        'AUC on Gene expression dataset.',
+                        'Non-zeros on Gene expression dataset']
+        for index_metrix, metric in enumerate(['bacc', 'auc', 'num_nonzeros']):
             print(' '.join(['-' * 75, '%12s' % metric, '-' * 75]))
+            print(
+                    '\\begin{table*}[ht!]\n\\caption{%s}\n'
+                    '\centering\n\scriptsize\n\\begin{tabular}{ccccccccccc}' %
+                    caption_list[index_metrix])
+            print('\hline')
+            mean_dict = {method: [] for method in method_list}
+
             print(' & '.join(
                 ['-', '$\ell_1$-Path', '$\Omega_{\cup}^\mathcal{G}$-Path',
                  '$\ell_1$-Edge', '$\Omega_{\cup}^\mathcal{G}$-Edge',
@@ -933,6 +942,7 @@ def show_test(trials_list, num_iterations, root_input, root_output,
             print(' & '.join(row_list)),
             print('\\\\')
             print('\hline')
+            print('\end{tabular}\n\end{table*}')
         print('_' * 164)
     found_genes = {method: set() for method in method_list}
     for folding_i in trials_list:
