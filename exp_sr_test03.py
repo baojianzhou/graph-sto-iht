@@ -555,10 +555,19 @@ def main():
     method_list = ['graph-iht', 'graph-sto-iht']
     # noise level list
     noise_level_list = [0.0, 0.3, 0.5, 0.7]
-    # TODO config by yourself.
-    root_p = '/network/rit/lab/ceashpc/bz383376/data/icml19/publish/'
+
+    # TODO config the path by yourself.
+    root_p = 'results/'
     if not os.path.exists(root_p):
         os.mkdir(root_p)
+    save_data_path = root_p + 'results_exp_sr_test03.pkl'
+
+    if len(os.sys.argv) <= 1:
+        print('\n'.join(['please use one of the following commands: ',
+                         '1. python exp_sr_test02.py run_test',
+                         '2. python exp_sr_test02.py show_test']))
+        exit(0)
+
     command = os.sys.argv[1]
     if command == 'run_test':
         num_cpus = int(os.sys.argv[2])
