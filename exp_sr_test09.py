@@ -335,7 +335,7 @@ def run_single_test(data):
 
     for y, flag in zip([y_tr, y_e], ['noise-free', 'with-noise']):
         # ------------- IHT ----------------
-        if b == 4:  # only need to run once.
+        if b == 2:  # only need to run once.
             err, num_epochs, run_time = algo_iht(
                 x_mat=x_mat, y_tr=y, max_epochs=max_epochs, lr=lr, s=s,
                 x_star=x_star, x0=x0, tol_algo=tol_algo)
@@ -350,7 +350,7 @@ def run_single_test(data):
         print_helper('sto-iht', trial_i, b, n, num_epochs, err, run_time)
 
         # ------------- GraphIHT -----------
-        if b == 4:  # only need to run once.
+        if b == 2:  # only need to run once.
             err, num_epochs, run_time = algo_graph_iht(
                 x_mat=x_mat, y_tr=y, max_epochs=max_epochs, lr=lr,
                 x_star=x_star, x0=x0, tol_algo=tol_algo, edges=edges,
