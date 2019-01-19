@@ -768,9 +768,9 @@ def show_test(n_list, method_list, method_label_list, root_p):
     from matplotlib import rc
     from pylab import rcParams
     rc('text', usetex=True)
-    rcParams['figure.figsize'] = 8, 3.5
+    rcParams['figure.figsize'] = 14, 6
     plt.rcParams["font.family"] = "Times New Roman"
-    plt.rcParams["font.size"] = 18
+    plt.rcParams["font.size"] = 20
 
     color_list = ['c', 'b', 'g', 'k', 'm', 'y', 'r']
     marker_list = ['D', 'X', 'o', 'h', 'P', 'p', 's']
@@ -806,21 +806,21 @@ def show_test(n_list, method_list, method_label_list, root_p):
                    c=color_list[method_ind],
                    linestyle=linestyle_list[method_ind],
                    markerfacecolor='none',
-                   marker=marker_list[method_ind], markersize=5.,
-                   markeredgewidth=1.0, linewidth=1.0,
+                   marker=marker_list[method_ind], markersize=8.,
+                   markeredgewidth=1.5, linewidth=2.0,
                    label=r"$\displaystyle \textsc{%s}$ " %
                          method_label_list[method_ind])
-    ax[1].set_xlabel('Oversampling ratio ' + r"$\displaystyle n/s$ ",
-                     labelpad=0)
-    ax[1].set_ylabel('Probability of Recovery', labelpad=0.5)
+    ax[1].set_xlabel('Oversampling ratio ' + r"$\displaystyle m/s$ "
+                     , fontsize=25.)
+    ax[1].set_ylabel('Probability of Recovery', fontsize=25.)
     box = ax[1].get_position()
     ax[1].set_position([box.x0, box.y0, box.width * 0.8, box.height])
-    ax[1].legend(loc='lower right', bbox_to_anchor=(1.3, 0.01),
-                 fontsize=11., frameon=True, borderpad=0.1,
+    ax[1].legend(loc='lower right', bbox_to_anchor=(1.35, 0.01),
+                 fontsize=18., frameon=True, borderpad=0.1,
                  labelspacing=0.2, handletextpad=0.1, markerfirst=True)
     ax[1].spines['right'].set_visible(False)
     ax[1].spines['top'].set_visible(False)
-    plt.subplots_adjust(wspace=0.25, hspace=0.0)
+    plt.subplots_adjust(wspace=0.3, hspace=0.0)
     f_name = root_p + 'results_exp_sr_test05.pdf'
     print('save fig to: %s' % f_name)
     fig.savefig(f_name, dpi=600, bbox_inches='tight', pad_inches=0,
