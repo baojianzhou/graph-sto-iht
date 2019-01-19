@@ -518,10 +518,15 @@ def show_test(b_list, method_list, title_list, root_p):
     plt.rcParams["font.size"] = 18
     rc('text', usetex=True)
     rcParams['figure.figsize'] = 8, 4
-    all_results = pickle.load(open(root_p + 'sr_simu_test04.pkl'))
+    all_results = pickle.load(open(root_p + 'results_exp_sr_test09.pkl'))
     results = all_results['trim_results']
     average01 = results['noise-free']
     average02 = results['with-noise']
+    for method in ['graph-iht', 'iht']:
+        for b in average01[method]:
+            average01[method][b] = average01[method][2]
+        for b in average02[method]:
+            average02[method][b] = average02[method][2]
     color_list = ['b', 'g', 'm', 'r']
     marker_list = ['X', 'o', 'P', 's']
     fig, ax = plt.subplots(1, 2, sharey='all')
@@ -555,7 +560,7 @@ def show_test(b_list, method_list, title_list, root_p):
     ax[1].legend(loc='lower right', fontsize=14., borderpad=0.01,
                  labelspacing=0.0, handletextpad=0.05, framealpha=1.0)
     plt.subplots_adjust(wspace=0.0, hspace=0.0)
-    f_name = root_p + 'sr_simu_test04.pdf'
+    f_name = root_p + 'results_exp_sr_test09.pdf'
     print('save fig to: %s' % f_name)
     plt.savefig(f_name, dpi=600, bbox_inches='tight', pad_inches=0,
                 format='pdf')
