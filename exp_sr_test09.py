@@ -25,11 +25,6 @@ try:
 except ImportError:
     print('cannot find the module: sparse_module')
 
-# TODO config by yourself.
-root_p = 'results/'
-if not os.path.exists(root_p):
-    os.mkdir(root_p)
-
 
 def algo_head_tail_bisearch(
         edges, x, costs, g, root, s_low, s_high, max_num_iter, verbose):
@@ -373,7 +368,8 @@ def run_single_test(data):
     return trial_i, b, n, rec_err
 
 
-def run_test(s, n_list, b_list, num_cpus, trial_range):
+def run_test(s, n_list, p, lr, height, width, max_epochs, tol_algo,
+             tol_rec, b_list, num_cpus, trial_range, root_p):
     # make sure, it works under multiprocessing case.
     np.random.seed()
     start_time = time.time()
@@ -395,8 +391,8 @@ def run_test(s, n_list, b_list, num_cpus, trial_range):
             # adding ||e||=0.5 noise vector on y
             noise_e = np.random.normal(loc=0.0, scale=1.0, size=len(y_tr))
             y_e = y_tr + (0.5 / np.linalg.norm(noise_e)) * noise_e
-            data = {'lr': 1.0,
-                    'max_epochs': 500,
+            data = {'lr': lr,
+                    'max_epochs': max_epochs,
                     'trial_i': trial_i,
                     's': s,
                     'n': n,
@@ -405,20 +401,17 @@ def run_test(s, n_list, b_list, num_cpus, trial_range):
                     'y_e': y_e,
                     'n_list': n_list,
                     'b_list': b_list,
-                    'p': 256,
+                    'p': p,
                     'b': b,
                     'x_star': x_star,
-                    'x0': np.zeros(256),
+                    'x0': np.zeros(p),
                     'subgraph': sub_graphs[s][0],
-                    'tol_algo': 1e-7,
-                    'height': 16,
-                    'width': 16,
-                    'tol_rec': 1e-6,
-                    'subgraph_edges': sub_graphs[s][1],
+                    'tol_algo': tol_algo,
+                    'height': height,
+                    'width': width,
+                    'tol_rec': tol_rec,
                     'verbose': 0,
-                    'proj_para': {
-                        'edges': edges,
-                        'costs': costs}}
+                    'proj_para': {'edges': edges, 'costs': costs}}
             if s not in saved_data:
                 saved_data[s] = data
             input_data_list.append(data)
@@ -433,7 +426,7 @@ def run_test(s, n_list, b_list, num_cpus, trial_range):
                 sum_results[trial_i] = []
             sum_results[trial_i].append((trial_i, b, n, rec_err))
         for _ in sum_results:
-            f_name = root_p + 'results_exp_sr_test03_trial_%02d.pkl' % trial_i
+            f_name = root_p + 'results_exp_sr_test09_trial_%02d.pkl' % trial_i
             print('save results to file: %s' % f_name)
             pickle.dump({'results_pool': sum_results[trial_i]},
                         open(f_name, 'wb'))
@@ -441,11 +434,12 @@ def run_test(s, n_list, b_list, num_cpus, trial_range):
               (len(trial_range), time.time() - start_time))
 
 
-def summarize_results(trial_range, n_list, b_list, method_list):
+def summarize_results(trim_ratio, trial_range, n_list, b_list, method_list,
+                      root_p):
     results_pool = []
     num_trials = len(trial_range)
     for trial_i in trial_range:
-        f_name = root_p + 'results_exp_sr_test03_trial_%02d.pkl' % trial_i
+        f_name = root_p + 'results_exp_sr_test09_trial_%02d.pkl' % trial_i
         print('load file: %s' % f_name)
         for item in pickle.load(open(f_name))['results_pool']:
             results_pool.append(item)
@@ -468,7 +462,7 @@ def summarize_results(trial_range, n_list, b_list, method_list):
                 sum_results[flag][method][b] = sum_results[flag][method][4]
 
     # try to trim 5% of the results (rounding when necessary).
-    num_trim = int(round(0.05 * num_trials))
+    num_trim = int(round(trim_ratio * num_trials))
     trim_results = {
         'noise-free': {
             method: {b: np.zeros((num_trials - 2 * num_trim, len(n_list)))
@@ -509,14 +503,14 @@ def summarize_results(trial_range, n_list, b_list, method_list):
             else:
                 least_n = n_list[feasible_indices[0]]
             trim_results['with-noise'][method][b] = least_n
-    f_name = root_p + 'sr_simu_test04.pkl'
+    f_name = root_p + 'results_exp_sr_test09.pkl'
     print('save results to file: %s' % f_name)
     pickle.dump({'trim_results': trim_results,
                  'sum_results': sum_results,
                  'results_pool': results_pool}, open(f_name, 'wb'))
 
 
-def show_test(b_list, method_list, title_list):
+def show_test(b_list, method_list, title_list, root_p):
     import matplotlib.pyplot as plt
     from matplotlib import rc
     from pylab import rcParams
@@ -568,33 +562,65 @@ def show_test(b_list, method_list, title_list):
 
 
 def main():
+    # try 50 different trials and take average on 44 trials.
+    num_trials = 50
+    # maximum number of epochs
+    max_epochs = 500
+    # tolerance of the algorithm
+    tol_algo = 1e-7
+    # tolerance of the recovery.
+    tol_rec = 1e-6
+    # the dimension of the grid graph.
+    p = 256
+    # the trimmed ratio
+    # ( about 5% of the best and worst have been removed).
+    trim_ratio = 0.05
+    # height and width of the grid graph.
+    height, width = 16, 16
     # different block size parameters considered.
-    b_list = range(4, 65, 2)
+    b_list = range(2, 65, 2)
     # number of measurements list
     n_list = range(20, 201, 5)
     # sparsity considered.
     s = 8
-    num_trials = 50
+    # learning rate
+    lr = 1.0
     # list of methods
     method_list = ['iht', 'sto-iht', 'graph-iht', 'graph-sto-iht']
     command = sys.argv[1]
+
+    # TODO config by yourself.
+    root_p = 'results/'
+    if not os.path.exists(root_p):
+        os.mkdir(root_p)
+
     if command == 'run_test':
         num_cpus = int(sys.argv[2])
         trial_range = range(int(sys.argv[3]), int(sys.argv[4]))
         run_test(s=s,
                  n_list=n_list,
+                 p=p,
+                 lr=lr,
+                 height=height,
+                 width=width,
+                 max_epochs=max_epochs,
+                 tol_algo=tol_algo,
+                 tol_rec=tol_rec,
                  b_list=b_list,
                  num_cpus=num_cpus,
-                 trial_range=trial_range)
+                 trial_range=trial_range,
+                 root_p=root_p)
     elif command == 'summarize_results':
         trial_range = range(50)
-        summarize_results(trial_range=trial_range, b_list=b_list,
-                          n_list=n_list, method_list=method_list)
+        summarize_results(trim_ratio=trim_ratio,
+                          trial_range=trial_range, b_list=b_list,
+                          n_list=n_list, method_list=method_list,
+                          root_p=root_p)
     elif command == 'show_test':
         title_list = ['IHT', 'StoIHT', 'GraphIHT', 'GraphStoIHT']
         show_test(b_list=b_list,
                   method_list=method_list,
-                  title_list=title_list)
+                  title_list=title_list, root_p=root_p)
 
 
 if __name__ == '__main__':
