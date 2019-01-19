@@ -586,9 +586,9 @@ def show_test(n_range_list, method_list, title_list, fig_list, root_p):
     from matplotlib import rc
     from pylab import rcParams
     plt.rcParams["font.family"] = "Times New Roman"
-    plt.rcParams["font.size"] = 12
+    plt.rcParams["font.size"] = 18
     rc('text', usetex=True)
-    rcParams['figure.figsize'] = 8, 4
+    rcParams['figure.figsize'] = 16, 8
     color_list = ['b', 'g', 'm', 'r']
     marker_list = ['X', 'o', 'P', 's']
     x_label = n_range_list
@@ -616,10 +616,10 @@ def show_test(n_range_list, method_list, title_list, fig_list, root_p):
     for ii in range(4):
         ax[1, ii].grid(b=True, which='both', color='lightgray',
                        linestyle='dotted', axis='both')
-    ax[1, 0].set_xticks([2.5, 4, 5.5, 7])
-    ax[1, 1].set_xticks([2, 3, 4, 5])
-    ax[1, 2].set_xticks([2, 2.5, 3, 3.5, 4])
-    ax[1, 3].set_xticks([2, 2.5, 3, 3.5, 4])
+    ax[1, 0].set_xticks([2.5, 4.0, 5.5, 7.0])
+    ax[1, 1].set_xticks([2.5, 3.5, 4.5])
+    ax[1, 2].set_xticks([2.0, 2.5, 3.0, 3.5, 4.0])
+    ax[1, 3].set_xticks([2.0, 2.5, 3.0, 3.5, 4.0])
 
     for fig_ind, fig_i in enumerate(fig_list):
         for method_ind, method in enumerate(method_list):
@@ -628,15 +628,15 @@ def show_test(n_range_list, method_list, title_list, fig_list, root_p):
                 trim_results[fig_i][method],
                 c=color_list[method_ind], linestyle='-',
                 markerfacecolor='none',
-                marker=marker_list[method_ind], markersize=5.,
-                markeredgewidth=1.0, linewidth=1.0,
+                marker=marker_list[method_ind], markersize=8.,
+                markeredgewidth=1.5, linewidth=2.0,
                 label=title_list[method_ind])
     ax[1, 0].set_ylabel('Probability of Recovery')
     for i in range(4):
-        ax[1, i].set_xlabel('Oversampling ratio')
+        ax[1, i].set_xlabel('Oversampling ratio $\displaystyle m / s $')
         ax[1, i].set_yticks([0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
-    ax[1, 3].legend(loc='lower right', fontsize=10.,
-                    bbox_to_anchor=(0.45, 0.15), borderpad=0.1,
+    ax[1, 1].legend(loc='lower right', fontsize=18.,
+                    bbox_to_anchor=(0.25, 0.05), borderpad=0.1,
                     labelspacing=0.2, handletextpad=0.1)
     title_list = ['Fig-01', 'Fig-02', 'Fig-03', 'Fig-04']
     for i in range(4):
@@ -713,14 +713,6 @@ def main():
                           root_p=root_p,
                           trim_ratio=trim_ratio)
     elif command == 'show_test':
-        trial_range = range(50)
-        summarize_results(trial_list=trial_range,
-                          fig_list=fig_list,
-                          n_range_list=n_range_list,
-                          method_list=method_list,
-                          tol_rec=tol_rec,
-                          root_p=root_p,
-                          trim_ratio=trim_ratio)
         show_test(n_range_list=n_range_list,
                   method_list=method_list,
                   title_list=title_list,
