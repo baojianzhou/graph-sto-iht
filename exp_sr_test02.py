@@ -441,7 +441,6 @@ def run_test_diff_b(
     for trial_i, b, re in results_pool:
         b_ind = list(b_list).index(b)
         for method, rec_err in re:
-            print(method,rec_err)
             sum_results[method][trial_i][b_ind] = rec_err
     trim_results = {method: dict() for method in ['graph-sto-iht', 'sto-iht']}
     for method in ['graph-sto-iht', 'sto-iht']:
