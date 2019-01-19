@@ -848,7 +848,7 @@ def main():
             trim_ratio=trim_ratio,
             root_p=root_p)
     elif command == 'show_test':
-        trial_range = [0, 1, 2, 3, 4, 5, 6, 7]
+        trial_range = range(43)
         summarize_results(
             trial_range=trial_range,
             sample_ratio_arr=sample_ratio_arr,
