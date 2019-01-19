@@ -685,7 +685,7 @@ def show_test(method_list, method_label_list, sample_ratio_arr, root_p):
 
     rcParams['figure.figsize'] = 8, 5
     f_name = root_p + 'results_exp_sr_test06.pkl'
-    trim_results = pickle.load(open(f_name))['trim_results']
+    trim_results = pickle.load(open(f_name))
     color_list = ['c', 'b', 'g', 'k', 'm', 'y', 'r']
     marker_list = ['D', 'X', 'o', 'h', 'P', 'p', 's']
     img_name_list = ['background', 'angio', 'icml']
