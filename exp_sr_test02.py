@@ -655,7 +655,7 @@ def show_test(lr_list, b_list, save_data_path):
 
 def main():
     # try 50 different trials and take average on 44 trials.
-    num_trials = 1
+    num_trials = 50
     # tolerance of the algorithm
     tol_algo = 1e-7
     # tolerance of the recovery.
