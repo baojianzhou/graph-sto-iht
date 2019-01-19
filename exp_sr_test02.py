@@ -558,7 +558,7 @@ def show_test(lr_list, b_list, save_data_path):
     rc('text', usetex=True)
 
     rcParams['figure.figsize'] = 8, 3
-    fig, ax = plt.subplots(1, 2)
+    fig, ax = plt.subplots(2, 2)
 
     color_list = ['darkblue', 'blue', 'royalblue', 'dodgerblue', 'aqua',
                   'mediumspringgreen', 'greenyellow', 'yellow', 'orange',
@@ -566,28 +566,30 @@ def show_test(lr_list, b_list, save_data_path):
     marker_list = ['+', 'o', '*', '.', 'x', 's', 'D', '^', 'v', '>', '<', '']
     results = pickle.load(open(save_data_path))
     results_01 = results['re_diff_b']['trim_results']
-    ax[0].set_yticklabels([
-        r"$\displaystyle 10^{0}$",
-        r"$\displaystyle 10^{-2}$",
-        r"$\displaystyle 10^{-4}$",
-        r"$\displaystyle 10^{-6}$",
-        r"$\displaystyle 10^{-8}$"])
-    ax[0].set_ylabel(r"$\displaystyle \| {\bf x} - \hat{{\bf x}}\|$")
-    ax[0].set_xticks([0, 5, 10, 15, 20, 25])
-    ax[0].grid(b=True, which='both', color='gray',
-               linestyle='dotted', axis='both')
-    ax[1].grid(b=True, which='both', color='gray',
-               linestyle='dotted', axis='both')
-    ax[0].set_xlim([-1, 30])
-    ax[0].set_ylim([-8., 2.])
-    ax[0].spines['right'].set_visible(False)
-    ax[0].spines['top'].set_visible(False)
-
-    ax[0].set_yticks(ticks=[2, 0, -2, -4, -6, -8])
-    ax[0].set_xlabel('Epoch')
-    box = ax[0].get_position()
-    ax[0].set_position(
-        [box.x0, box.y0, box.width * 0.8, box.height])
+    for i in range(2):
+        ax[i, 0].set_yticklabels([
+            r"$\displaystyle 10^{0}$",
+            r"$\displaystyle 10^{-2}$",
+            r"$\displaystyle 10^{-4}$",
+            r"$\displaystyle 10^{-6}$",
+            r"$\displaystyle 10^{-8}$"])
+        ax[i, 0].set_ylabel(r"$\displaystyle \| {\bf x} - \hat{{\bf x}}\|$")
+    for i in range(2):
+        ax[i, 0].set_xticks([0, 5, 10, 15, 20, 25])
+        ax[i, 0].grid(b=True, which='both', color='gray',
+                      linestyle='dotted', axis='both')
+        ax[i, 1].grid(b=True, which='both', color='gray',
+                      linestyle='dotted', axis='both')
+        ax[i, 0].set_xlim([-1, 30])
+        ax[i, 0].set_ylim([-8., 2.])
+        ax[i, 0].spines['right'].set_visible(False)
+        ax[i, 0].spines['top'].set_visible(False)
+        ax[i, 0].set_yticks(ticks=[2, 0, -2, -4, -6, -8])
+    ax[1, 0].set_xlabel('Epoch')
+    for i in range(2):
+        box = ax[i, 0].get_position()
+        ax[i, 0].set_position(
+            [box.x0, box.y0, box.width * 0.8, box.height])
     legend_list = []
     for b in b_list:
         legend_list.append(r"$\displaystyle b=%d$" % b)
@@ -609,41 +611,54 @@ def show_test(lr_list, b_list, save_data_path):
             linestyle_ = '-'
         else:
             linestyle_ = '--'
-        ax[0].plot(results_01['graph-sto-iht'][b_ind], color=color_list[b_ind],
-                   marker=marker_list[b_ind], markersize=5.,
-                   markerfacecolor='none', linestyle=linestyle_,
-                   markeredgewidth=1.5, linewidth=1.5, label=label_)
-    ax[0].legend(loc='center left', bbox_to_anchor=(0.99, 0.5),
-                 fontsize=13., borderpad=0.1, labelspacing=0.2,
-                 handletextpad=0.1)
-
-    ax[1].set_xlim([0, 1000])
-    ax[1].set_ylim([-8.0, 2])
-    ax[1].set_xticks([0, 300, 600, 900])
-    ax[1].set_yticks([2, 0, -2, -4, -6, -8])
-    ax[1].set_yticklabels([
-        r"$\displaystyle 10^{0}$",
-        r"$\displaystyle 10^{-2}$",
-        r"$\displaystyle 10^{-4}$",
-        r"$\displaystyle 10^{-6}$",
-        r"$\displaystyle 10^{-8}$"])
+        ax[0, 0].plot(results_01['sto-iht'][b_ind],
+                      color=color_list[b_ind],
+                      marker=marker_list[b_ind], markersize=5.,
+                      markerfacecolor='none', linestyle=linestyle_,
+                      markeredgewidth=1.5, linewidth=1.5, label=label_)
+        ax[1, 0].plot(results_01['graph-sto-iht'][b_ind],
+                      color=color_list[b_ind],
+                      marker=marker_list[b_ind], markersize=5.,
+                      markerfacecolor='none', linestyle=linestyle_,
+                      markeredgewidth=1.5, linewidth=1.5, label=label_)
+    for i in range(2):
+        ax[i, 0].legend(loc='center left', bbox_to_anchor=(0.99, 0.5),
+                        fontsize=13., borderpad=0.1, labelspacing=0.2,
+                        handletextpad=0.1)
+    for i in range(2):
+        ax[i, 1].set_xlim([0, 1000])
+        ax[i, 1].set_ylim([-8.0, 2])
+        ax[i, 1].set_xticks([0, 300, 600, 900])
+        ax[i, 1].set_yticks([2, 0, -2, -4, -6, -8])
+        ax[i, 1].set_yticklabels([
+            r"$\displaystyle 10^{0}$",
+            r"$\displaystyle 10^{-2}$",
+            r"$\displaystyle 10^{-4}$",
+            r"$\displaystyle 10^{-6}$",
+            r"$\displaystyle 10^{-8}$"])
     colors = plt.cm.jet(np.asarray(lr_list) / 1.6)
     for lr_ind, lr in enumerate(lr_list):
-        ax[1].plot(results_02['graph-sto-iht'][lr_ind],
-                   linewidth=2., color=colors[lr_ind],
-                   label=r"$\displaystyle \eta=%.1f$" % lr)
+        ax[1, 0].plot(results_02['sto-iht'][lr_ind],
+                      linewidth=2., color=colors[lr_ind],
+                      label=r"$\displaystyle \eta=%.1f$" % lr)
+        ax[1, 1].plot(results_02['graph-sto-iht'][lr_ind],
+                      linewidth=2., color=colors[lr_ind],
+                      label=r"$\displaystyle \eta=%.1f$" % lr)
     # obtain the handles and labels from the figure
-    handles, labels = ax[1].get_legend_handles_labels()
-    # copy the handles
-    import copy
-    handles = [copy.copy(ha) for ha in handles]
-    [ha.set_linewidth(10) for ha in handles]
-    ax[1].legend(loc='center left', bbox_to_anchor=(0.98, .5),
-                 fontsize=11.5, borderpad=0.1, labelspacing=0.05,
-                 handletextpad=0.05)
-    ax[1].set_xlabel('Iteration')
-    ax[0].set_title('GraphStoIHT')
-    ax[1].set_title('GraphStoIHT')
+    for i in range(2):
+        handles, labels = ax[i, 1].get_legend_handles_labels()
+        # copy the handles
+        import copy
+        handles = [copy.copy(ha) for ha in handles]
+        [ha.set_linewidth(10) for ha in handles]
+    for i in range(2):
+        ax[i, 1].legend(loc='center left', bbox_to_anchor=(0.98, .5),
+                        fontsize=11.5, borderpad=0.1, labelspacing=0.05,
+                        handletextpad=0.05)
+    for i in range(2):
+        ax[i, 1].set_xlabel('Iteration')
+        ax[i, 0].set_title('GraphStoIHT')
+        ax[i, 1].set_title('GraphStoIHT')
     plt.subplots_adjust(wspace=0.7, hspace=0.5)
     save_data_path = save_data_path.replace('pkl', 'pdf')
     print('save fig to: %s' % save_data_path)
