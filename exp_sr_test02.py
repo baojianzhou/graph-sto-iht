@@ -557,7 +557,7 @@ def show_test(lr_list, b_list, save_data_path):
     plt.rcParams["font.size"] = 18
     rc('text', usetex=True)
 
-    rcParams['figure.figsize'] = 8, 3
+    rcParams['figure.figsize'] = 8, 6
     fig, ax = plt.subplots(2, 2)
 
     color_list = ['darkblue', 'blue', 'royalblue', 'dodgerblue', 'aqua',
@@ -584,8 +584,11 @@ def show_test(lr_list, b_list, save_data_path):
         ax[i, 0].set_ylim([-8., 2.])
         ax[i, 0].spines['right'].set_visible(False)
         ax[i, 0].spines['top'].set_visible(False)
+        ax[i, 1].spines['right'].set_visible(False)
+        ax[i, 1].spines['top'].set_visible(False)
         ax[i, 0].set_yticks(ticks=[2, 0, -2, -4, -6, -8])
-    ax[1, 0].set_xlabel('Epoch')
+    for i in range(2):
+        ax[i, 0].set_xlabel('Epoch')
     for i in range(2):
         box = ax[i, 0].get_position()
         ax[i, 0].set_position(
@@ -625,20 +628,29 @@ def show_test(lr_list, b_list, save_data_path):
         ax[i, 0].legend(loc='center left', bbox_to_anchor=(0.99, 0.5),
                         fontsize=13., borderpad=0.1, labelspacing=0.2,
                         handletextpad=0.1)
-    for i in range(2):
-        ax[i, 1].set_xlim([0, 1000])
-        ax[i, 1].set_ylim([-8.0, 2])
-        ax[i, 1].set_xticks([0, 300, 600, 900])
-        ax[i, 1].set_yticks([2, 0, -2, -4, -6, -8])
-        ax[i, 1].set_yticklabels([
-            r"$\displaystyle 10^{0}$",
-            r"$\displaystyle 10^{-2}$",
-            r"$\displaystyle 10^{-4}$",
-            r"$\displaystyle 10^{-6}$",
-            r"$\displaystyle 10^{-8}$"])
+    ax[0, 1].set_xlim([-5, 2000])
+    ax[0, 1].set_ylim([-8.0, 5])
+    ax[0, 1].set_xticks([0, 500, 1000, 1500])
+    ax[0, 1].set_yticks([4, -0, -4, -8])
+    ax[0, 1].set_yticklabels([
+        r"$\displaystyle 10^{4}$",
+        r"$\displaystyle 10^{-0}$",
+        r"$\displaystyle 10^{-4}$",
+        r"$\displaystyle 10^{-8}$"])
+    ax[1, 1].set_xlim([-5, 2000])
+    ax[1, 1].set_ylim([-8.0, 2])
+    ax[1, 1].set_xticks([0, 500, 1000, 1500])
+    ax[1, 1].set_yticks([2, 0, -2, -4, -6, -8])
+    ax[1, 1].set_yticklabels([
+        r"$\displaystyle 10^{2}$",
+        r"$\displaystyle 10^{0}$",
+        r"$\displaystyle 10^{-2}$",
+        r"$\displaystyle 10^{-4}$",
+        r"$\displaystyle 10^{-6}$",
+        r"$\displaystyle 10^{-8}$"])
     colors = plt.cm.jet(np.asarray(lr_list) / 1.6)
     for lr_ind, lr in enumerate(lr_list):
-        ax[1, 0].plot(results_02['sto-iht'][lr_ind],
+        ax[0, 1].plot(results_02['sto-iht'][lr_ind],
                       linewidth=2., color=colors[lr_ind],
                       label=r"$\displaystyle \eta=%.1f$" % lr)
         ax[1, 1].plot(results_02['graph-sto-iht'][lr_ind],
@@ -656,9 +668,10 @@ def show_test(lr_list, b_list, save_data_path):
                         fontsize=11.5, borderpad=0.1, labelspacing=0.05,
                         handletextpad=0.05)
     for i in range(2):
+        ax[0, i].set_title('StoIHT')
+        ax[1, i].set_title('GraphStoIHT')
+    for i in range(2):
         ax[i, 1].set_xlabel('Iteration')
-        ax[i, 0].set_title('GraphStoIHT')
-        ax[i, 1].set_title('GraphStoIHT')
     plt.subplots_adjust(wspace=0.7, hspace=0.5)
     save_data_path = save_data_path.replace('pkl', 'pdf')
     print('save fig to: %s' % save_data_path)
