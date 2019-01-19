@@ -631,9 +631,9 @@ def show_test(n_range_list, method_list, title_list, fig_list, root_p):
                 marker=marker_list[method_ind], markersize=8.,
                 markeredgewidth=1.5, linewidth=2.0,
                 label=title_list[method_ind])
-    ax[1, 0].set_ylabel('Probability of Recovery')
+    ax[1, 0].set_ylabel(r'Probability of Recovery')
     for i in range(4):
-        ax[1, i].set_xlabel('Oversampling ratio $\displaystyle m / s $')
+        ax[1, i].set_xlabel(r'Oversampling ratio $\displaystyle m / s$')
         ax[1, i].set_yticks([0.0, 0.2, 0.4, 0.6, 0.8, 1.0])
     ax[1, 1].legend(loc='lower right', fontsize=18.,
                     bbox_to_anchor=(0.25, 0.05), borderpad=0.1,
