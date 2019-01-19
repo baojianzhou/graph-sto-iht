@@ -414,7 +414,8 @@ def expand_data(data):
 
 
 def run_single_test(para):
-    data, tr_idx, te_idx, ii, s, jj, num_blocks, kk, lambda_, num_iterations = para
+    data, tr_idx, te_idx, ii, s, jj, num_blocks, \
+    kk, lambda_, num_iterations, fold_i, subfold_i = para
     from sklearn.metrics import roc_auc_score
     from sklearn.metrics import accuracy_score
     res = {'iht': dict(),
@@ -528,10 +529,63 @@ def run_single_test(para):
     res['graph-sto-iht']['w_hat'] = w_hat
     print('graph-sto-iht -- sparsity: %02d intercept: %.4f bacc: %.4f' %
           (s, w_hat[-1], res['graph-sto-iht']['bacc']))
-    return ii, s, jj, num_blocks, res
+    return ii, s, jj, num_blocks, res, fold_i, subfold_i
 
 
-def run_parallel(
+def run_parallel_tr(
+        data, s_list, b_list, lambda_list, num_iters, num_cpus, fold_i,
+        n_folds):
+    method_list = ['sto-iht', 'graph-sto-iht', 'iht', 'graph-iht']
+    s_auc = {_: np.zeros((len(s_list), len(b_list))) for _ in method_list}
+    s_acc = {_: np.zeros((len(s_list), len(b_list))) for _ in method_list}
+    s_bacc = {_: np.zeros((len(s_list), len(b_list))) for _ in method_list}
+    input_paras = []
+    for sf_ii in range(len(data['data_subsplits'][fold_i])):
+        s_tr = data['data_subsplits'][fold_i][sf_ii]['train']
+        s_te = data['data_subsplits'][fold_i][sf_ii]['test']
+        for (ii, s), (jj, num_block), (kk, lambda_) in product(
+                enumerate(s_list), enumerate(b_list), enumerate(lambda_list)):
+            input_paras.append(
+                (data, s_tr, s_te, ii, s, jj, num_block, kk, lambda_,
+                 num_iters, fold_i, sf_ii))
+    pool = multiprocessing.Pool(processes=num_cpus)
+    results_pool = pool.map(run_single_test, input_paras)
+    pool.close()
+    pool.join()
+
+    sub_res = dict()
+    for item in results_pool:
+        ii, s, jj, num_blocks, re, fold_i, subfold_i = item
+        if subfold_i not in sub_res:
+            sub_res[subfold_i] = []
+        sub_res[subfold_i].append((ii, s, jj, num_blocks, re))
+    for sf_ii in sub_res:
+        res = {_: dict() for _ in method_list}
+        for _ in method_list:
+            res[_]['s_list'] = s_list
+            res[_]['b_list'] = b_list
+            res[_]['lambda_list'] = lambda_list
+            res[_]['auc'] = np.zeros((len(s_list), len(b_list)))
+            res[_]['acc'] = np.zeros((len(s_list), len(b_list)))
+            res[_]['bacc'] = np.zeros((len(s_list), len(b_list)))
+            res[_]['perf'] = np.zeros((len(s_list), len(b_list)))
+            res[_]['w_hat'] = {(s, b): None for (s, b) in
+                               product(s_list, b_list)}
+        for ii, s, jj, num_blocks, re in sub_res[sf_ii]:
+            for _ in method_list:
+                res[_]['auc'][ii][jj] = re[_]['auc']
+                res[_]['acc'][ii][jj] = re[_]['acc']
+                res[_]['bacc'][ii][jj] = re[_]['bacc']
+                res[_]['perf'][ii][jj] = re[_]['perf']
+                res[_]['w_hat'][(s, num_blocks)] = re[_]['w_hat']
+        for _ in method_list:
+            s_auc[_] += res[_]['auc'] / (1. * n_folds)
+            s_acc[_] += res[_]['acc'] / (1. * n_folds)
+            s_bacc[_] += res[_]['bacc'] / (1. * n_folds)
+    return s_bacc
+
+
+def run_parallel_te(
         data, tr_idx, te_idx, s_list, b_list, lambda_list, num_iters,
         num_cpus):
     method_list = ['sto-iht', 'graph-sto-iht', 'iht', 'graph-iht']
@@ -546,15 +600,16 @@ def run_parallel(
         res[_]['perf'] = np.zeros((len(s_list), len(b_list)))
         res[_]['w_hat'] = {(s, b): None for (s, b) in product(s_list, b_list)}
     input_paras = [(data, tr_idx, te_idx, ii, s, jj, num_block, kk, lambda_,
-                    num_iters)
+                    num_iters, '', '')
                    for (ii, s), (jj, num_block), (kk, lambda_) in
                    product(enumerate(s_list), enumerate(b_list),
                            enumerate(lambda_list))]
     pool = multiprocessing.Pool(processes=num_cpus)
+    # data, tr_idx, te_idx, ii, s, jj, num_blocks, lambda_, num_iterations
     results_pool = pool.map(run_single_test, input_paras)
     pool.close()
     pool.join()
-    for ii, s, jj, num_blocks, re in results_pool:
+    for ii, s, jj, num_blocks, re, fold_i, subfold_i in results_pool:
         for _ in method_list:
             res[_]['auc'][ii][jj] = re[_]['auc']
             res[_]['acc'][ii][jj] = re[_]['acc']
@@ -720,27 +775,15 @@ def run_test(folding_i, num_cpus, root_input, root_output):
         f_data['costs'] = data['costs']
         cv_res[fold_i]['s_list'] = s_list
         cv_res[fold_i]['b_list'] = b_list
-
-        s_auc = {_: np.zeros((len(s_list), len(b_list))) for _ in method_list}
-        s_acc = {_: np.zeros((len(s_list), len(b_list))) for _ in method_list}
-        s_bacc = {_: np.zeros((len(s_list), len(b_list))) for _ in method_list}
         s_star = {_: None for _ in method_list}  # save the best.
-        sub_res = dict()
-        for sf_ii in range(len(data['data_subsplits'][fold_i])):
-            s_tr = data['data_subsplits'][fold_i][sf_ii]['train']
-            s_te = data['data_subsplits'][fold_i][sf_ii]['test']
-            sub_res[sf_ii] = run_parallel(
-                f_data, s_tr, s_te, s_list, b_list, lambda_list,
-                num_iterations, num_cpus)
-            for _ in method_list:
-                s_auc[_] += sub_res[sf_ii][_]['auc'] / (1. * n_folds)
-                s_acc[_] += sub_res[sf_ii][_]['acc'] / (1. * n_folds)
-                s_bacc[_] += sub_res[sf_ii][_]['bacc'] / (1. * n_folds)
+        s_bacc = run_parallel_tr(
+            f_data, s_list, b_list, lambda_list, num_iterations, num_cpus,
+            fold_i, n_folds)
         for _ in method_list:
             s_star[_] = np.unravel_index(s_bacc[_].argmin(), s_bacc[_].shape)
             cv_res[fold_i][_] = dict()
             cv_res[fold_i][_]['s_bacc'] = s_bacc[_]
-        res = run_parallel(
+        res = run_parallel_te(
             f_data, tr_idx, te_idx, s_list, b_list, lambda_list,
             num_iterations, num_cpus)
         for _ in method_list:
