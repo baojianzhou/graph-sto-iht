@@ -839,7 +839,7 @@ def main():
                      num_cpus=num_cpus,
                      root_input='data/', root_output='results/')
     elif command == 'summarize_results':
-        trial_range = [0]
+        trial_range = range(50)
         summarize_results(
             trial_range=trial_range,
             sample_ratio_arr=sample_ratio_arr,
@@ -848,14 +848,6 @@ def main():
             trim_ratio=trim_ratio,
             root_p=root_p)
     elif command == 'show_test':
-        trial_range = range(43)
-        summarize_results(
-            trial_range=trial_range,
-            sample_ratio_arr=sample_ratio_arr,
-            method_list=method_list,
-            tol_rec=tol_rec,
-            trim_ratio=trim_ratio,
-            root_p=root_p)
         method_label_list = ['NIHT', 'IHT', 'StoIHT', 'CoSaMP', 'GraphIHT',
                              'GraphCoSaMP', 'GraphStoIHT']
         show_test(method_list=method_list,
