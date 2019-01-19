@@ -189,6 +189,59 @@ def random_walk(edges, s, init_node=None, restart=0.0):
     return list(subgraph_nodes), list(subgraph_edges)
 
 
+def algo_sto_iht(x_mat, y_tr, max_epochs, lr, s, x_star, x0, tol_algo, b):
+    """ Stochastic Iterative Hard Thresholding Method proposed in [1].
+    :param x_mat:       the design matrix.
+    :param y_tr:        the array of measurements.
+    :param max_epochs:  the maximum epochs (iterations) allowed.
+    :param lr:          the learning rate (should be 1.0).
+    :param s:           the sparsity parameter.
+    :param x_star:      the true signal.
+    :param x0:          x0 is the initial point.
+    :param tol_algo:    tolerance parameter for early stopping.
+    :param b:           block size
+    :return:            1.  the final estimation error,
+                        2.  number of epochs(iterations) used,
+                        3.  and the run time.
+    """
+    np.random.seed()
+    start_time = time.time()
+    x_hat = x0
+    (n, p) = x_mat.shape
+    x_tr_t = np.transpose(x_mat)
+    b = n if n < b else b
+    num_blocks = int(n) / int(b)
+    prob = [1. / num_blocks] * num_blocks
+    num_epochs = 0
+    x_err_list = []
+    x_iter_err_list = []
+    for epoch_i in range(max_epochs):
+        num_epochs += 1
+        for _ in range(num_blocks):
+            ii = np.random.randint(0, num_blocks)
+            block = range(b * ii, b * (ii + 1))
+            xtx = np.dot(x_tr_t[:, block], x_mat[block])
+            xty = np.dot(x_tr_t[:, block], y_tr[block])
+            gradient = - 2. * (xty - np.dot(xtx, x_hat))
+            bt = x_hat - (lr / (prob[ii] * num_blocks)) * gradient
+            bt[np.argsort(np.abs(bt))[0:p - s]] = 0.
+            x_hat = bt
+
+            x_iter_err_list.append(np.linalg.norm(x_hat - x_star))
+
+        x_err_list.append(np.linalg.norm(x_hat - x_star))
+
+        # early stopping for diverge cases due to the large learning rate
+        if np.linalg.norm(x_hat) >= 1e3:  # diverge cases.
+            break
+        if np.linalg.norm(y_tr - np.dot(x_mat, x_hat)) <= tol_algo:
+            break
+
+    x_err = np.linalg.norm(x_hat - x_star)
+    run_time = time.time() - start_time
+    return x_err_list, x_iter_err_list, x_err, num_epochs, run_time
+
+
 def algo_graph_sto_iht(
         x_mat, y_tr, max_epochs, lr, x_star, x0, tol_algo, edges, costs, s, b,
         g=1, root=-1, gamma=0.1, proj_max_num_iter=50, verbose=0):
@@ -288,6 +341,12 @@ def run_single_test_diff_b(data):
     costs = data['proj_para']['costs']
 
     rec_error = []
+    # ------------- StoIHT --------
+    x_err_list, _, err, num_epochs, run_time = algo_sto_iht(
+        x_mat=x_mat, y_tr=y_tr, max_epochs=max_epochs, lr=lr, s=s,
+        x_star=x_star, x0=x0, tol_algo=tol_algo, b=b)
+    rec_error.append(('sto-iht', x_err_list))
+    print_helper('sto-iht', trial_i, b, n, num_epochs, err, run_time)
     # ------------- GraphStoIHT --------
     x_err_list, _, err, num_epochs, run_time = algo_graph_sto_iht(
         x_mat=x_mat, y_tr=y_tr, max_epochs=max_epochs, lr=lr, x_star=x_star,
@@ -314,6 +373,12 @@ def run_single_test_diff_eta(data):
     costs = data['proj_para']['costs']
 
     rec_error = []
+    # ------------- StoIHT --------
+    _, x_err_iter_list, err, num_epochs, run_time = algo_sto_iht(
+        x_mat=x_mat, y_tr=y_tr, max_epochs=max_epochs, lr=lr, s=s,
+        x_star=x_star, x0=x0, tol_algo=tol_algo, b=b)
+    rec_error.append(('sto-iht', x_err_iter_list))
+    print_helper('sto-iht', trial_i, b, n, num_epochs, err, run_time)
     # ------------- GraphStoIHT --------
     _, x_err_iter_list, err, num_epochs, run_time = algo_graph_sto_iht(
         x_mat=x_mat, y_tr=y_tr, max_epochs=max_epochs, lr=lr, x_star=x_star,
@@ -370,15 +435,15 @@ def run_test_diff_b(
     x_len = 30
     sum_results = {method: {trial_i: [None] * len(b_list)
                             for trial_i in range(num_trials)}
-                   for method in ['graph-sto-iht']}
+                   for method in ['graph-sto-iht', 'sto-iht ']}
     # # try to trim 5% of the results (rounding when necessary).
     num_trim = int(trim_ratio * num_trials)
     for trial_i, b, re in results_pool:
         b_ind = list(b_list).index(b)
         for method, rec_err in re:
             sum_results[method][trial_i][b_ind] = rec_err
-    trim_results = {method: dict() for method in ['graph-sto-iht']}
-    for method in ['graph-sto-iht']:
+    trim_results = {method: dict() for method in ['graph-sto-iht', 'sto-iht']}
+    for method in ['graph-sto-iht', 'sto-iht']:
         for b_ind in range(len(b_list)):
             average_re = np.zeros((num_trials, x_len))
             for trial_i in sum_results[method]:
@@ -451,14 +516,14 @@ def run_test_diff_eta(
     pool.join()
     sum_results = {method: {trial_i: [None] * len(lr_list)
                             for trial_i in range(num_trials)}
-                   for method in ['graph-sto-iht']}
+                   for method in ['graph-sto-iht', 'sto-iht']}
     num_trim = int(trim_ratio * num_trials)  # try to trim 5% of the results.
     for trial_i, lr, re in results_pool:
         lr_ind = list(lr_list).index(lr)
         for method, rec_err in re:
             sum_results[method][trial_i][lr_ind] = rec_err
-    trim_results = {method: dict() for method in ['graph-sto-iht']}
-    for method in ['graph-sto-iht']:
+    trim_results = {method: dict() for method in ['graph-sto-iht', 'sto-iht']}
+    for method in ['graph-sto-iht', 'sto-iht']:
         for lr_ind in range(len(lr_list)):
             average_re = np.zeros((num_trials, num_iterations))
             for trial_i in sum_results[method]:
