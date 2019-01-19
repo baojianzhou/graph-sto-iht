@@ -713,7 +713,7 @@ def show_test(method_list, method_label_list, sample_ratio_arr, root_p):
     ax = np.asarray([[ax00, ax01, ax02], [ax10, ax11, ax12]])
     for img_ind, img_name in enumerate(img_name_list):
         ax[1, img_ind].grid(b=True, linestyle='dotted', c='lightgray')
-        ax[1, img_ind].set_xticks([1.6, 2.0, 2.4, 2.8, 3.2, 3.6, 4.0])
+        ax[1, img_ind].set_xticks([1.5, 2.0, 2.5, 3.0, 3.5])
         ax[1, img_ind].set_yticks(np.asarray([0.0, 0.2, 0.4, 0.6, 0.8, 1.0]))
         for method_ind, method in enumerate(method_list):
             ax[1, img_ind].plot(
@@ -723,7 +723,7 @@ def show_test(method_list, method_label_list, sample_ratio_arr, root_p):
                 marker=marker_list[method_ind], markersize=5.,
                 markeredgewidth=1.0, linewidth=1.0,
                 label=method_label_list[method_ind])
-        ax[1, img_ind].set_xlabel('Oversampling ratio $\displaystyle n / s $',
+        ax[1, img_ind].set_xlabel('Oversampling ratio $\displaystyle m / s $',
                                   labelpad=0)
     ax[1, 0].set_ylabel('Probability of Recovery', labelpad=0)
     for i in range(3):
