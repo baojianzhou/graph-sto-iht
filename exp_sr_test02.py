@@ -435,12 +435,13 @@ def run_test_diff_b(
     x_len = 30
     sum_results = {method: {trial_i: [None] * len(b_list)
                             for trial_i in range(num_trials)}
-                   for method in ['graph-sto-iht', 'sto-iht ']}
+                   for method in ['graph-sto-iht', 'sto-iht']}
     # # try to trim 5% of the results (rounding when necessary).
     num_trim = int(trim_ratio * num_trials)
     for trial_i, b, re in results_pool:
         b_ind = list(b_list).index(b)
         for method, rec_err in re:
+            print(method,rec_err)
             sum_results[method][trial_i][b_ind] = rec_err
     trim_results = {method: dict() for method in ['graph-sto-iht', 'sto-iht']}
     for method in ['graph-sto-iht', 'sto-iht']:
@@ -654,7 +655,7 @@ def show_test(lr_list, b_list, save_data_path):
 
 def main():
     # try 50 different trials and take average on 44 trials.
-    num_trials = 50
+    num_trials = 1
     # tolerance of the algorithm
     tol_algo = 1e-7
     # tolerance of the recovery.
