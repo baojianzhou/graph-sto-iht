@@ -826,7 +826,7 @@ def show_test(nonconvex_method_list, folding_list, num_iterations,
 def main():
     method_list = ['iht', 'sto-iht', 'graph-iht', 'graph-sto-iht']
     n_folds, max_epochs = 5, 10
-    s_list = range(20, 100, 10)
+    s_list = range(10, 100, 5)
     b_list = [1, 2]
     lambda_list = [1e-3, 1e-4]
     command = sys.argv[1]
