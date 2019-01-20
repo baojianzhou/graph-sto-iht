@@ -772,7 +772,7 @@ def run_test(folding_i, num_cpus, root_input, root_output):
             cv_res[fold_i][_]['perf'] = res[_]['bacc'][best_para]
             cv_res[fold_i][_]['w_hat'] = res[_]['w_hat'][best_para]
             cv_res[fold_i][_]['map_entrez'] = data['map_entrez']
-    f_name = 'results_exp_bc_%02d.pkl' % folding_i
+    f_name = 'results_exp_bc_%02d_%02d.pkl' % (folding_i, max_epochs)
     pickle.dump(cv_res, open(root_output + f_name, 'wb'))
 
 
