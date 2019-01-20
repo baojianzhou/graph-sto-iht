@@ -196,7 +196,6 @@ def algo_graph_sto_iht_backtracking(
                 edges, bt_sto[:p], costs, g, root, t_low, t_high,
                 proj_max_num_iter, verbose)
             w_hat[:p] = proj_bt[:p]
-            print(len(h_nodes), len(t_nodes))
             w_hat[p] = w_hat[p] - ad_step * grad_sto[p]  # intercept.
 
     return w_hat
