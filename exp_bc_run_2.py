@@ -270,7 +270,7 @@ def run_single_test(para):
     res['iht']['auc'] = roc_auc_score(y_true=y_te, y_score=pred_prob)
     res['iht']['perf'] = res['iht']['bacc']
     res['iht']['w_hat'] = w_hat
-    print('iht   -- sparsity: %02d intercept: %.4f bacc: %.4f '
+    print('iht   --         sparsity: %02d intercept: %.4f bacc: %.4f '
           'non-zero: %.2f' %
           (s, w_hat[-1], res['iht']['bacc'],
            len(np.nonzero(w_hat)[0]) - 1))
@@ -288,7 +288,7 @@ def run_single_test(para):
     res['sto-iht']['auc'] = roc_auc_score(y_true=y_te, y_score=pred_prob)
     res['sto-iht']['perf'] = res['sto-iht']['bacc']
     res['sto-iht']['w_hat'] = w_hat
-    print('sto-iht   -- sparsity: %02d intercept: %.4f bacc: %.4f '
+    print('sto-iht   --     sparsity: %02d intercept: %.4f bacc: %.4f '
           'non-zero: %.2f' % (
               s, w_hat[-1], res['sto-iht']['bacc'],
               len(np.nonzero(w_hat)[0]) - 1))
@@ -316,7 +316,7 @@ def run_single_test(para):
     res['graph-iht']['auc'] = roc_auc_score(y_true=y_te, y_score=pred_prob)
     res['graph-iht']['perf'] = res['graph-iht']['bacc']
     res['graph-iht']['w_hat'] = w_hat
-    print('graph-iht -- sparsity: %02d intercept: %.4f bacc: %.4f'
+    print('graph-iht --     sparsity: %02d intercept: %.4f bacc: %.4f'
           'non-zero: %.2f' %
           (s, w_hat[-1], res['graph-iht']['bacc'],
            len(np.nonzero(w_hat)[0]) - 1))
