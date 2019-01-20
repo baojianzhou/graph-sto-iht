@@ -741,7 +741,7 @@ def run_test(folding_i, num_cpus, root_input, root_output):
     cv_res = {_: dict() for _ in range(n_folds)}
     for fold_i in range(n_folds):
         data = get_single_data(folding_i, root_input)
-        tr_idqqx = data['data_splits'][fold_i]['train']
+        tr_idx = data['data_splits'][fold_i]['train']
         te_idx = data['data_splits'][fold_i]['test']
         f_data = data.copy()
         tr_data = dict()
