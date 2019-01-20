@@ -161,7 +161,7 @@ def algo_graph_sto_iht_backtracking(
 
     # graph projection para
     h_low = int(2 * s)
-    h_high = int(2 * (1. + gamma))
+    h_high = int(2 * s * (1. + gamma))
     t_low = int(s)
     t_high = int(s * (1. + gamma))
     for epoch_i in range(max_epochs):
@@ -172,6 +172,7 @@ def algo_graph_sto_iht_backtracking(
             loss_sto, grad_sto = logit_loss_grad_bl(
                 x_tr=x_tr_b, y_tr=y_tr_b, wt=w_hat,
                 l2_reg=lambda_, cp=cp, cn=cn)
+            # edges, x, costs, g, root, s_low, s_high, max_num_iter, verbose
             h_nodes, p_grad = algo_head_tail_bisearch(
                 edges, grad_sto[:p], costs, g, root, h_low, h_high,
                 proj_max_num_iter, verbose)
@@ -195,7 +196,9 @@ def algo_graph_sto_iht_backtracking(
                 edges, bt_sto[:p], costs, g, root, t_low, t_high,
                 proj_max_num_iter, verbose)
             w_hat[:p] = proj_bt[:p]
+            print(len(h_nodes), len(t_nodes))
             w_hat[p] = w_hat[p] - ad_step * grad_sto[p]  # intercept.
+
     return w_hat
 
 
@@ -270,7 +273,7 @@ def run_single_test(para):
     res['iht']['auc'] = roc_auc_score(y_true=y_te, y_score=pred_prob)
     res['iht']['perf'] = res['iht']['bacc']
     res['iht']['w_hat'] = w_hat
-    print('iht   --         sparsity: %02d intercept: %.4f bacc: %.4f '
+    print('iht           -- sparsity: %02d intercept: %.4f bacc: %.4f '
           'non-zero: %.2f' %
           (s, w_hat[-1], res['iht']['bacc'],
            len(np.nonzero(w_hat)[0]) - 1))
@@ -288,7 +291,7 @@ def run_single_test(para):
     res['sto-iht']['auc'] = roc_auc_score(y_true=y_te, y_score=pred_prob)
     res['sto-iht']['perf'] = res['sto-iht']['bacc']
     res['sto-iht']['w_hat'] = w_hat
-    print('sto-iht   --     sparsity: %02d intercept: %.4f bacc: %.4f '
+    print('sto-iht       -- sparsity: %02d intercept: %.4f bacc: %.4f '
           'non-zero: %.2f' % (
               s, w_hat[-1], res['sto-iht']['bacc'],
               len(np.nonzero(w_hat)[0]) - 1))
@@ -316,7 +319,7 @@ def run_single_test(para):
     res['graph-iht']['auc'] = roc_auc_score(y_true=y_te, y_score=pred_prob)
     res['graph-iht']['perf'] = res['graph-iht']['bacc']
     res['graph-iht']['w_hat'] = w_hat
-    print('graph-iht --     sparsity: %02d intercept: %.4f bacc: %.4f'
+    print('graph-iht     -- sparsity: %02d intercept: %.4f bacc: %.4f '
           'non-zero: %.2f' %
           (s, w_hat[-1], res['graph-iht']['bacc'],
            len(np.nonzero(w_hat)[0]) - 1))
@@ -336,7 +339,7 @@ def run_single_test(para):
     res['graph-sto-iht']['auc'] = roc_auc_score(y_true=y_te, y_score=pred_prob)
     res['graph-sto-iht']['perf'] = res['graph-sto-iht']['bacc']
     res['graph-sto-iht']['w_hat'] = w_hat
-    print('graph-sto-iht -- sparsity: %02d intercept: %.4f bacc: %.4f'
+    print('graph-sto-iht -- sparsity: %02d intercept: %.4f bacc: %.4f '
           'non-zero: %.2f' %
           (s, w_hat[-1], res['graph-sto-iht']['bacc'],
            len(np.nonzero(w_hat)[0]) - 1))
@@ -824,7 +827,7 @@ def show_test(nonconvex_method_list, folding_list, num_iterations,
 def main():
     method_list = ['iht', 'sto-iht', 'graph-iht', 'graph-sto-iht']
     n_folds, max_epochs = 5, 10
-    s_list = range(10, 100, 10)
+    s_list = range(20, 100, 10)
     b_list = [1, 2]
     lambda_list = [1e-3, 1e-4]
     command = sys.argv[1]
