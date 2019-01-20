@@ -385,8 +385,8 @@ def expand_data(data):
 
 
 def run_single_test(para):
-    data, tr_idx, te_idx, ii, s, jj, num_blocks, \
-    kk, lambda_, max_epochs, fold_i, subfold_i = para
+    data, tr_idx, te_idx, s, num_blocks, lambda_, \
+    max_epochs, fold_i, subfold_i = para
     from sklearn.metrics import roc_auc_score
     from sklearn.metrics import accuracy_score
     res = {'iht': dict(),
@@ -445,7 +445,6 @@ def run_single_test(para):
     print('sto-iht   -- sparsity: %02d intercept: %.4f bacc: %.4f' %
           (s, w_hat[-1], res['sto-iht']['bacc']))
 
-    # --------------------------------
     tr_data = dict()
     tr_data['x'] = data['x'][tr_idx, :]
     tr_data['y'] = data['y'][tr_idx]
@@ -454,6 +453,8 @@ def run_single_test(para):
     te_data['y'] = data['y'][te_idx]
     x_tr, y_tr = tr_data['x'], tr_data['y']
     w0 = np.zeros(np.shape(x_tr)[1] + 1)
+    # --------------------------------
+    # this corresponding (b=1) to GraphIHT
     w_hat = algo_graph_sto_iht_backtracking(
         x_tr, y_tr, w0, max_epochs, s,
         data['edges'], data['costs'], 1, lambda_)
@@ -498,25 +499,29 @@ def run_single_test(para):
     res['graph-sto-iht']['w_hat'] = w_hat
     print('graph-sto-iht -- sparsity: %02d intercept: %.4f bacc: %.4f' %
           (s, w_hat[-1], res['graph-sto-iht']['bacc']))
-    return ii, s, jj, num_blocks, res, fold_i, subfold_i
+    return s, num_blocks, lambda_, res, fold_i, subfold_i
 
 
 def run_parallel_tr(
-        data, s_list, b_list, lambda_list, num_iterations, num_cpus, fold_i,
-        n_folds):
-    method_list = ['sto-iht', 'graph-sto-iht', 'iht', 'graph-iht']
-    s_auc = {_: np.zeros((len(s_list), len(b_list))) for _ in method_list}
-    s_acc = {_: np.zeros((len(s_list), len(b_list))) for _ in method_list}
-    s_bacc = {_: np.zeros((len(s_list), len(b_list))) for _ in method_list}
+        data, s_list, b_list, lambda_list, max_epochs, num_cpus, fold_i):
+    # 5-fold cross validation
+    method_list = ['iht', 'sto-iht', 'graph-iht', 'graph-sto-iht']
+    s_auc = {_: {(s, num_blocks, lambda_): 0.0
+                 for (s, num_blocks, lambda_) in
+                 product(s_list, b_list, lambda_list)} for _ in method_list}
+    s_acc = {_: {(s, num_blocks, lambda_): 0.0
+                 for (s, num_blocks, lambda_) in
+                 product(s_list, b_list, lambda_list)} for _ in method_list}
+    s_bacc = {_: {(s, num_blocks, lambda_): 0.0
+                  for (s, num_blocks, lambda_) in
+                  product(s_list, b_list, lambda_list)} for _ in method_list}
     input_paras = []
     for sf_ii in range(len(data['data_subsplits'][fold_i])):
         s_tr = data['data_subsplits'][fold_i][sf_ii]['train']
         s_te = data['data_subsplits'][fold_i][sf_ii]['test']
-        for (ii, s), (jj, num_block), (kk, lambda_) in product(
-                enumerate(s_list), enumerate(b_list), enumerate(lambda_list)):
-            input_paras.append(
-                (data, s_tr, s_te, ii, s, jj, num_block, kk, lambda_,
-                 num_iterations, fold_i, sf_ii))
+        for s, num_block, lambda_ in product(s_list, b_list, lambda_list):
+            input_paras.append((data, s_tr, s_te, s, num_block, lambda_,
+                                max_epochs, fold_i, sf_ii))
     pool = multiprocessing.Pool(processes=num_cpus)
     results_pool = pool.map(run_single_test, input_paras)
     pool.close()
@@ -524,38 +529,45 @@ def run_parallel_tr(
 
     sub_res = dict()
     for item in results_pool:
-        ii, s, jj, num_blocks, re, fold_i, subfold_i = item
+        s, num_blocks, lambda_, re, fold_i, subfold_i = item
         if subfold_i not in sub_res:
             sub_res[subfold_i] = []
-        sub_res[subfold_i].append((ii, s, jj, num_blocks, re))
+        sub_res[subfold_i].append((s, num_blocks, lambda_, re))
     for sf_ii in sub_res:
         res = {_: dict() for _ in method_list}
         for _ in method_list:
             res[_]['s_list'] = s_list
             res[_]['b_list'] = b_list
             res[_]['lambda_list'] = lambda_list
-            res[_]['auc'] = np.zeros((len(s_list), len(b_list)))
-            res[_]['acc'] = np.zeros((len(s_list), len(b_list)))
-            res[_]['bacc'] = np.zeros((len(s_list), len(b_list)))
-            res[_]['perf'] = np.zeros((len(s_list), len(b_list)))
-            res[_]['w_hat'] = {(s, b): None for (s, b) in
-                               product(s_list, b_list)}
-        for ii, s, jj, num_blocks, re in sub_res[sf_ii]:
+            res[_]['auc'] = dict()
+            res[_]['acc'] = dict()
+            res[_]['bacc'] = dict()
+            res[_]['perf'] = dict()
+            res[_]['w_hat'] = {(s, num_blocks, lambda_): None
+                               for (s, num_blocks, lambda_) in
+                               product(s_list, b_list, lambda_list)}
+        for s, num_blocks, lambda_, re in sub_res[sf_ii]:
             for _ in method_list:
-                res[_]['auc'][ii][jj] = re[_]['auc']
-                res[_]['acc'][ii][jj] = re[_]['acc']
-                res[_]['bacc'][ii][jj] = re[_]['bacc']
-                res[_]['perf'][ii][jj] = re[_]['perf']
-                res[_]['w_hat'][(s, num_blocks)] = re[_]['w_hat']
+                res[_]['auc'][(s, num_blocks, lambda_)] = re[_]['auc']
+                res[_]['acc'][(s, num_blocks, lambda_)] = re[_]['acc']
+                res[_]['bacc'][(s, num_blocks, lambda_)] = re[_]['bacc']
+                res[_]['perf'][(s, num_blocks, lambda_)] = re[_]['perf']
+                res[_]['w_hat'][(s, num_blocks, lambda_)] = re[_]['w_hat']
         for _ in method_list:
-            s_auc[_] += res[_]['auc'] / (1. * n_folds)
-            s_acc[_] += res[_]['acc'] / (1. * n_folds)
-            s_bacc[_] += res[_]['bacc'] / (1. * n_folds)
-    return s_bacc
+            for (s, num_blocks, lambda_) in \
+                    product(s_list, b_list, lambda_list):
+                s_auc[_][(s, num_blocks, lambda_)] += res[_]['auc']
+                s_acc[_][(s, num_blocks, lambda_)] += res[_]['acc']
+                s_bacc[_][(s, num_blocks, lambda_)] += res[_]['bacc']
+    # tune by balanced accuracy
+    s_star = dict()
+    for _ in method_list:
+        s_star[_] = min(s_bacc, key=s_bacc.get)
+    return s_star, s_bacc
 
 
 def run_parallel_te(
-        data, tr_idx, te_idx, s_list, b_list, lambda_list, num_iters,
+        data, tr_idx, te_idx, s_list, b_list, lambda_list, max_epochs,
         num_cpus):
     method_list = ['sto-iht', 'graph-sto-iht', 'iht', 'graph-iht']
     res = {_: dict() for _ in method_list}
@@ -563,28 +575,27 @@ def run_parallel_te(
         res[_]['s_list'] = s_list
         res[_]['b_list'] = b_list
         res[_]['lambda_list'] = lambda_list
-        res[_]['auc'] = np.zeros((len(s_list), len(b_list)))
-        res[_]['acc'] = np.zeros((len(s_list), len(b_list)))
-        res[_]['bacc'] = np.zeros((len(s_list), len(b_list)))
-        res[_]['perf'] = np.zeros((len(s_list), len(b_list)))
-        res[_]['w_hat'] = {(s, b): None for (s, b) in product(s_list, b_list)}
-    input_paras = [(data, tr_idx, te_idx, ii, s, jj, num_block, kk, lambda_,
-                    num_iters, '', '')
-                   for (ii, s), (jj, num_block), (kk, lambda_) in
-                   product(enumerate(s_list), enumerate(b_list),
-                           enumerate(lambda_list))]
+        res[_]['auc'] = dict()
+        res[_]['acc'] = dict()
+        res[_]['bacc'] = dict()
+        res[_]['perf'] = dict()
+        res[_]['w_hat'] = {(s, num_blocks, lambda_): None
+                           for (s, num_blocks, lambda_) in
+                           product(s_list, b_list, lambda_list)}
+    input_paras = [(data, tr_idx, te_idx, s, num_block, lambda_, max_epochs,
+                    '', '') for s, num_block, lambda_ in
+                   product(s_list, b_list, lambda_list)]
     pool = multiprocessing.Pool(processes=num_cpus)
-    # data, tr_idx, te_idx, ii, s, jj, num_blocks, lambda_, num_iterations
     results_pool = pool.map(run_single_test, input_paras)
     pool.close()
     pool.join()
-    for ii, s, jj, num_blocks, re, fold_i, subfold_i in results_pool:
+    for s, num_blocks, lambda_, re, fold_i, subfold_i in results_pool:
         for _ in method_list:
-            res[_]['auc'][ii][jj] = re[_]['auc']
-            res[_]['acc'][ii][jj] = re[_]['acc']
-            res[_]['bacc'][ii][jj] = re[_]['bacc']
-            res[_]['perf'][ii][jj] = re[_]['perf']
-            res[_]['w_hat'][(s, num_blocks)] = re[_]['w_hat']
+            res[_]['auc'][(s, num_blocks, lambda_)] = re[_]['auc']
+            res[_]['acc'][(s, num_blocks, lambda_)] = re[_]['acc']
+            res[_]['bacc'][(s, num_blocks, lambda_)] = re[_]['bacc']
+            res[_]['perf'][(s, num_blocks, lambda_)] = re[_]['perf']
+            res[_]['w_hat'][(s, num_blocks, lambda_)] = re[_]['w_hat']
     return res
 
 
@@ -720,7 +731,7 @@ def get_single_data(trial_i, root_input):
 
 
 def run_test(folding_i, num_cpus, root_input, root_output):
-    n_folds, num_iterations = 5, 50
+    n_folds, max_epochs = 5, 50
     s_list = range(5, 100, 5)  # sparsity list
     b_list = [1, 2]  # number of block list.
     lambda_list = [1e-3, 1e-4]
@@ -744,28 +755,25 @@ def run_test(folding_i, num_cpus, root_input, root_output):
         f_data['costs'] = data['costs']
         cv_res[fold_i]['s_list'] = s_list
         cv_res[fold_i]['b_list'] = b_list
-        s_star = {_: None for _ in method_list}  # save the best.
-        s_bacc = run_parallel_tr(
-            f_data, s_list, b_list, lambda_list, num_iterations, num_cpus,
-            fold_i, n_folds)
+        cv_res[fold_i]['lambda_list'] = lambda_list
+        s_star, s_bacc = run_parallel_tr(
+            f_data, s_list, b_list, lambda_list, max_epochs, num_cpus, fold_i)
         for _ in method_list:
-            s_star[_] = np.unravel_index(s_bacc[_].argmin(), s_bacc[_].shape)
             cv_res[fold_i][_] = dict()
             cv_res[fold_i][_]['s_bacc'] = s_bacc[_]
         res = run_parallel_te(
             f_data, tr_idx, te_idx, s_list, b_list, lambda_list,
-            num_iterations, num_cpus)
+            max_epochs, num_cpus)
         for _ in method_list:
-            best_s = s_star[_]
-            cv_res[fold_i][_]['s_star'] = best_s
-            cv_res[fold_i][_]['auc'] = res[_]['auc'][best_s]
-            cv_res[fold_i][_]['acc'] = res[_]['acc'][best_s]
-            cv_res[fold_i][_]['bacc'] = res[_]['bacc'][best_s]
-            cv_res[fold_i][_]['perf'] = res[_]['bacc'][best_s]
-            s, b = (s_list[best_s[0]], b_list[best_s[1]])
-            cv_res[fold_i][_]['w_hat'] = res[_]['w_hat'][(s, b)]
+            best_para = s_star[_]
+            cv_res[fold_i][_]['s_star'] = best_para
+            cv_res[fold_i][_]['auc'] = res[_]['auc'][best_para]
+            cv_res[fold_i][_]['acc'] = res[_]['acc'][best_para]
+            cv_res[fold_i][_]['bacc'] = res[_]['bacc'][best_para]
+            cv_res[fold_i][_]['perf'] = res[_]['bacc'][best_para]
+            cv_res[fold_i][_]['w_hat'] = res[_]['w_hat'][best_para]
             cv_res[fold_i][_]['map_entrez'] = data['map_entrez']
-    f_name = 'results_exp_bc_%02d_%03d.pkl' % (folding_i, num_iterations)
+    f_name = 'results_exp_bc_%02d_%03d.pkl' % (folding_i, max_epochs)
     pickle.dump(cv_res, open(root_output + f_name, 'wb'))
 
 
