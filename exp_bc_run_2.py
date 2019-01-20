@@ -591,13 +591,12 @@ def run_parallel_te(
     pool.close()
     pool.join()
     for s, num_blocks, lambda_, re, fold_i, subfold_i in results_pool:
-        key_para = (s, num_blocks, lambda_)
         for _ in method_list:
-            res[_]['auc'][key_para] = re[_]['auc'][key_para]
-            res[_]['acc'][key_para] = re[_]['acc'][key_para]
-            res[_]['bacc'][key_para] = re[_]['bacc'][key_para]
-            res[_]['perf'][key_para] = re[_]['perf'][key_para]
-            res[_]['w_hat'][key_para] = re[_]['w_hat'][key_para]
+            res[_]['auc'][(s, num_blocks, lambda_)] = re[_]['auc']
+            res[_]['acc'][(s, num_blocks, lambda_)] = re[_]['acc']
+            res[_]['bacc'][(s, num_blocks, lambda_)] = re[_]['bacc']
+            res[_]['perf'][(s, num_blocks, lambda_)] = re[_]['perf']
+            res[_]['w_hat'][(s, num_blocks, lambda_)] = re[_]['w_hat']
     return res
 
 
