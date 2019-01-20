@@ -272,6 +272,7 @@ def run_single_test(para):
     res['iht']['w_hat'] = w_hat
     print('iht   -- sparsity: %02d intercept: %.4f bacc: %.4f' %
           (s, w_hat[-1], res['iht']['bacc']))
+    print(len(np.nonzero(w_hat)[0]))
     # --------------------------------
     w_hat = algo_sto_iht_backtracking(
         x_tr, y_tr, w0, max_epochs, s, num_blocks, lambda_)
@@ -293,7 +294,7 @@ def run_single_test(para):
     res['sto-iht']['w_hat'] = w_hat
     print('sto-iht   -- sparsity: %02d intercept: %.4f bacc: %.4f' %
           (s, w_hat[-1], res['sto-iht']['bacc']))
-
+    print(len(np.nonzero(w_hat)[0]))
     tr_data = dict()
     tr_data['x'] = data['x'][tr_idx, :]
     tr_data['y'] = data['y'][tr_idx]
@@ -847,7 +848,7 @@ def main():
                      num_cpus=num_cpus, root_input='data/',
                      root_output='results/')
     elif command == 'show_test':
-        folding_list = range(0, 20, 2)
+        folding_list = range(20)
         num_iterations = 10
         show_test(nonconvex_method_list=method_list,
                   folding_list=folding_list, num_iterations=num_iterations,
