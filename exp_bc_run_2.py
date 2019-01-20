@@ -731,17 +731,17 @@ def get_single_data(trial_i, root_input):
 
 
 def run_test(folding_i, num_cpus, root_input, root_output):
-    n_folds, max_epochs = 5, 50
+    n_folds, max_epochs = 5, 2
     s_list = range(5, 100, 5)  # sparsity list
     s_list = [50]
     b_list = [1, 2]  # number of block list.
-    b_list = [2]  # number of block list.
+    b_list = [1]  # number of block list.
     lambda_list = [1e-4]
     method_list = ['sto-iht', 'graph-sto-iht', 'iht', 'graph-iht']
     cv_res = {_: dict() for _ in range(n_folds)}
     for fold_i in range(n_folds):
         data = get_single_data(folding_i, root_input)
-        tr_idx = data['data_splits'][fold_i]['train']
+        tr_idqqx = data['data_splits'][fold_i]['train']
         te_idx = data['data_splits'][fold_i]['test']
         f_data = data.copy()
         tr_data = dict()
