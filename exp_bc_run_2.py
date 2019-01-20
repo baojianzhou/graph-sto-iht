@@ -610,6 +610,8 @@ def run_test(method_list, n_folds, max_epochs, s_list, b_list, lambda_list,
             max_epochs, num_cpus)
         for _ in method_list:
             best_para = s_star[_]
+            print('%15s s: %02d %03d %.2f' %
+                  (_, best_para[0], best_para[1], best_para[2]))
             cv_res[fold_i][_]['auc'] = res[_]['auc'][best_para]
             cv_res[fold_i][_]['acc'] = res[_]['acc'][best_para]
             cv_res[fold_i][_]['bacc'] = res[_]['bacc'][best_para]
@@ -830,7 +832,7 @@ def main():
     n_folds = 5
     s_list = range(10, 101, 10)
     b_list = [1, 2]
-    lambda_list = [1e-3, 1e-4]
+    lambda_list = [1e-2, 1e-3]
 
     root_p = 'results_2/'
     if not os.path.exists(root_p):
@@ -849,11 +851,11 @@ def main():
                      num_cpus=num_cpus, root_input='data/',
                      root_output='results_2/')
     elif command == 'show_test':
-        folding_list = [0, 1, 7, 8, 14, 15]
-        num_iterations = 50
+        folding_list = range(20)
+        num_iterations = 40
         show_test(nonconvex_method_list=method_list,
                   folding_list=folding_list, num_iterations=num_iterations,
-                  root_input='data/', root_output='results/')
+                  root_input='data/', root_output='results_2/')
 
 
 if __name__ == "__main__":
