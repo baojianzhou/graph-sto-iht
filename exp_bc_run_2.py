@@ -149,21 +149,24 @@ def algo_head_tail_bisearch(
 
 
 def algo_graph_sto_iht_backtracking(
-        x_tr, y_tr, w0, max_epochs, h_low, h_high, t_low, t_high, edges,
-        costs, root, g, max_num_iter, verbose, num_blocks, lambda_):
+        x_tr, y_tr, w0, max_epochs, s, edges, costs, num_blocks, lambda_,
+        g=1, root=-1, gamma=0.1, proj_max_num_iter=50, verbose=0):
     np.random.seed()  # do not forget it.
     w_hat = np.copy(w0)
     (m, p) = x_tr.shape
     # if the block size is too large. just use single block
     b = int(m) / int(num_blocks)
-    num_epochs = 0
     np_ = np.sum(y_tr == 1)
     nn_ = np.sum(y_tr == -1)
     cp = float(nn_) / float(len(y_tr))
     cn = float(np_) / float(len(y_tr))
-    w_error_list, loss_list = [], []
+
+    # graph projection para
+    h_low = int(2 * s)
+    h_high = int(2 * (1. + gamma))
+    t_low = int(s)
+    t_high = int(s * (1. + gamma))
     for epoch_i in range(max_epochs):
-        num_epochs += 1
         for ind, _ in enumerate(range(num_blocks)):
             ii = randint(0, num_blocks)
             block = range(b * ii, b * (ii + 1))
@@ -173,7 +176,7 @@ def algo_graph_sto_iht_backtracking(
                 l2_reg=lambda_, cp=cp, cn=cn)
             h_nodes, p_grad = algo_head_tail_bisearch(
                 edges, grad_sto[:p], costs, g, root, h_low, h_high,
-                max_num_iter, verbose)
+                proj_max_num_iter, verbose)
             p_grad = np.append(p_grad, grad_sto[-1])
             fun_val_right = loss_sto
             tmp_num_iter, ad_step, beta = 0, 1.0, 0.8
@@ -191,42 +194,24 @@ def algo_graph_sto_iht_backtracking(
             bt_sto = np.zeros_like(w_hat)
             bt_sto[:p] = w_hat[:p] - ad_step * p_grad[:p]
             t_nodes, proj_bt = algo_head_tail_bisearch(
-                edges, bt_sto[:p], costs, g, root, t_low, t_high, max_num_iter,
-                verbose)
+                edges, bt_sto[:p], costs, g, root, t_low, t_high,
+                proj_max_num_iter, verbose)
             w_hat[:p] = proj_bt[:p]
             w_hat[p] = w_hat[p] - ad_step * grad_sto[p]  # intercept.
-            print('iter: %03d sparsity: %02d num_blocks: %02d loss_sto: %.4f '
-                  'head_nodes: %03d tail_nodes: %03d' %
-                  (epoch_i * num_blocks + ind, t_low, num_blocks, loss_sto,
-                   len(h_nodes), len(t_nodes)))
-            loss_list.append(loss_sto)
-            w_error_list.append(np.linalg.norm(w_hat))
-
-        # diverge cases because of the large learning rate: early stopping
-        if np.linalg.norm(w_hat) >= 1e3:
-            break
-        # we reach a local minimum point.
-        if len(np.unique(loss_list[-5:])) == 1 and \
-                len(np.unique(w_error_list[-5:])) == 1 and epoch_i >= 10:
-            print('found to be at a local minimal!!')
-            break
     return w_hat
 
 
 def algo_sto_iht_backtracking(
-        x_tr, y_tr, w0, max_epochs, s, num_blocks, lambda_, verbose=0):
+        x_tr, y_tr, w0, max_epochs, s, num_blocks, lambda_):
     np.random.seed()  # do not forget it.
     w_hat = w0
     (m, p) = x_tr.shape
     b = int(m) / int(num_blocks)
-    num_epochs = 0
     np_ = np.sum(y_tr == 1)
     nn_ = np.sum(y_tr == -1)
     cp = float(nn_) / float(len(y_tr))
     cn = float(np_) / float(len(y_tr))
-    w_error_list, loss_list = [], []
     for epoch_i in range(max_epochs):
-        num_epochs += 1
         for ind, _ in enumerate(range(num_blocks)):
             ii = randint(0, num_blocks)
             block = range(b * ii, b * (ii + 1))
@@ -250,20 +235,6 @@ def algo_sto_iht_backtracking(
             bt_sto = w_hat - ad_step * grad_sto
             bt_sto[np.argsort(np.abs(bt_sto))[:p - s]] = 0.
             w_hat = bt_sto
-            loss_list.append(loss_sto)
-            if verbose > 0:
-                print('iter: %03d sparsity: %02d loss_sto: %.10f'
-                      % (epoch_i * num_blocks + ind, s, loss_sto))
-            w_error_list.append(np.linalg.norm(w_hat))
-
-        # diverge cases because of the large learning rate: early stopping
-        if np.linalg.norm(w_hat) >= 1e3:
-            break
-        # we reach a local minimum point.
-        if len(np.unique(loss_list[-5:])) == 1 and \
-                len(np.unique(w_error_list[-5:])) == 1 and epoch_i >= 10:
-            print('found to be at a local minimal!!')
-            break
     return w_hat
 
 
@@ -415,7 +386,7 @@ def expand_data(data):
 
 def run_single_test(para):
     data, tr_idx, te_idx, ii, s, jj, num_blocks, \
-    kk, lambda_, num_iterations, fold_i, subfold_i = para
+    kk, lambda_, max_epochs, fold_i, subfold_i = para
     from sklearn.metrics import roc_auc_score
     from sklearn.metrics import accuracy_score
     res = {'iht': dict(),
@@ -430,9 +401,10 @@ def run_single_test(para):
     te_data['y'] = data['y'][te_idx]
     x_tr, y_tr = tr_data['x'], tr_data['y']
     w0 = np.zeros(np.shape(x_tr)[1] + 1)
-    # ----------------------------------------------------------------
+    # --------------------------------
+    # this corresponding (b=1) to IHT
     w_hat = algo_sto_iht_backtracking(
-        x_tr, y_tr, w0, num_iterations, s, 1, lambda_, verbose=0)
+        x_tr, y_tr, w0, max_epochs, s, 1, lambda_)
     x_te, y_te = te_data['x'], te_data['y']
     pred_prob, pred_y = logistic_predict(x_te, w_hat)
     posi_idx = np.nonzero(y_te == 1)[0]
@@ -451,9 +423,9 @@ def run_single_test(para):
     res['iht']['w_hat'] = w_hat
     print('iht   -- sparsity: %02d intercept: %.4f bacc: %.4f' %
           (s, w_hat[-1], res['iht']['bacc']))
-    # ----------------------------------------------------------------
+    # --------------------------------
     w_hat = algo_sto_iht_backtracking(
-        x_tr, y_tr, w0, num_iterations, s, num_blocks, lambda_, verbose=0)
+        x_tr, y_tr, w0, max_epochs, s, num_blocks, lambda_)
     x_te, y_te = te_data['x'], te_data['y']
     pred_prob, pred_y = logistic_predict(x_te, w_hat)
     posi_idx = np.nonzero(y_te == 1)[0]
@@ -473,21 +445,18 @@ def run_single_test(para):
     print('sto-iht   -- sparsity: %02d intercept: %.4f bacc: %.4f' %
           (s, w_hat[-1], res['sto-iht']['bacc']))
 
-    # ----------------------------------------------------------------
+    # --------------------------------
     tr_data = dict()
     tr_data['x'] = data['x'][tr_idx, :]
     tr_data['y'] = data['y'][tr_idx]
     te_data = dict()
     te_data['x'] = data['x'][te_idx, :]
     te_data['y'] = data['y'][te_idx]
-    gamma = 0.1
-    h_low, h_high = int(2 * s), int(2 * s * (1. + gamma))
-    t_low, t_high = s, int(s * (1. + gamma))
     x_tr, y_tr = tr_data['x'], tr_data['y']
     w0 = np.zeros(np.shape(x_tr)[1] + 1)
     w_hat = algo_graph_sto_iht_backtracking(
-        x_tr, y_tr, w0, num_iterations, h_low, h_high, t_low, t_high,
-        data['edges'], data['costs'], -1, 1, 50, 0, num_blocks, lambda_)
+        x_tr, y_tr, w0, max_epochs, s,
+        data['edges'], data['costs'], 1, lambda_)
     x_te, y_te = te_data['x'], te_data['y']
     pred_prob, pred_y = logistic_predict(x_te, w_hat)
     posi_idx = np.nonzero(y_te == 1)[0]
@@ -507,10 +476,10 @@ def run_single_test(para):
     print('graph-iht -- sparsity: %02d intercept: %.4f bacc: %.4f' %
           (s, w_hat[-1], res['graph-iht']['bacc']))
 
-    # ----------------------------------------------------------
+    # --------------------------------
     w_hat = algo_graph_sto_iht_backtracking(
-        x_tr, y_tr, w0, 1, h_low, h_high, t_low, t_high,
-        data['edges'], data['costs'], -1, 1, 50, 0, num_blocks, lambda_)
+        x_tr, y_tr, w0, max_epochs, s,
+        data['edges'], data['costs'], num_blocks, lambda_)
     x_te, y_te = te_data['x'], te_data['y']
     pred_prob, pred_y = logistic_predict(x_te, w_hat)
     posi_idx = np.nonzero(y_te == 1)[0]
@@ -533,7 +502,7 @@ def run_single_test(para):
 
 
 def run_parallel_tr(
-        data, s_list, b_list, lambda_list, num_iters, num_cpus, fold_i,
+        data, s_list, b_list, lambda_list, num_iterations, num_cpus, fold_i,
         n_folds):
     method_list = ['sto-iht', 'graph-sto-iht', 'iht', 'graph-iht']
     s_auc = {_: np.zeros((len(s_list), len(b_list))) for _ in method_list}
@@ -547,7 +516,7 @@ def run_parallel_tr(
                 enumerate(s_list), enumerate(b_list), enumerate(lambda_list)):
             input_paras.append(
                 (data, s_tr, s_te, ii, s, jj, num_block, kk, lambda_,
-                 num_iters, fold_i, sf_ii))
+                 num_iterations, fold_i, sf_ii))
     pool = multiprocessing.Pool(processes=num_cpus)
     results_pool = pool.map(run_single_test, input_paras)
     pool.close()
@@ -754,7 +723,7 @@ def run_test(folding_i, num_cpus, root_input, root_output):
     n_folds, num_iterations = 5, 50
     s_list = range(5, 100, 5)  # sparsity list
     b_list = [1, 2]  # number of block list.
-    lambda_list = [1e-4]
+    lambda_list = [1e-3, 1e-4]
     method_list = ['sto-iht', 'graph-sto-iht', 'iht', 'graph-iht']
     cv_res = {_: dict() for _ in range(n_folds)}
     for fold_i in range(n_folds):
@@ -908,9 +877,10 @@ def show_test(trials_list, num_iterations, root_input, root_output,
         print('_' * 164)
         print('_' * 164)
         print(' '.join(['-' * 75, 'latex tables', '-' * 75]))
-        caption_list = ['BACC on Gene expression dataset.',
-                        'AUC on Gene expression dataset.',
-                        'Non-zeros on Gene expression dataset']
+        caption_list = [
+            'Balanced Classification Error on the breast cancer dataset.',
+            'AUC score on the breast cancer dataset.',
+            'Number of nonzeros on the breast cancer dataset.']
         for index_metrix, metric in enumerate(['bacc', 'auc', 'num_nonzeros']):
             print(' '.join(['-' * 75, '%12s' % metric, '-' * 75]))
             print(
@@ -921,10 +891,15 @@ def show_test(trials_list, num_iterations, root_input, root_output,
             mean_dict = {method: [] for method in method_list}
 
             print(' & '.join(
-                ['-', '$\ell_1$-Path', '$\Omega_{\cup}^\mathcal{G}$-Path',
-                 '$\ell_1$-Edge', '$\Omega_{\cup}^\mathcal{G}$-Edge',
-                 '\\textsc{StoIHT}', '\\textsc{GraphStoIHT}',
-                 '\\textsc{IHT}', '\\textsc{GraphIHT}'])),
+                ['Fold Choice',
+                 '$\ell_1$-\\textsc{Pathway}',
+                 '$\ell^1/\ell^2$-\\textsc{Pathway}',
+                 '$\ell_1$-\\textsc{Edge}',
+                 '$\ell^1/\ell^2$-\\textsc{Edge}',
+                 '\\textsc{StoIHT}',
+                 '\\textsc{GraphStoIHT}',
+                 '\\textsc{IHT}',
+                 '\\textsc{GraphIHT}'])),
             print('\\\\')
             print('\hline')
             for folding_i in trials_list:
@@ -932,7 +907,7 @@ def show_test(trials_list, num_iterations, root_input, root_output,
                 find_min = [np.inf]
                 find_max = [-np.inf]
                 each_re = all_data[folding_i]
-                row_list.append('Error Folding %02d' % folding_i)
+                row_list.append('Folding %02d' % folding_i)
                 for method in method_list:
                     x1 = float(np.mean(each_re[method][metric]))
                     find_min.append(x1)
@@ -1011,10 +986,6 @@ def main():
             run_test(folding_i=folding_i, num_cpus=num_cpus,
                      root_input='data/', root_output='results/')
     elif command == 'show_test':
-        folding_list = [0, 1, 4, 5, 8, 9, 12, 13, 16, 17]
-        folding_list = [0, 1, 2, 4, 5, 6, 8, 9, 10, 12, 13, 14, 16, 17, 18]
-        folding_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
-                        16, 17]
         folding_list = range(20)
         num_iterations = 50
         show_test(folding_list, num_iterations,
