@@ -624,6 +624,10 @@ def run_test(method_list, n_folds, max_epochs, s_list, b_list, lambda_list,
             cv_res[fold_i][_]['bacc'] = res[_]['bacc'][best_para]
             cv_res[fold_i][_]['perf'] = res[_]['bacc'][best_para]
             cv_res[fold_i][_]['w_hat'] = res[_]['w_hat'][best_para]
+    for _ in method_list:
+        re = [cv_res[fold_i][_]['bacc'] for fold_i in range(5)]
+        print('%15s %.4f %.4f %.4f %.4f %.4f' %
+              (_, re[0], re[1], re[2], re[3], re[4]))
     f_name = 'results_exp_bc_%02d_%02d.pkl' % (folding_i, max_epochs)
     pickle.dump(cv_res, open(root_output + f_name, 'wb'))
 
