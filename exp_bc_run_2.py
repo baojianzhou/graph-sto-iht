@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import sys
 import pickle
 import numpy as np
@@ -830,6 +831,11 @@ def main():
     s_list = range(10, 100, 10)
     b_list = [1, 2]
     lambda_list = [1e-3, 1e-4]
+
+    root_p = 'results_2/'
+    if not os.path.exists(root_p):
+        os.mkdir(root_p)
+
     command = sys.argv[1]
     if command == 'run_test':
         num_cpus = int(sys.argv[2])
@@ -840,7 +846,7 @@ def main():
                      max_epochs=max_epochs, s_list=s_list, b_list=b_list,
                      lambda_list=lambda_list, folding_i=folding_i,
                      num_cpus=num_cpus, root_input='data/',
-                     root_output='results/')
+                     root_output='results_2/')
     elif command == 'show_test':
         folding_list = [0, 5, 10, 15]
         num_iterations = 30
