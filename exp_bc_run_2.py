@@ -610,8 +610,9 @@ def run_test(method_list, n_folds, max_epochs, s_list, b_list, lambda_list,
             max_epochs, num_cpus)
         for _ in method_list:
             best_para = s_star[_]
-            print('%15s s: %02d %03d %.2f' %
-                  (_, best_para[0], best_para[1], best_para[2]))
+            print('%15s s: %02d b: %03d lambda: %.4f bacc: %.4f' %
+                  (_, best_para[0], best_para[1], best_para[2],
+                   res[_]['bacc'][best_para]))
             cv_res[fold_i][_]['auc'] = res[_]['auc'][best_para]
             cv_res[fold_i][_]['acc'] = res[_]['acc'][best_para]
             cv_res[fold_i][_]['bacc'] = res[_]['bacc'][best_para]
@@ -830,7 +831,7 @@ def show_test(nonconvex_method_list, folding_list, num_iterations,
 def main():
     method_list = ['iht', 'sto-iht', 'graph-iht', 'graph-sto-iht']
     n_folds = 5
-    s_list = range(10, 101, 10)
+    s_list = range(10, 81, 10)
     b_list = [1, 2]
     lambda_list = [1e-2, 1e-3]
 
