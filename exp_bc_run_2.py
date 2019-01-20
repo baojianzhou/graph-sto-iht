@@ -820,7 +820,7 @@ def show_test(nonconvex_method_list, folding_list, num_iterations,
             all_data[trial_i]['found_related_genes'][method] = set(re)
     method_list = ['re_path_re_lasso', 're_path_re_overlap',
                    're_edge_re_lasso', 're_edge_re_overlap',
-                   're_sto-iht', 're_graph-sto-iht', 're_iht', 're_graph-iht']
+                   're_iht', 're_sto-iht', 're_graph-iht', 're_graph-sto-iht']
     all_involved_genes = {method: set() for method in method_list}
     for trial_i in sum_data:
         for method in nonconvex_method_list:
@@ -847,8 +847,8 @@ def show_test(nonconvex_method_list, folding_list, num_iterations,
         mean_dict = {method: [] for method in method_list}
         print(' '.join(['-' * 54, '%12s' % metric, '-' * 54]))
         print('            Path-Lasso    Path-Overlap '),
-        print('Edge-Lasso    Edge-Overlap  StoIHT        '
-              'GraphStoIHT   IHT           GraphIHT')
+        print('Edge-Lasso    Edge-Overlap  IHT           StoIHT        '
+              'GraphIHT      GraphStoIHT')
         for folding_i in folding_list:
             each_re = all_data[folding_i]
             print('Folding_%02d ' % folding_i),
@@ -895,10 +895,10 @@ def show_test(nonconvex_method_list, folding_list, num_iterations,
                  '$\ell^1/\ell^2$-\\textsc{Pathway}',
                  '$\ell_1$-\\textsc{Edge}',
                  '$\ell^1/\ell^2$-\\textsc{Edge}',
-                 '\\textsc{StoIHT}',
-                 '\\textsc{GraphStoIHT}',
                  '\\textsc{IHT}',
-                 '\\textsc{GraphIHT}'])),
+                 '\\textsc{StoIHT}',
+                 '\\textsc{GraphIHT}',
+                 '\\textsc{GraphStoIHT}'])),
             print('\\\\')
             print('\hline')
             for folding_i in folding_list:
@@ -993,7 +993,7 @@ def main():
                      num_cpus=num_cpus, root_input='data/',
                      root_output='results/')
     elif command == 'show_test':
-        folding_list = range(12)
+        folding_list = range(0, 20, 2)
         num_iterations = 10
         show_test(nonconvex_method_list=method_list,
                   folding_list=folding_list, num_iterations=num_iterations,
