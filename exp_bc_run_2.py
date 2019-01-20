@@ -843,7 +843,7 @@ def main():
     n_folds = 5
     s_list = range(20, 81, 5)
     b_list = [1, 2]
-    lambda_list = [1e-4]
+    lambda_list = [1e-3, 1e-4]
 
     root_p = 'results_2/'
     if not os.path.exists(root_p):
