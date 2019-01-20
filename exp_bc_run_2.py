@@ -735,6 +735,8 @@ def show_test(nonconvex_method_list, folding_list, num_iterations,
         print('')
     print('_' * 122)
     if latex_flag:  # print latex table.
+        best_bacc_dict = {_: 0 for _ in range(8)}
+        best_auc_dict = {_: 0 for _ in range(8)}
         print('\n\n')
         print('_' * 164)
         print('_' * 164)
@@ -764,6 +766,7 @@ def show_test(nonconvex_method_list, folding_list, num_iterations,
                  '\\textsc{GraphStoIHT}'])),
             print('\\\\')
             print('\hline')
+
             for folding_i in folding_list:
                 row_list = []
                 find_min = [np.inf]
@@ -786,12 +789,14 @@ def show_test(nonconvex_method_list, folding_list, num_iterations,
                     mean_std = original_string.split('$\pm$')
                     row_list[int(min_index)] = '\\textbf{%s}$\pm$%s' % (
                         mean_std[0], mean_std[1])
+                    best_bacc_dict[min_index - 1] += 1
                 elif metric == 'auc':
                     max_index = np.argmax(find_max)
                     original_string = row_list[int(max_index)]
                     mean_std = original_string.split('$\pm$')
                     row_list[int(max_index)] = '\\textbf{%s}$\pm$%s' % (
                         mean_std[0], mean_std[1])
+                    best_auc_dict[max_index - 1] += 1
                 print(' & '.join(row_list)),
                 print('\\\\')
             print('\hline')
@@ -823,7 +828,11 @@ def show_test(nonconvex_method_list, folding_list, num_iterations,
             print('\\\\')
             print('\hline')
             print('\end{tabular}\n\end{table*}')
+            print('\n\n\n\n')
         print('_' * 164)
+
+        for ind, _ in enumerate(method_list):
+            print(_, best_bacc_dict[ind], best_auc_dict[ind])
     found_genes = {method: set() for method in method_list}
     for folding_i in folding_list:
         for method in method_list:
@@ -862,7 +871,7 @@ def main():
                      num_cpus=num_cpus, root_input='data/',
                      root_output='results_2/')
     elif command == 'show_test':
-        folding_list = range(20)
+        folding_list = range(10)
         num_iterations = 30
         show_test(nonconvex_method_list=method_list,
                   folding_list=folding_list, num_iterations=num_iterations,
