@@ -849,7 +849,7 @@ def main():
                      num_cpus=num_cpus, root_input='data/',
                      root_output='results_2/')
     elif command == 'show_test':
-        folding_list = [0, 1, 5, 6, 10, 11, 15, 16]
+        folding_list = [0, 1, 2, 5, 6, 7, 10, 11, 15, 16, 17]
         num_iterations = 20
         show_test(nonconvex_method_list=method_list,
                   folding_list=folding_list, num_iterations=num_iterations,
