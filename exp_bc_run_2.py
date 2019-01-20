@@ -730,12 +730,10 @@ def get_single_data(trial_i, root_input):
 
 
 def run_test(folding_i, num_cpus, root_input, root_output):
-    n_folds, max_epochs = 5, 2
+    n_folds, max_epochs = 5, 10
     s_list = range(5, 100, 5)  # sparsity list
-    s_list = [50]
     b_list = [1, 2]  # number of block list.
-    b_list = [1]  # number of block list.
-    lambda_list = [1e-4]
+    lambda_list = [1e-3, 1e-4]
     method_list = ['sto-iht', 'graph-sto-iht', 'iht', 'graph-iht']
     cv_res = {_: dict() for _ in range(n_folds)}
     for fold_i in range(n_folds):
@@ -774,7 +772,7 @@ def run_test(folding_i, num_cpus, root_input, root_output):
             cv_res[fold_i][_]['perf'] = res[_]['bacc'][best_para]
             cv_res[fold_i][_]['w_hat'] = res[_]['w_hat'][best_para]
             cv_res[fold_i][_]['map_entrez'] = data['map_entrez']
-    f_name = 'results_exp_bc_%02d_%03d.pkl' % (folding_i, max_epochs)
+    f_name = 'results_exp_bc_%02d.pkl' % folding_i
     pickle.dump(cv_res, open(root_output + f_name, 'wb'))
 
 
