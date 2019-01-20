@@ -556,13 +556,14 @@ def run_parallel_tr(
         for _ in method_list:
             for (s, num_blocks, lambda_) in \
                     product(s_list, b_list, lambda_list):
-                s_auc[_][(s, num_blocks, lambda_)] += res[_]['auc']
-                s_acc[_][(s, num_blocks, lambda_)] += res[_]['acc']
-                s_bacc[_][(s, num_blocks, lambda_)] += res[_]['bacc']
+                key_para = (s, num_blocks, lambda_)
+                s_auc[_][key_para] += res[_]['auc'][key_para]
+                s_acc[_][key_para] += res[_]['acc'][key_para]
+                s_bacc[_][key_para] += res[_]['bacc'][key_para]
     # tune by balanced accuracy
     s_star = dict()
     for _ in method_list:
-        s_star[_] = min(s_bacc, key=s_bacc.get)
+        s_star[_] = min(s_bacc[_], key=s_bacc[_].get)
     return s_star, s_bacc
 
 
@@ -590,12 +591,13 @@ def run_parallel_te(
     pool.close()
     pool.join()
     for s, num_blocks, lambda_, re, fold_i, subfold_i in results_pool:
+        key_para = (s, num_blocks, lambda_)
         for _ in method_list:
-            res[_]['auc'][(s, num_blocks, lambda_)] = re[_]['auc']
-            res[_]['acc'][(s, num_blocks, lambda_)] = re[_]['acc']
-            res[_]['bacc'][(s, num_blocks, lambda_)] = re[_]['bacc']
-            res[_]['perf'][(s, num_blocks, lambda_)] = re[_]['perf']
-            res[_]['w_hat'][(s, num_blocks, lambda_)] = re[_]['w_hat']
+            res[_]['auc'][key_para] = re[_]['auc'][key_para]
+            res[_]['acc'][key_para] = re[_]['acc'][key_para]
+            res[_]['bacc'][key_para] = re[_]['bacc'][key_para]
+            res[_]['perf'][key_para] = re[_]['perf'][key_para]
+            res[_]['w_hat'][key_para] = re[_]['w_hat'][key_para]
     return res
 
 
@@ -733,8 +735,8 @@ def get_single_data(trial_i, root_input):
 def run_test(folding_i, num_cpus, root_input, root_output):
     n_folds, max_epochs = 5, 50
     s_list = range(5, 100, 5)  # sparsity list
-    b_list = [1, 2]  # number of block list.
-    lambda_list = [1e-3, 1e-4]
+    b_list = [2]  # number of block list.
+    lambda_list = [1e-4]
     method_list = ['sto-iht', 'graph-sto-iht', 'iht', 'graph-iht']
     cv_res = {_: dict() for _ in range(n_folds)}
     for fold_i in range(n_folds):
