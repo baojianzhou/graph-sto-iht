@@ -700,7 +700,6 @@ def get_single_data(trial_i, root_input):
             if edge[0] != edge[1]:  # remove some self-loops
                 maximum_list_edges.append(edge)
             subgraph.add_edge(edge[0], edge[1])
-    print(nx.number_connected_components(subgraph))
     data['map_entrez'] = np.asarray([data['data_entrez'][_]
                                      for _ in maximum_nodes])
     data['edges'] = np.asarray(maximum_list_edges, dtype=int)
@@ -727,7 +726,6 @@ def get_single_data(trial_i, root_input):
             for item in [kidx[_] for _ in np.nonzero(ws[1:])[0]]:
                 if item in cancer_related_genes:
                     found_set[method].add(cancer_related_genes[item])
-        print(method, found_set[method])
     data['found_related_genes'] = found_set
     return data
 
