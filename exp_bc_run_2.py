@@ -262,11 +262,12 @@ def run_single_test(para):
     pred_prob, pred_y = logistic_predict(x_te, w_hat)
     posi_idx = np.nonzero(y_te == 1)[0]
     nega_idx = np.nonzero(y_te == -1)[0]
-    print('-' * 80)
-    print('number of positive: %02d, missed: %02d '
-          'number of negative: %02d, missed: %02d ' %
-          (len(posi_idx), float(np.sum(pred_y[posi_idx] != 1)),
-           len(nega_idx), float(np.sum(pred_y[nega_idx] != -1))))
+    if False:
+        print('-' * 80)
+        print('number of positive: %02d, missed: %02d '
+              'number of negative: %02d, missed: %02d ' %
+              (len(posi_idx), float(np.sum(pred_y[posi_idx] != 1)),
+               len(nega_idx), float(np.sum(pred_y[nega_idx] != -1))))
     v1 = np.sum(pred_y[posi_idx] != 1) / float(len(posi_idx))
     v2 = np.sum(pred_y[nega_idx] != -1) / float(len(nega_idx))
     res['iht']['bacc'] = (v1 + v2) / 2.
@@ -274,10 +275,11 @@ def run_single_test(para):
     res['iht']['auc'] = roc_auc_score(y_true=y_te, y_score=pred_prob)
     res['iht']['perf'] = res['iht']['bacc']
     res['iht']['w_hat'] = w_hat
-    print('iht           -- sparsity: %02d intercept: %.4f bacc: %.4f '
-          'non-zero: %.2f' %
-          (s, w_hat[-1], res['iht']['bacc'],
-           len(np.nonzero(w_hat)[0]) - 1))
+    if False:
+        print('iht           -- sparsity: %02d intercept: %.4f bacc: %.4f '
+              'non-zero: %.2f' %
+              (s, w_hat[-1], res['iht']['bacc'],
+               len(np.nonzero(w_hat)[0]) - 1))
     # --------------------------------
     w_hat = algo_sto_iht_backtracking(
         x_tr, y_tr, w0, max_epochs, s, num_blocks, lambda_)
@@ -292,10 +294,10 @@ def run_single_test(para):
     res['sto-iht']['auc'] = roc_auc_score(y_true=y_te, y_score=pred_prob)
     res['sto-iht']['perf'] = res['sto-iht']['bacc']
     res['sto-iht']['w_hat'] = w_hat
-    print('sto-iht       -- sparsity: %02d intercept: %.4f bacc: %.4f '
-          'non-zero: %.2f' % (
-              s, w_hat[-1], res['sto-iht']['bacc'],
-              len(np.nonzero(w_hat)[0]) - 1))
+    if False:
+        print('sto-iht       -- sparsity: %02d intercept: %.4f bacc: %.4f '
+              'non-zero: %.2f' % (s, w_hat[-1], res['sto-iht']['bacc'],
+                                  len(np.nonzero(w_hat)[0]) - 1))
     tr_data = dict()
     tr_data['x'] = data['x'][tr_idx, :]
     tr_data['y'] = data['y'][tr_idx]
@@ -320,10 +322,10 @@ def run_single_test(para):
     res['graph-iht']['auc'] = roc_auc_score(y_true=y_te, y_score=pred_prob)
     res['graph-iht']['perf'] = res['graph-iht']['bacc']
     res['graph-iht']['w_hat'] = w_hat
-    print('graph-iht     -- sparsity: %02d intercept: %.4f bacc: %.4f '
-          'non-zero: %.2f' %
-          (s, w_hat[-1], res['graph-iht']['bacc'],
-           len(np.nonzero(w_hat)[0]) - 1))
+    if False:
+        print('graph-iht     -- sparsity: %02d intercept: %.4f bacc: %.4f '
+              'non-zero: %.2f' % (s, w_hat[-1], res['graph-iht']['bacc'],
+                                  len(np.nonzero(w_hat)[0]) - 1))
 
     # --------------------------------
     w_hat = algo_graph_sto_iht_backtracking(
@@ -340,10 +342,10 @@ def run_single_test(para):
     res['graph-sto-iht']['auc'] = roc_auc_score(y_true=y_te, y_score=pred_prob)
     res['graph-sto-iht']['perf'] = res['graph-sto-iht']['bacc']
     res['graph-sto-iht']['w_hat'] = w_hat
-    print('graph-sto-iht -- sparsity: %02d intercept: %.4f bacc: %.4f '
-          'non-zero: %.2f' %
-          (s, w_hat[-1], res['graph-sto-iht']['bacc'],
-           len(np.nonzero(w_hat)[0]) - 1))
+    if False:
+        print('graph-sto-iht -- sparsity: %02d intercept: %.4f bacc: %.4f '
+              'non-zero: %.2f' % (s, w_hat[-1], res['graph-sto-iht']['bacc'],
+                                  len(np.nonzero(w_hat)[0]) - 1))
     return s, num_blocks, lambda_, res, fold_i, subfold_i
 
 
@@ -610,8 +612,8 @@ def run_test(method_list, n_folds, max_epochs, s_list, b_list, lambda_list,
             max_epochs, num_cpus)
         for _ in method_list:
             best_para = s_star[_]
-            print('%15s s: %02d b: %03d lambda: %.4f bacc: %.4f' %
-                  (_, best_para[0], best_para[1], best_para[2],
+            print('%15s fold_%2d s: %02d b: %03d lambda: %.4f bacc: %.4f' %
+                  (_, fold_i, best_para[0], best_para[1], best_para[2],
                    res[_]['bacc'][best_para]))
             cv_res[fold_i][_]['auc'] = res[_]['auc'][best_para]
             cv_res[fold_i][_]['acc'] = res[_]['acc'][best_para]
