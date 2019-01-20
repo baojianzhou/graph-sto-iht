@@ -825,7 +825,7 @@ def show_test(nonconvex_method_list, folding_list, num_iterations,
 
 def main():
     method_list = ['iht', 'sto-iht', 'graph-iht', 'graph-sto-iht']
-    n_folds, max_epochs = 5, 10
+    n_folds, max_epochs = 5, 20
     s_list = range(10, 100, 5)
     b_list = [1, 2]
     lambda_list = [1e-3, 1e-4]
@@ -841,7 +841,7 @@ def main():
                      num_cpus=num_cpus, root_input='data/',
                      root_output='results/')
     elif command == 'show_test':
-        folding_list = range(20)
+        folding_list = range(0, 20, 1)
         num_iterations = 10
         show_test(nonconvex_method_list=method_list,
                   folding_list=folding_list, num_iterations=num_iterations,
