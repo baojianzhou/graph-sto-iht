@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import os
-import csv
 import sys
 import pickle
 import numpy as np
@@ -236,152 +234,6 @@ def algo_sto_iht_backtracking(
             bt_sto[np.argsort(np.abs(bt_sto))[:p - s]] = 0.
             w_hat = bt_sto
     return w_hat
-
-
-def cv_split_bal(y, n_folds):
-    splits = {i: dict() for i in range(n_folds)}
-    posi_idx = np.nonzero(y == 1)[0]
-    nega_idx = np.nonzero(y == -1)[0]
-    np_, nn_ = len(posi_idx), len(nega_idx)
-    p_size_fold = int(np.round(float(len(posi_idx)) / float(n_folds)))
-    n_size_fold = int(np.round(float(len(nega_idx)) / float(n_folds)))
-    pa = posi_idx[np.random.permutation(len(posi_idx))]
-    na = nega_idx[np.random.permutation(len(nega_idx))]
-    # to split all training samples into n_folds
-    for i in range(n_folds):
-        if i < n_folds - 1:
-            posi = pa[0:i * p_size_fold]
-            posi = np.append(posi, pa[(i + 1) * p_size_fold:np_])
-            nega = na[0:i * n_size_fold]
-            nega = np.append(nega, na[(i + 1) * n_size_fold:nn_])
-            splits[i]['x_tr'] = np.append(posi, nega)
-            # leave one folder
-            posi = pa[i * p_size_fold:(i + 1) * p_size_fold]
-            nega = na[i * n_size_fold:(i + 1) * n_size_fold]
-            splits[i]['x_te'] = np.append(posi, nega)
-            pass
-        else:
-            posi = pa[0:i * p_size_fold]
-            nega = na[0:i * n_size_fold]
-            splits[i]['x_tr'] = np.append(posi, nega)
-            posi = pa[i * p_size_fold:np_]
-            nega = na[i * n_size_fold:nn_]
-            splits[i]['x_te'] = np.append(posi, nega)
-    return splits
-
-
-def process(data, edges):
-    p_data = dict()
-    p = data['x'].shape[1]
-    r = np.zeros(p)
-    for i in range(p):
-        c = np.corrcoef(data['x'][:, i], data['y'])
-        r[i] = c[0][1]
-    k_idx = np.argsort(np.abs(r))[-500:]
-
-    import networkx as nx
-    g = nx.Graph()
-    for edge in edges:
-        g.add_edge(u_of_edge=edge[0], v_of_edge=edge[1])
-    print('number of nodes: %d' % nx.number_of_nodes(g))
-    print('number of edges: %d' % nx.number_of_edges(g))
-    print('number of cc: %d' % nx.number_connected_components(g))
-    max_cc, max_cc_idx = None, -1
-    for ind, cc in enumerate(nx.connected_component_subgraphs(g)):
-        if max_cc is None or len(max_cc) < len(cc):
-            max_cc = {i: '' for i in list(cc)}
-    print('about %02d nodes which are not in top 500 but removed' %
-          len([k for k in k_idx if k not in max_cc]))
-    ratio = float(len([k for k in k_idx if k not in max_cc])) / 500.
-    print('the ratio that nodes not in top 500 is about: %.4f' % ratio)
-    reduced_edges, reduced_nodes = [], []
-    red_g = nx.Graph()
-    for edge in edges:
-        if edge[0] in max_cc:
-            reduced_edges.append(edge)
-            if edge[0] not in reduced_nodes:
-                reduced_nodes.append(edge[0])
-            if edge[1] not in reduced_nodes:
-                reduced_nodes.append(edge[1])
-            red_g.add_edge(u_of_edge=edge[0], v_of_edge=edge[1])
-    print('number of nodes: %d' % nx.number_of_nodes(red_g))
-    print('number of edges: %d' % nx.number_of_edges(red_g))
-    print('number of cc: %d' % nx.number_connected_components(red_g))
-
-    node_ind_dict = dict()
-    ind_node_dict = dict()
-    for ind, node in enumerate(reduced_nodes):
-        node_ind_dict[node] = ind
-        ind_node_dict[ind] = node
-    p_data['y'] = data['y']
-    p_data['x'] = data['x'][:, reduced_nodes]
-    edges, costs = [], []
-    g = nx.Graph()
-    for edge in reduced_edges:
-        if edge[0] == edge[1]:
-            print('remove self loops')
-            continue
-        edges.append([node_ind_dict[edge[0]], node_ind_dict[edge[1]]])
-        g.add_edge(u_of_edge=edges[-1][0], v_of_edge=edges[-1][1])
-        costs.append(1.)
-    edges = np.asarray(edges, dtype=int)
-    costs = np.asarray(costs, dtype=np.float64)
-    p_data['edges'] = edges
-    p_data['costs'] = costs
-    print('number of nodes: %d' % nx.number_of_nodes(red_g))
-    print('number of edges: %d' % nx.number_of_edges(red_g))
-    print('number of cc: %d' % nx.number_connected_components(red_g))
-    return p_data, k_idx, list(nx.nodes(g))
-
-
-def test(data, w):
-    """
-    To do prediction on test dataset
-    :param data:
-    :param w:
-    :return:
-    """
-    from sklearn.metrics import roc_auc_score
-    x = data['x']
-    y = data['y']
-    posi_idx = np.nonzero(y > 0)
-    nega_idx = np.nonzero(y < 0)
-    y_pred = np.dot(x, w)
-    err = dict()
-    err['auc'] = roc_auc_score(y_true=y, y_score=y_pred)
-    err['acc'] = np.sum(y != np.sin(y_pred)) / float(len(y))
-    term1 = np.sum(np.sign(y_pred[posi_idx]) != 1)
-    term1 = term1 / float(np.max(1, len(posi_idx)))
-    term2 = np.sum(np.sign(y_pred[nega_idx]) != -1)
-    term2 = term2 / float(np.max(1, len(nega_idx)))
-    err['bacc'] = (term1 + term2) / 2.
-    return err
-
-
-def expand_data(data):
-    x = data['x']
-    groups = data['groups']
-    p = np.shape(x)[1]
-    # First get the size of the new matrix
-    ep = 0
-    for g in range(len(groups)):
-        ep = ep + len(groups[g])
-    e_groups = {i: dict() for i in range(len(groups))}
-    exp_2_orig = np.zeros(p, ep)
-    c = 0
-    start = 0
-    for g in range(len(groups)):
-        e_groups[g] = range(start, start + len(groups[g]) - 1)
-        start = start + len(groups[g])
-        for i in groups[g]:
-            c += 1
-            exp_2_orig[:, c] = [np.sum(_ == i) for _ in range(p)]
-    ex = x * exp_2_orig
-    e_data = data
-    e_data['x'] = ex
-    e_data['groups'] = e_groups
-    e_data['exp_2_orig'] = exp_2_orig
-    return e_data
 
 
 def run_single_test(para):
@@ -745,32 +597,33 @@ def run_test(method_list, n_folds, max_epochs, s_list, b_list, lambda_list,
         f_data['x'] = np.nan_to_num(np.divide(f_data['x'] - x_mean, x_std))
         f_data['edges'] = data['edges']
         f_data['costs'] = data['costs']
-        cv_res[fold_i]['s_list'] = s_list
-        cv_res[fold_i]['b_list'] = b_list
-        cv_res[fold_i]['lambda_list'] = lambda_list
+
         s_star, s_bacc = run_parallel_tr(
             f_data, method_list, s_list, b_list, lambda_list, max_epochs,
             num_cpus, fold_i)
+        cv_res[fold_i]['s_list'] = s_list
+        cv_res[fold_i]['b_list'] = b_list
+        cv_res[fold_i]['lambda_list'] = lambda_list
         for _ in method_list:
             cv_res[fold_i][_] = dict()
             cv_res[fold_i][_]['s_bacc'] = s_bacc[_]
+            cv_res[fold_i][_]['s_star'] = s_star[_]
+            cv_res[fold_i][_]['map_entrez'] = data['map_entrez']
         res = run_parallel_te(
             f_data, method_list, tr_idx, te_idx, s_list, b_list, lambda_list,
             max_epochs, num_cpus)
         for _ in method_list:
             best_para = s_star[_]
-            cv_res[fold_i][_]['s_star'] = best_para
             cv_res[fold_i][_]['auc'] = res[_]['auc'][best_para]
             cv_res[fold_i][_]['acc'] = res[_]['acc'][best_para]
             cv_res[fold_i][_]['bacc'] = res[_]['bacc'][best_para]
             cv_res[fold_i][_]['perf'] = res[_]['bacc'][best_para]
             cv_res[fold_i][_]['w_hat'] = res[_]['w_hat'][best_para]
-            cv_res[fold_i][_]['map_entrez'] = data['map_entrez']
     f_name = 'results_exp_bc_%02d_%02d.pkl' % (folding_i, max_epochs)
     pickle.dump(cv_res, open(root_output + f_name, 'wb'))
 
 
-def summarize_data(trial_list, num_iterations, root_output):
+def summarize_data(method_list, folding_list, num_iterations, root_output):
     sum_data = dict()
     cancer_related_genes = {
         4288: 'MKI67', 1026: 'CDKN1A', 472: 'ATM', 7033: 'TFF3', 2203: 'FBP1',
@@ -779,12 +632,12 @@ def summarize_data(trial_list, num_iterations, root_output):
         771: 'CA12', 367: 'AR', 7084: 'TK2', 5892: 'RAD51D', 2625: 'GATA3',
         7155: 'TOP2B', 896: 'CCND3', 894: 'CCND2', 10551: 'AGR2',
         3169: 'FOXA1', 2296: 'FOXC1'}
-    for trial_i in trial_list:
+    for trial_i in folding_list:
         sum_data[trial_i] = dict()
         f_name = root_output + 'results_exp_bc_%02d_%02d.pkl' % \
                  (trial_i, num_iterations)
         data = pickle.load(open(f_name))
-        for method in ['graph-sto-iht', 'sto-iht', 'graph-iht', 'iht']:
+        for method in method_list:
             sum_data[trial_i][method] = dict()
             auc, bacc, non_zeros_list, found_genes = [], [], [], []
             for fold_i in data:
@@ -810,7 +663,8 @@ def summarize_data(trial_list, num_iterations, root_output):
 
 def show_test(nonconvex_method_list, folding_list, num_iterations,
               root_input, root_output, latex_flag=True):
-    sum_data = summarize_data(folding_list, num_iterations, root_output)
+    sum_data = summarize_data(nonconvex_method_list,
+                              folding_list, num_iterations, root_output)
     all_data = pickle.load(open(root_input + 'overlap_data_summarized.pkl'))
     for trial_i in sum_data:
         for method in nonconvex_method_list:
@@ -978,7 +832,7 @@ def show_test(nonconvex_method_list, folding_list, num_iterations,
 def main():
     method_list = ['iht', 'sto-iht', 'graph-iht', 'graph-sto-iht']
     n_folds, max_epochs = 5, 10
-    s_list = range(5, 100, 5)
+    s_list = range(10, 100, 10)
     b_list = [1, 2]
     lambda_list = [1e-3, 1e-4]
     command = sys.argv[1]
