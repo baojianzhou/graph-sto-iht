@@ -385,14 +385,11 @@ def expand_data(data):
 
 
 def run_single_test(para):
-    data, tr_idx, te_idx, s, num_blocks, lambda_, \
+    data, method_list, tr_idx, te_idx, s, num_blocks, lambda_, \
     max_epochs, fold_i, subfold_i = para
     from sklearn.metrics import roc_auc_score
     from sklearn.metrics import accuracy_score
-    res = {'iht': dict(),
-           'graph-iht': dict(),
-           'sto-iht': dict(),
-           'graph-sto-iht': dict()}
+    res = {_: dict() for _ in method_list}
     tr_data = dict()
     tr_data['x'] = data['x'][tr_idx, :]
     tr_data['y'] = data['y'][tr_idx]
@@ -503,9 +500,9 @@ def run_single_test(para):
 
 
 def run_parallel_tr(
-        data, s_list, b_list, lambda_list, max_epochs, num_cpus, fold_i):
+        data, method_list, s_list, b_list, lambda_list, max_epochs, num_cpus,
+        fold_i):
     # 5-fold cross validation
-    method_list = ['iht', 'sto-iht', 'graph-iht', 'graph-sto-iht']
     s_auc = {_: {(s, num_blocks, lambda_): 0.0
                  for (s, num_blocks, lambda_) in
                  product(s_list, b_list, lambda_list)} for _ in method_list}
@@ -520,8 +517,9 @@ def run_parallel_tr(
         s_tr = data['data_subsplits'][fold_i][sf_ii]['train']
         s_te = data['data_subsplits'][fold_i][sf_ii]['test']
         for s, num_block, lambda_ in product(s_list, b_list, lambda_list):
-            input_paras.append((data, s_tr, s_te, s, num_block, lambda_,
-                                max_epochs, fold_i, sf_ii))
+            input_paras.append(
+                (data, method_list, s_tr, s_te, s, num_block, lambda_,
+                 max_epochs, fold_i, sf_ii))
     pool = multiprocessing.Pool(processes=num_cpus)
     results_pool = pool.map(run_single_test, input_paras)
     pool.close()
@@ -568,9 +566,8 @@ def run_parallel_tr(
 
 
 def run_parallel_te(
-        data, tr_idx, te_idx, s_list, b_list, lambda_list, max_epochs,
-        num_cpus):
-    method_list = ['sto-iht', 'graph-sto-iht', 'iht', 'graph-iht']
+        data, method_list, tr_idx, te_idx, s_list, b_list,
+        lambda_list, max_epochs, num_cpus):
     res = {_: dict() for _ in method_list}
     for _ in method_list:
         res[_]['s_list'] = s_list
@@ -583,8 +580,8 @@ def run_parallel_te(
         res[_]['w_hat'] = {(s, num_blocks, lambda_): None
                            for (s, num_blocks, lambda_) in
                            product(s_list, b_list, lambda_list)}
-    input_paras = [(data, tr_idx, te_idx, s, num_block, lambda_, max_epochs,
-                    '', '') for s, num_block, lambda_ in
+    input_paras = [(data, method_list, tr_idx, te_idx, s, num_block,
+                    lambda_, max_epochs, '', '') for s, num_block, lambda_ in
                    product(s_list, b_list, lambda_list)]
     pool = multiprocessing.Pool(processes=num_cpus)
     results_pool = pool.map(run_single_test, input_paras)
@@ -729,12 +726,8 @@ def get_single_data(trial_i, root_input):
     return data
 
 
-def run_test(folding_i, num_cpus, root_input, root_output):
-    n_folds, max_epochs = 5, 10
-    s_list = range(5, 100, 5)  # sparsity list
-    b_list = [1, 2]  # number of block list.
-    lambda_list = [1e-3, 1e-4]
-    method_list = ['sto-iht', 'graph-sto-iht', 'iht', 'graph-iht']
+def run_test(method_list, n_folds, max_epochs, s_list, b_list, lambda_list,
+             folding_i, num_cpus, root_input, root_output):
     cv_res = {_: dict() for _ in range(n_folds)}
     for fold_i in range(n_folds):
         data = get_single_data(folding_i, root_input)
@@ -756,12 +749,13 @@ def run_test(folding_i, num_cpus, root_input, root_output):
         cv_res[fold_i]['b_list'] = b_list
         cv_res[fold_i]['lambda_list'] = lambda_list
         s_star, s_bacc = run_parallel_tr(
-            f_data, s_list, b_list, lambda_list, max_epochs, num_cpus, fold_i)
+            f_data, method_list, s_list, b_list, lambda_list, max_epochs,
+            num_cpus, fold_i)
         for _ in method_list:
             cv_res[fold_i][_] = dict()
             cv_res[fold_i][_]['s_bacc'] = s_bacc[_]
         res = run_parallel_te(
-            f_data, tr_idx, te_idx, s_list, b_list, lambda_list,
+            f_data, method_list, tr_idx, te_idx, s_list, b_list, lambda_list,
             max_epochs, num_cpus)
         for _ in method_list:
             best_para = s_star[_]
@@ -787,7 +781,7 @@ def summarize_data(trial_list, num_iterations, root_output):
         3169: 'FOXA1', 2296: 'FOXC1'}
     for trial_i in trial_list:
         sum_data[trial_i] = dict()
-        f_name = root_output + 'results_exp_bc_%02d_%03d.pkl' % \
+        f_name = root_output + 'results_exp_bc_%02d_%02d.pkl' % \
                  (trial_i, num_iterations)
         data = pickle.load(open(f_name))
         for method in ['graph-sto-iht', 'sto-iht', 'graph-iht', 'iht']:
@@ -814,15 +808,14 @@ def summarize_data(trial_list, num_iterations, root_output):
     return sum_data
 
 
-def show_test(trials_list, num_iterations, root_input, root_output,
-              latex_flag=True):
-    sum_data = summarize_data(trials_list, num_iterations, root_output)
+def show_test(nonconvex_method_list, folding_list, num_iterations,
+              root_input, root_output, latex_flag=True):
+    sum_data = summarize_data(folding_list, num_iterations, root_output)
     all_data = pickle.load(open(root_input + 'overlap_data_summarized.pkl'))
     for trial_i in sum_data:
-        for method in ['graph-sto-iht', 'sto-iht', 'graph-iht', 'iht']:
+        for method in nonconvex_method_list:
             all_data[trial_i]['re_%s' % method] = sum_data[trial_i][method]
-        for method in ['re_graph-sto-iht', 're_sto-iht',
-                       're_graph-iht', 're_iht']:
+        for method in ['re_%s' % _ for _ in nonconvex_method_list]:
             re = all_data[trial_i][method]['found_genes']
             all_data[trial_i]['found_related_genes'][method] = set(re)
     method_list = ['re_path_re_lasso', 're_path_re_overlap',
@@ -830,10 +823,9 @@ def show_test(trials_list, num_iterations, root_input, root_output,
                    're_sto-iht', 're_graph-sto-iht', 're_iht', 're_graph-iht']
     all_involved_genes = {method: set() for method in method_list}
     for trial_i in sum_data:
-        for method in ['graph-sto-iht', 'sto-iht', 'graph-iht', 'iht']:
+        for method in nonconvex_method_list:
             all_data[trial_i]['re_%s' % method] = sum_data[trial_i][method]
-        for method in ['re_graph-sto-iht', 're_sto-iht', 're_graph-iht',
-                       're_iht']:
+        for method in ['re_%s' % _ for _ in nonconvex_method_list]:
             re = all_data[trial_i][method]['found_genes']
             all_data[trial_i]['found_related_genes'][method] = set(re)
         for method in ['re_path_re_lasso', 're_path_re_overlap',
@@ -857,7 +849,7 @@ def show_test(trials_list, num_iterations, root_input, root_output,
         print('            Path-Lasso    Path-Overlap '),
         print('Edge-Lasso    Edge-Overlap  StoIHT        '
               'GraphStoIHT   IHT           GraphIHT')
-        for folding_i in trials_list:
+        for folding_i in folding_list:
             each_re = all_data[folding_i]
             print('Folding_%02d ' % folding_i),
             for method in method_list:
@@ -909,7 +901,7 @@ def show_test(trials_list, num_iterations, root_input, root_output,
                  '\\textsc{GraphIHT}'])),
             print('\\\\')
             print('\hline')
-            for folding_i in trials_list:
+            for folding_i in folding_list:
                 row_list = []
                 find_min = [np.inf]
                 find_max = [-np.inf]
@@ -970,7 +962,7 @@ def show_test(trials_list, num_iterations, root_input, root_output,
             print('\end{tabular}\n\end{table*}')
         print('_' * 164)
     found_genes = {method: set() for method in method_list}
-    for folding_i in trials_list:
+    for folding_i in folding_list:
         for method in method_list:
             re = all_data[folding_i]['found_related_genes'][method]
             found_genes[method] = set(re).union(found_genes[method])
@@ -984,18 +976,27 @@ def show_test(trials_list, num_iterations, root_input, root_output,
 
 
 def main():
+    method_list = ['iht', 'sto-iht', 'graph-iht', 'graph-sto-iht']
+    n_folds, max_epochs = 5, 10
+    s_list = range(5, 100, 5)
+    b_list = [1, 2]
+    lambda_list = [1e-3, 1e-4]
     command = sys.argv[1]
     if command == 'run_test':
         num_cpus = int(sys.argv[2])
         trial_start = int(sys.argv[3])
         trial_end = int(sys.argv[4])
         for folding_i in range(trial_start, trial_end):
-            run_test(folding_i=folding_i, num_cpus=num_cpus,
-                     root_input='data/', root_output='results/')
+            run_test(method_list=method_list, n_folds=n_folds,
+                     max_epochs=max_epochs, s_list=s_list, b_list=b_list,
+                     lambda_list=lambda_list, folding_i=folding_i,
+                     num_cpus=num_cpus, root_input='data/',
+                     root_output='results/')
     elif command == 'show_test':
-        folding_list = range(20)
-        num_iterations = 50
-        show_test(folding_list, num_iterations,
+        folding_list = range(12)
+        num_iterations = 10
+        show_test(nonconvex_method_list=method_list,
+                  folding_list=folding_list, num_iterations=num_iterations,
                   root_input='data/', root_output='results/')
 
 
