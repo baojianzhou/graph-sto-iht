@@ -735,6 +735,8 @@ def get_single_data(trial_i, root_input):
 def run_test(folding_i, num_cpus, root_input, root_output):
     n_folds, max_epochs = 5, 50
     s_list = range(5, 100, 5)  # sparsity list
+    s_list = [50]
+    b_list = [1, 2]  # number of block list.
     b_list = [2]  # number of block list.
     lambda_list = [1e-4]
     method_list = ['sto-iht', 'graph-sto-iht', 'iht', 'graph-iht']
