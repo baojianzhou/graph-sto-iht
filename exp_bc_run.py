@@ -486,7 +486,7 @@ def run_single_test(para):
     w0 = np.zeros(np.shape(x_tr)[1] + 1)
     w_hat = algo_graph_sto_iht_backtracking(
         x_tr, y_tr, w0, num_iterations, h_low, h_high, t_low, t_high,
-        data['edges'], data['costs'], -1, 1, 50, 0, num_blocks, lambda_)
+        data['edges'], data['costs'], -1, 1, 50, 0, 1, lambda_)
     x_te, y_te = te_data['x'], te_data['y']
     pred_prob, pred_y = logistic_predict(x_te, w_hat)
     posi_idx = np.nonzero(y_te == 1)[0]
@@ -508,7 +508,7 @@ def run_single_test(para):
 
     # ----------------------------------------------------------
     w_hat = algo_graph_sto_iht_backtracking(
-        x_tr, y_tr, w0, 1, h_low, h_high, t_low, t_high,
+        x_tr, y_tr, w0, num_iterations, h_low, h_high, t_low, t_high,
         data['edges'], data['costs'], -1, 1, 50, 0, num_blocks, lambda_)
     x_te, y_te = te_data['x'], te_data['y']
     pred_prob, pred_y = logistic_predict(x_te, w_hat)
