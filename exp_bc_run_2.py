@@ -160,10 +160,11 @@ def algo_graph_sto_iht_backtracking(
     cn = float(np_) / float(len(y_tr))
 
     # graph projection para
-    h_low = int(2 * s)
-    h_high = int(2 * s * (1. + gamma))
+    h_low = int((len(w_hat) - 1) / 2)
+    h_high = int(h_low * (1. + gamma))
     t_low = int(s)
     t_high = int(s * (1. + gamma))
+
     for epoch_i in range(max_epochs):
         for ind, _ in enumerate(range(num_blocks)):
             ii = randint(0, num_blocks)
@@ -842,7 +843,7 @@ def main():
                      root_output='results/')
     elif command == 'show_test':
         folding_list = [0, 5, 10, 15]
-        num_iterations = 20
+        num_iterations = 30
         show_test(nonconvex_method_list=method_list,
                   folding_list=folding_list, num_iterations=num_iterations,
                   root_input='data/', root_output='results/')
