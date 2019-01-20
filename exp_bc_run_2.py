@@ -412,6 +412,10 @@ def run_parallel_tr(
     s_star = dict()
     for _ in method_list:
         s_star[_] = min(s_bacc[_], key=s_bacc[_].get)
+        best_para = s_star[_]
+        print('tr %15s fold_%2d s: %02d b: %03d lambda: %.4f bacc: %.4f' %
+              (_, fold_i, best_para[0], best_para[1], best_para[2],
+               s_bacc[_][best_para]))
     return s_star, s_bacc
 
 
