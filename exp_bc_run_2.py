@@ -875,7 +875,7 @@ def main():
         num_iterations = 50
         show_test(nonconvex_method_list=method_list,
                   folding_list=folding_list, num_iterations=num_iterations,
-                  root_input='data/', root_output='results_2/')
+                  root_input='data/', root_output='results_3/')
 
 
 if __name__ == "__main__":
