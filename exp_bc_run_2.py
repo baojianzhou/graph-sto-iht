@@ -755,7 +755,7 @@ def show_test(nonconvex_method_list, folding_list, num_iterations,
             mean_dict = {method: [] for method in method_list}
 
             print(' & '.join(
-                ['Fold Choice',
+                ['Folding ID',
                  '$\ell_1$-\\textsc{Pathway}',
                  '$\ell^1/\ell^2$-\\textsc{Pathway}',
                  '$\ell_1$-\\textsc{Edge}',
@@ -782,7 +782,7 @@ def show_test(nonconvex_method_list, folding_list, num_iterations,
                     if metric == 'num_nonzeros':
                         row_list.append('%05.1f$\pm$%05.2f' % (x1, x2))
                     else:
-                        row_list.append('%.3f$\pm$%.3f' % (x1, x2))
+                        row_list.append('%.3f$\pm$%.2f' % (x1, x2))
                 if metric == 'bacc':
                     min_index = np.argmin(find_min)
                     original_string = row_list[int(min_index)]
@@ -811,7 +811,7 @@ def show_test(nonconvex_method_list, folding_list, num_iterations,
                 if metric == 'num_nonzeros':
                     row_list.append('%05.1f$\pm$%05.2f' % (x1, x2))
                 else:
-                    row_list.append('%.3f$\pm$%.3f' % (x1, x2))
+                    row_list.append('%.3f$\pm$%.2f' % (x1, x2))
             if metric == 'bacc':
                 min_index = np.argmin(find_min)
                 original_string = row_list[int(min_index)]
@@ -872,15 +872,13 @@ def main():
                      root_output='results_1/')
     elif command == 'show_test':
         folding_list = range(20)
-        folding_list = [0, 1, 2, 3, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15,
-                        16, 17, 18, 19]
-        folding_list = range(20)
         folding_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15,
                         16, 17, 18, 19]
+        folding_list = range(20)
         num_iterations = 40
         show_test(nonconvex_method_list=method_list,
                   folding_list=folding_list, num_iterations=num_iterations,
-                  root_input='data/', root_output='results_3/')
+                  root_input='data/', root_output='results_2/')
 
 
 if __name__ == "__main__":
