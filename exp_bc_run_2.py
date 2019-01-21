@@ -872,12 +872,10 @@ def main():
                      root_output='results_3/')
     elif command == 'show_test':
         folding_list = range(20)
-        folding_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 14, 15, 16,
-                        17, 18, 19]
-        num_iterations = 20
+        num_iterations = 50
         show_test(nonconvex_method_list=method_list,
                   folding_list=folding_list, num_iterations=num_iterations,
-                  root_input='data/', root_output='results_3/')
+                  root_input='data/', root_output='results_2/')
 
 
 if __name__ == "__main__":
