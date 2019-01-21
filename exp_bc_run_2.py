@@ -854,7 +854,7 @@ def main():
     b_list = [1, 2]
     lambda_list = [1e-3, 1e-4]
 
-    root_p = 'results_3/'
+    root_p = 'results_1/'
     if not os.path.exists(root_p):
         os.mkdir(root_p)
 
@@ -869,9 +869,14 @@ def main():
                      max_epochs=max_epochs, s_list=s_list, b_list=b_list,
                      lambda_list=lambda_list, folding_i=folding_i,
                      num_cpus=num_cpus, root_input='data/',
-                     root_output='results_3/')
+                     root_output='results_1/')
     elif command == 'show_test':
         folding_list = range(20)
+        folding_list = [0, 1, 2, 3, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15,
+                        16, 17, 18, 19]
+        folding_list = range(20)
+        folding_list = [0, 1, 2, 3, 4, 5, 6, 7,8, 10, 11, 12, 13, 14, 15,
+                        16, 17, 18, 19]
         num_iterations = 40
         show_test(nonconvex_method_list=method_list,
                   folding_list=folding_list, num_iterations=num_iterations,
