@@ -549,7 +549,7 @@ def run_test_diff_eta(
             'saved_data': saved_data}
 
 
-def show_test(lr_list, b_list, save_data_path):
+def show_test_2(lr_list, b_list, save_data_path):
     import matplotlib.pyplot as plt
     from matplotlib import rc
     from pylab import rcParams
@@ -665,6 +665,115 @@ def show_test(lr_list, b_list, save_data_path):
     for i in range(2):
         ax[i, 1].set_xlabel('Iteration')
     plt.subplots_adjust(wspace=0.1, hspace=0.5)
+    save_data_path = save_data_path.replace('pkl', 'pdf')
+    print('save fig to: %s' % save_data_path)
+    plt.savefig(save_data_path, dpi=600, bbox_inches='tight', pad_inches=0,
+                format='pdf')
+    plt.close()
+
+
+def show_test(lr_list, b_list, save_data_path):
+    import matplotlib.pyplot as plt
+    from matplotlib import rc
+    from pylab import rcParams
+    plt.rcParams["font.family"] = "Times New Roman"
+    plt.rcParams["font.size"] = 18
+    rc('text', usetex=True)
+    rcParams['text.latex.preamble'] = [r"\usepackage{amsmath}"]
+    rc('text', usetex=True)
+
+    rcParams['figure.figsize'] = 8, 3.5
+    fig, ax = plt.subplots(1, 2)
+
+    color_list = ['darkblue', 'blue', 'royalblue', 'dodgerblue', 'aqua',
+                  'mediumspringgreen', 'greenyellow', 'yellow', 'orange',
+                  'darkorange', 'red', 'magenta']
+    marker_list = ['+', 'o', '*', '.', 'x', 's', 'D', '^', 'v', '>', '<', '']
+    results = pickle.load(open(save_data_path))
+    results_01 = results['re_diff_b']['trim_results']
+    ax[0].set_yticklabels([
+        r"$\displaystyle 10^{2}$",
+        r"$\displaystyle 10^{0}$",
+        r"$\displaystyle 10^{-2}$",
+        r"$\displaystyle 10^{-4}$",
+        r"$\displaystyle 10^{-6}$",
+        r"$\displaystyle 10^{-8}$"])
+    ax[0].set_ylabel(r"$\displaystyle \| {\bf x}^{t+1} - {\bf x}\|$")
+    ax[0].set_xticks([0, 5, 10, 15, 20, 25])
+    ax[0].grid(b=True, which='both', color='gray',
+               linestyle='dotted', axis='both')
+    ax[1].grid(b=True, which='both', color='gray',
+               linestyle='dotted', axis='both')
+    ax[0].set_xlim([-1, 30])
+    ax[0].set_ylim([-8., 2.])
+    for i in range(2):
+        ax[i].spines['right'].set_visible(False)
+        ax[i].spines['top'].set_visible(False)
+
+    ax[0].set_yticks(ticks=[2, 0, -2, -4, -6, -8])
+    ax[0].set_xlabel('Epoch')
+    box = ax[0].get_position()
+    ax[0].set_position(
+        [box.x0, box.y0, box.width * 0.8, box.height])
+    legend_list = []
+    for b in b_list:
+        legend_list.append(r"$\displaystyle b=%d$" % b)
+    for i in range(30):
+        row = [str(i)]
+        row.extend(['%.4f' % results_01['graph-sto-iht'][_][i]
+                    for _ in range(len(b_list))])
+        print(','.join(row))
+    results_02 = results['re_diff_eta']['trim_results']
+    print('-' * 80)
+    for i in range(100):
+        row = [str(i)]
+        row.extend(['%.4f' % results_02['graph-sto-iht'][_][i]
+                    for _ in range(len(lr_list))])
+        print(','.join(row))
+    for b_ind in range(len(b_list)):
+        label_ = legend_list[b_ind]
+        if b_ind < 11:
+            linestyle_ = '-'
+        else:
+            linestyle_ = '--'
+        ax[0].plot(results_01['graph-sto-iht'][b_ind], color=color_list[b_ind],
+                   marker=marker_list[b_ind], markersize=5.,
+                   markerfacecolor='none', linestyle=linestyle_,
+                   markeredgewidth=1.5, linewidth=1.5, label=label_)
+    ax[0].legend(loc='center left', bbox_to_anchor=(0.99, 0.5),
+                 fontsize=13., borderpad=0.1, labelspacing=0.2,
+                 handletextpad=0.1)
+
+    ax[1].set_xlim([0, 1000])
+    ax[1].set_ylim([-8.0, 2])
+    ax[1].set_xticks([200, 400, 600, 800])
+    ax[1].set_yticks([2, 0, -2, -4, -6, -8])
+    ax[1].set_yticklabels([
+        r"$\displaystyle 10^{2}$",
+        r"$\displaystyle 10^{0}$",
+        r"$\displaystyle 10^{-2}$",
+        r"$\displaystyle 10^{-4}$",
+        r"$\displaystyle 10^{-6}$",
+        r"$\displaystyle 10^{-8}$"])
+    ax[0].set_title('(a) Different ' + r"$\displaystyle b$")
+    ax[1].set_title('(b) Different ' + r"$\displaystyle \eta$")
+    colors = plt.cm.jet(np.asarray(lr_list) / 1.6)
+    for lr_ind, lr in enumerate(lr_list):
+        ax[1].plot(results_02['graph-sto-iht'][lr_ind],
+                   linewidth=2., color=colors[lr_ind],
+                   label=r"$\displaystyle \eta=%.1f$" % lr)
+    # obtain the handles and labels from the figure
+    handles, labels = ax[1].get_legend_handles_labels()
+    # copy the handles
+    import copy
+    handles = [copy.copy(ha) for ha in handles]
+    [ha.set_linewidth(10) for ha in handles]
+    ax[1].legend(loc='center left', bbox_to_anchor=(0.98, .5),
+                 fontsize=11.5, borderpad=0.1, labelspacing=0.05,
+                 handletextpad=0.05)
+    ax[1].set_xlabel('Iteration')
+    plt.gcf().subplots_adjust(bottom=0.2)
+    plt.subplots_adjust(wspace=0.7, hspace=0.5)
     save_data_path = save_data_path.replace('pkl', 'pdf')
     print('save fig to: %s' % save_data_path)
     plt.savefig(save_data_path, dpi=600, bbox_inches='tight', pad_inches=0,
