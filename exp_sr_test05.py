@@ -810,6 +810,7 @@ def show_test(n_list, method_list, method_label_list, root_p):
                    markeredgewidth=1.5, linewidth=2.0,
                    label=r"$\displaystyle \textsc{%s}$ " %
                          method_label_list[method_ind])
+    ax[0].text(9.5, - 4.5, 'Grid graph', fontsize=25.)
     ax[1].set_xlabel('Oversampling ratio ' + r"$\displaystyle m/s$ "
                      , fontsize=25.)
     ax[1].set_ylabel('Probability of Recovery', fontsize=25.)

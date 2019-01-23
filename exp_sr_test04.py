@@ -638,7 +638,8 @@ def show_test(n_range_list, method_list, title_list, fig_list, root_p):
     ax[1, 1].legend(loc='lower right', fontsize=18.,
                     bbox_to_anchor=(0.25, 0.05), borderpad=0.1,
                     labelspacing=0.2, handletextpad=0.1)
-    title_list = ['Fig-01', 'Fig-02', 'Fig-03', 'Fig-04']
+    title_list = ['(a) Graph-01', '(b) Graph-02',
+                  '(c) Graph-03', '(d) Graph-04']
     for i in range(4):
         ax[0, i].set_title(title_list[i])
         ax[0, i].set_xticks([])
