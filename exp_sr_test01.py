@@ -575,10 +575,10 @@ def show_test(s_list, n_list, method_list, label_list, save_data_path):
             ax[ii, jj].plot(n_list, re, c=color_list[method_ind],
                             markerfacecolor='none',
                             linestyle='-', marker=marker_list[method_ind],
-                            markersize=5., markeredgewidth=1.,
+                            markersize=6., markeredgewidth=1,
                             linewidth=1, label=label_list[method_ind])
         ax[ii, jj].set_title(r"%s $\displaystyle s=%d$" %
-                             (caption_list[m_ind], s),fontsize=15)
+                             (caption_list[m_ind], s), fontsize=16)
         ttl = ax[ii, jj].title
         ttl.set_position([.5, 0.97])
 
@@ -600,13 +600,20 @@ def show_test(s_list, n_list, method_list, label_list, save_data_path):
 def generate_figures(root_p, save_data_path):
     import networkx as nx
     import matplotlib.pyplot as plt
-
+    from matplotlib import rc
+    plt.rcParams["font.family"] = "Times New Roman"
+    plt.rcParams["font.size"] = 18
+    rc('text', usetex=True)
     data = pickle.load(open(save_data_path))['saved_data']
     edges = data[20]['proj_para']['edges']
     height, width = data[20]['height'], data[20]['width']
 
     p = data[20]['p']
     plt.figure(figsize=(1.4, 1.4))
+    title_list = [r"(a) $s = 8$",
+                  r"(a) $s = 20$",
+                  r"(b) $s = 28$",
+                  r"(b) $s = 36"]
     for s in data:
         pos, graph = dict(), nx.Graph()
         black_edges = []
@@ -641,7 +648,9 @@ def generate_figures(root_p, save_data_path):
         plt.axis('off')
         fig = plt.gcf()
         fig.set_figheight(1.4)
+
         fig.set_figwidth(1.4)
+        fig.set_title(r"$\displaystyle \|{\bf \epsilon}\|=0.0$")
         plt.subplots_adjust(0, 0, 1, 1, 0, 0)
         for ax in fig.axes:
             ax.axis('off')

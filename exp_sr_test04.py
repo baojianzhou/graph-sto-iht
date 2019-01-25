@@ -629,7 +629,7 @@ def show_test(n_range_list, method_list, title_list, fig_list, root_p):
                 c=color_list[method_ind], linestyle='-',
                 markerfacecolor='none',
                 marker=marker_list[method_ind], markersize=8.,
-                markeredgewidth=1.5, linewidth=2.0,
+                markeredgewidth=1.2, linewidth=1.2,
                 label=title_list[method_ind])
     ax[1, 0].set_ylabel(r'Probability of Recovery')
     for i in range(4):

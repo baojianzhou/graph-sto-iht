@@ -698,7 +698,7 @@ def show_test(lr_list, b_list, save_data_path):
         r"$\displaystyle 10^{-4}$",
         r"$\displaystyle 10^{-6}$",
         r"$\displaystyle 10^{-8}$"])
-    ax[0].set_ylabel(r"$\displaystyle \| {\bf x}^{t+1} - {\bf x}\|$")
+    ax[0].set_ylabel(r"$\displaystyle \| {\bf x}^{t+1} - {\bf x}^*\|$")
     ax[0].set_xticks([0, 5, 10, 15, 20, 25])
     ax[0].grid(b=True, which='both', color='gray',
                linestyle='dotted', axis='both')

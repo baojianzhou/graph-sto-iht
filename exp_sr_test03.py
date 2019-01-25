@@ -512,8 +512,8 @@ def show_test(b_list, method_list, root_p, noise_level_list):
                     label=str(noise_level),
                     color=color_list[ind],
                     marker=marker_list[ind]
-                    , markersize=5.0, markerfacecolor='none',
-                    linestyle='-', markeredgewidth=1.5, linewidth=1.5)
+                    , markersize=6.0, markerfacecolor='none',
+                    linestyle='-', markeredgewidth=1.0, linewidth=1.0)
     ax.set_xlabel('Block Size')
     ax.legend(loc='lower right', fontsize=18., borderpad=0.1,
               labelspacing=0.1, handletextpad=0.1, framealpha=1.0)

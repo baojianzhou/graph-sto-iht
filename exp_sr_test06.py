@@ -689,7 +689,7 @@ def show_test(method_list, method_label_list, sample_ratio_arr, root_p):
     color_list = ['c', 'b', 'g', 'k', 'm', 'y', 'r']
     marker_list = ['D', 'X', 'o', 'h', 'P', 'p', 's']
     img_name_list = ['background', 'angio', 'icml']
-    title_list = ['(a) BackGround', '(b) Angio', '(c) Text']
+    title_list = ['(a) Background', '(b) Angio', '(c) Text']
 
     import matplotlib.pyplot as plt
     import matplotlib.gridspec as gridspec
@@ -720,8 +720,8 @@ def show_test(method_list, method_label_list, sample_ratio_arr, root_p):
                 sample_ratio_arr, trim_results[img_name][method],
                 c=color_list[method_ind],
                 markerfacecolor='none', linestyle='-',
-                marker=marker_list[method_ind], markersize=5.,
-                markeredgewidth=1.5, linewidth=1.5,
+                marker=marker_list[method_ind], markersize=6.,
+                markeredgewidth=1.0, linewidth=1.0,
                 label=method_label_list[method_ind])
         ax[1, img_ind].set_xlabel('Oversampling ratio $\displaystyle m / s $',
                                   labelpad=0)

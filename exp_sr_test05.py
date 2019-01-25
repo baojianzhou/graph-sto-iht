@@ -807,7 +807,7 @@ def show_test(n_list, method_list, method_label_list, root_p):
                    linestyle=linestyle_list[method_ind],
                    markerfacecolor='none',
                    marker=marker_list[method_ind], markersize=8.,
-                   markeredgewidth=1.5, linewidth=2.0,
+                   markeredgewidth=1.2, linewidth=1.2,
                    label=r"$\displaystyle \textsc{%s}$ " %
                          method_label_list[method_ind])
     ax[0].text(9.5, - 4.5, 'Grid graph', fontsize=25.)

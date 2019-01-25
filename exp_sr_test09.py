@@ -538,8 +538,8 @@ def show_test(b_list, method_list, title_list, root_p):
     ax[0].set_xticks([4, 14, 24, 34, 44, 54, 64])
     ax[0].set_yticks([0, 25, 50, 75, 100, 125, 150, 175])
     ax[1].set_xticks([4, 14, 24, 34, 44, 54, 64])
-    ax[0].set_title(r"$\displaystyle \|{\bf \epsilon}\|=0.0$")
-    ax[1].set_title(r"$\displaystyle \|{\bf \epsilon}\|=0.5$")
+    ax[0].set_title(r"(a) $\displaystyle \|{\bf \epsilon}\|=0.0$")
+    ax[1].set_title(r"(b) $\displaystyle \|{\bf \epsilon}\|=0.5$")
     ax[0].set_ylabel('Number of Observations Required')
     x_list = b_list
     for method_ind, method in enumerate(method_list):
@@ -547,19 +547,19 @@ def show_test(b_list, method_list, title_list, root_p):
                    label=title_list[method_ind],
                    color=color_list[method_ind],
                    marker=marker_list[method_ind]
-                   , markersize=5.0, markerfacecolor='none',
+                   , markersize=6.0, markerfacecolor='none',
                    linestyle='-', markeredgewidth=1.0, linewidth=1.0)
         ax[1].plot(x_list, [average02[method][b] for b in b_list],
                    label=title_list[method_ind],
                    color=color_list[method_ind],
                    marker=marker_list[method_ind]
-                   , markersize=5.0, markerfacecolor='none',
+                   , markersize=6.0, markerfacecolor='none',
                    linestyle='-', markeredgewidth=1.0, linewidth=1.0)
     for i in range(2):
         ax[i].set_xlabel(r"$\displaystyle b$")
     ax[1].legend(loc='lower right', fontsize=14., borderpad=0.01,
                  labelspacing=0.0, handletextpad=0.05, framealpha=1.0)
-    plt.subplots_adjust(wspace=0.0, hspace=0.0)
+    plt.subplots_adjust(wspace=0.02, hspace=0.0)
     f_name = root_p + 'results_exp_sr_test09.pdf'
     print('save fig to: %s' % f_name)
     plt.savefig(f_name, dpi=600, bbox_inches='tight', pad_inches=0,
