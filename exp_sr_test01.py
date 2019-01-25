@@ -610,10 +610,6 @@ def generate_figures(root_p, save_data_path):
 
     p = data[20]['p']
     plt.figure(figsize=(1.4, 1.4))
-    title_list = [r"(a) $s = 8$",
-                  r"(a) $s = 20$",
-                  r"(b) $s = 28$",
-                  r"(b) $s = 36"]
     for s in data:
         pos, graph = dict(), nx.Graph()
         black_edges = []
@@ -650,7 +646,6 @@ def generate_figures(root_p, save_data_path):
         fig.set_figheight(1.4)
 
         fig.set_figwidth(1.4)
-        fig.set_title(r"$\displaystyle \|{\bf \epsilon}\|=0.0$")
         plt.subplots_adjust(0, 0, 1, 1, 0, 0)
         for ax in fig.axes:
             ax.axis('off')
