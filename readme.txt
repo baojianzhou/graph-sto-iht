@@ -57,7 +57,7 @@ To generate results of Figure-6, run:
 To generate results of Figure-7, run:
             python exp_sr_test05.py run_test 4 0 50
 To generate results of Table 2, 3, 4, 5, run:
-            python exp_bc_run.py show_test
+            python exp_bc_run.py run_test 0 20
 
 Some programs above are time-cost if you only use 4 cpus. A better way is to
 test them on 10 trials by replacing 50 with 10. After above steps, you should
