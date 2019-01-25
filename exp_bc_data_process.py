@@ -69,6 +69,7 @@ def get_related_genes():
 def raw_data_process(root_input):
     import scipy.io as sio
     import networkx as nx
+    root_p = 'data/'
     raw = sio.loadmat(root_p + 'raw/vant.mat')
     data = {'x': np.asarray(raw['X']),
             'y': np.asarray([_[1] for _ in raw['Y']]),

@@ -1,39 +1,16 @@
 # -*- coding: utf-8 -*-
 
-"""
-In this test, we test GraphStoIHT under different noise setting.
-
-References:
-    [1] Nguyen, Nam, Deanna Needell, and Tina Woolf. "Linear convergence of
-        stochastic iterative greedy algorithms with sparse constraints."
-        IEEE Transactions on Information Theory 63.11 (2017): 6869-6895.
-    [2] Hegde, Chinmay, Piotr Indyk, and Ludwig Schmidt. "A nearly-linear time
-        framework for graph-structured sparsity." International Conference on
-        Machine Learning. 2015.
-    [3] Blumensath, Thomas, and Mike E. Davies. "Iterative hard thresholding
-        for compressed sensing." Applied and computational harmonic analysis
-        27.3 (2009): 265-274.
-    [4] Hegde, Chinmay, Piotr Indyk, and Ludwig Schmidt. "Fast recovery from
-        a union of subspaces." Advances in Neural Information Processing
-        Systems. 2016.
-    [5] Lovász, László. "Random walks on graphs: A survey." Combinatorics,
-        Paul erdos is eighty 2.1 (1993): 1-46.
-    [6] Needell, Deanna, and Joel A. Tropp. "CoSaMP: Iterative signal recovery
-        from incomplete and inaccurate samples."
-        Applied and computational harmonic analysis 26.3 (2009): 301-321.
-
-# TODO You need to:
-    1.  install numpy, matplotlib (optional), and networkx (optional).
-    2.  build our sparse_module by executing ./build.sh please check our
-        readme.md file. If you do not know how to compile this library.
-"""
-
+# system library
 import os
+
 import time
 import random
 import pickle
+from os import sys
 import multiprocessing
 from itertools import product
+
+# you need to install numpy
 import numpy as np
 
 try:
@@ -42,31 +19,15 @@ try:
     try:
         from sparse_module import wrap_head_tail_bisearch
     except ImportError:
-        print('cannot find wrap_head_tail_bisearch method in sparse_module')
+        print('cannot find some function(s) in sparse_module')
         sparse_module = None
         exit(0)
 except ImportError:
-    print('\n'.join([
-        'cannot find the module: sparse_module',
-        'try run: \'python setup.py build_ext --inplace\' first! ']))
+    print('cannot find the module: sparse_module')
 
 
 def algo_head_tail_bisearch(
         edges, x, costs, g, root, s_low, s_high, max_num_iter, verbose):
-    """ This is the wrapper of head/tail-projection proposed in [2].
-    :param edges:           edges in the graph.
-    :param x:               projection vector x.
-    :param costs:           edge costs in the graph.
-    :param g:               the number of connected components.
-    :param root:            root of subgraph. Usually, set to -1: no root.
-    :param s_low:           the lower bound of the sparsity.
-    :param s_high:          the upper bound of the sparsity.
-    :param max_num_iter:    the maximum number of iterations used in
-                            binary search procedure.
-    :param verbose: print out some information.
-    :return:            1.  the support of the projected vector
-                        2.  the projected vector
-    """
     prizes = x * x
     # to avoid too large upper bound problem.
     if s_high >= len(prizes) - 1:
@@ -79,14 +40,6 @@ def algo_head_tail_bisearch(
 
 
 def simu_grid_graph(width, height, rand_weight=False):
-    """ Generate a grid graph with size, width x height. Totally there will be
-        width x height number of nodes in this generated graph.
-    :param width:       the width of the grid graph.
-    :param height:      the height of the grid graph.
-    :param rand_weight: the edge costs in this generated grid graph.
-    :return:            1.  list of edges
-                        2.  list of edge costs
-    """
     np.random.seed()
     if width < 0 and height < 0:
         print('Error: width and height should be positive.')
@@ -117,35 +70,16 @@ def simu_grid_graph(width, height, rand_weight=False):
 
 
 def sensing_matrix(n, x, norm_noise=0.0):
-    """ Generate sensing matrix (design matrix). This generated sensing
-        matrix is a Gaussian matrix, i.e., each entry ~ N(0,\sigma/\sqrt(n)).
-        Please see more details in equation (1.2) shown in reference [6].
-    :param n:           the number of measurements required.
-    :param x:           the input signal.
-    :param norm_noise:  plus ||norm_noise|| noise on the measurements.
-    :return:            1.  the design matrix
-                        2.  the vector of measurements
-                        3.  the noised vector.
-    """
-    np.random.seed()
     p = len(x)
-    x_mat = np.random.normal(loc=0.0, scale=1.0, size=(n * p)) / np.sqrt(n)
+    x_mat = np.random.normal(0.0, 1.0, size=(n * p)) / np.sqrt(n)
     x_mat = x_mat.reshape((n, p))
     y_tr = np.dot(x_mat, x)
-    noise_e = np.random.normal(loc=0.0, scale=1.0, size=len(y_tr))
+    noise_e = np.random.normal(0.0, 1.0, len(y_tr))
     y_e = y_tr + (norm_noise / np.linalg.norm(noise_e)) * noise_e
     return x_mat, y_tr, y_e
 
 
 def random_walk(edges, s, init_node=None, restart=0.0):
-    """ The random walk on graphs. Please see details in reference [5].
-    :param edges:       the edge list of the graph.
-    :param s:           the sparsity ( number of nodes) in the true subgraph.
-    :param init_node:   initial point of the random walk.
-    :param restart:     with restart.
-    :return:            1. list of nodes walked.
-                        2. list of edges walked.
-    """
     np.random.seed()
     adj, nodes = dict(), set()
     for edge in edges:  # construct the adjacency matrix.
@@ -187,6 +121,62 @@ def random_walk(edges, s, init_node=None, restart=0.0):
         if random.random() < restart:
             next_node = init_node
     return list(subgraph_nodes), list(subgraph_edges)
+
+
+def algo_iht(x_mat, y_tr, max_epochs, lr, s, x_star, x0, tol_algo):
+    start_time = time.time()
+    x_hat = x0
+    (n, p) = x_mat.shape
+    x_tr_t = np.transpose(x_mat)
+    xtx = np.dot(x_tr_t, x_mat)
+    xty = np.dot(x_tr_t, y_tr)
+
+    num_epochs = 0
+    for epoch_i in range(max_epochs):
+        num_epochs += 1
+        bt = x_hat - lr * (np.dot(xtx, x_hat) - xty)
+        bt[np.argsort(np.abs(bt))[0:p - s]] = 0.  # thresholding step
+        x_hat = bt
+
+        # early stopping for diverge cases due to the large learning rate
+        if np.linalg.norm(x_hat) >= 1e3:  # diverge cases.
+            break
+        if np.linalg.norm(y_tr - np.dot(x_mat, x_hat)) <= tol_algo:
+            break
+    x_err = np.linalg.norm(x_hat - x_star)
+    run_time = time.time() - start_time
+    return x_err, num_epochs, run_time
+
+
+def algo_sto_iht(x_mat, y_tr, max_epochs, lr, s, x_star, x0, tol_algo, b):
+    np.random.seed()
+    start_time = time.time()
+    x_hat = x0
+    (n, p) = x_mat.shape
+    x_tr_t = np.transpose(x_mat)
+    b = n if n < b else b
+    num_blocks = int(n) / int(b)
+    prob = [1. / num_blocks] * num_blocks
+    num_epochs = 0
+    for epoch_i in range(max_epochs):
+        num_epochs += 1
+        for _ in range(num_blocks):
+            ii = np.random.randint(0, num_blocks)
+            block = range(b * ii, b * (ii + 1))
+            xtx = np.dot(x_tr_t[:, block], x_mat[block])
+            xty = np.dot(x_tr_t[:, block], y_tr[block])
+            gradient = - 2. * (xty - np.dot(xtx, x_hat))
+            bt = x_hat - (lr / (prob[ii] * num_blocks)) * gradient
+            bt[np.argsort(np.abs(bt))[0:p - s]] = 0.
+            x_hat = bt
+        if np.linalg.norm(x_hat) >= 1e3:  # diverge cases.
+            break
+        if np.linalg.norm(y_tr - np.dot(x_mat, x_hat)) <= tol_algo:
+            break
+
+    x_err = np.linalg.norm(x_hat - x_star)
+    run_time = time.time() - start_time
+    return x_err, num_epochs, run_time
 
 
 def algo_graph_iht(
@@ -325,71 +315,90 @@ def print_helper(method, trial_i, b, n, num_epochs, err, run_time):
 def run_single_test(data):
     np.random.seed()
     # generate Gaussian measurement matrix.
-    # each entry is generated from N(0,1)/sqrt(n) Gaussian.
+    # each entry is generated from N(0,1)/sqrt(m) Gaussian.
     s, n, p, b = data['s'], data['n'], data['p'], data['b']
     lr = data['lr']
     x0 = data['x0']
     x_star = data['x_star']
     x_mat = data['x_mat']
-    y_list = data['y_list']
+    y_tr = data['y_tr']
+    y_e = data['y_e']
     trial_i = data['trial_i']
     tol_algo = data['tol_algo']
     max_epochs = data['max_epochs']
 
+    # graph information and projection parameters
     edges = data['proj_para']['edges']
     costs = data['proj_para']['costs']
 
     rec_err = []
-    for noise_level, y_tr in y_list:
-        if b == 2:  # just need to run once.
+
+    for y, flag in zip([y_tr, y_e], ['noise-free', 'with-noise']):
+        # ------------- IHT ----------------
+        if b == 2:  # only need to run once.
+            err, num_epochs, run_time = algo_iht(
+                x_mat=x_mat, y_tr=y, max_epochs=max_epochs, lr=lr, s=s,
+                x_star=x_star, x0=x0, tol_algo=tol_algo)
+            rec_err.append(('iht', flag, err))
+            print_helper('iht', trial_i, b, n, num_epochs, err, run_time)
+
+        # ------------- StoIHT -------------
+        err, num_epochs, run_time = algo_sto_iht(
+            x_mat=x_mat, y_tr=y, max_epochs=max_epochs, lr=lr, s=s,
+            x_star=x_star, x0=x0, tol_algo=tol_algo, b=b)
+        rec_err.append(('sto-iht', flag, err))
+        print_helper('sto-iht', trial_i, b, n, num_epochs, err, run_time)
+
+        # ------------- GraphIHT -----------
+        if b == 2:  # only need to run once.
             err, num_epochs, run_time = algo_graph_iht(
-                x_mat=x_mat, y_tr=y_tr, max_epochs=max_epochs, lr=lr,
+                x_mat=x_mat, y_tr=y, max_epochs=max_epochs, lr=lr,
                 x_star=x_star, x0=x0, tol_algo=tol_algo, edges=edges,
                 costs=costs, s=s)
-            rec_err.append(('graph-iht', b, noise_level, err))
+            rec_err.append(('graph-iht', flag, err))
             print_helper('graph-iht', trial_i, b, n, num_epochs, err, run_time)
+
+        # ------------- GraphStoIHT --------
         err, num_epochs, run_time = algo_graph_sto_iht(
-            x_mat=x_mat, y_tr=y_tr, max_epochs=max_epochs, lr=lr,
+            x_mat=x_mat, y_tr=y, max_epochs=max_epochs, lr=lr,
             x_star=x_star, x0=x0, tol_algo=tol_algo, edges=edges, costs=costs,
             s=s, b=b)
-        rec_err.append(('graph-sto-iht', b, noise_level, err))
-        print_helper('graph-sto-iht', trial_i, b, n, num_epochs, err, run_time)
+        rec_err.append(('graph-sto-iht', flag, err))
+        print_helper('graph-sto-iht', trial_i, s, n, num_epochs, err, run_time)
     return trial_i, b, n, rec_err
 
 
 def run_test(s, n_list, p, lr, height, width, max_epochs, tol_algo,
-             tol_rec, b_list, num_cpus, trial_range, root_p, noise_level_list):
+             tol_rec, b_list, num_cpus, trial_range, root_p):
     # make sure, it works under multiprocessing case.
     np.random.seed()
     start_time = time.time()
     # size of grid graph
     for trial_i in trial_range:
         input_data_list, saved_data = [], dict()
-        x_mat = np.random.normal(loc=0.0, scale=1.0, size=300 * p)
-        edges, costs = simu_grid_graph(height=height, width=width)
-        init_node = (height / 2) * width + height / 2
-        sub_graphs = {_: random_walk(edges=edges, s=_, init_node=init_node)
+        x_mat = np.random.normal(loc=0.0, scale=1.0, size=300 * 256)
+        edges, costs = simu_grid_graph(height=16, width=16)
+        sub_graphs = {_: random_walk(edges=edges, s=_, init_node=8 * 16 + 8)
                       for _ in [s]}
-        x_star = np.zeros(p)  # using Gaussian signal.
+        x_star = np.zeros(256)  # using Gaussian signal.
         x_star[sub_graphs[s][0]] = np.random.normal(loc=0.0, scale=1.0, size=s)
         for (b, n) in product(b_list, n_list):
             # set block size
             print('generate_data pair: (trial_%03d, b: %02d, n: %03d)' %
                   (trial_i, b, n))
-            x_n_mat = np.reshape(x_mat[:n * p], (n, p)) / np.sqrt(n)
+            x_n_mat = np.reshape(x_mat[:n * 256], (n, 256)) / np.sqrt(n)
             y_tr = np.dot(x_n_mat, x_star)
-            y_list = []
-            for noise_level in noise_level_list:
-                noise_e = np.random.normal(loc=0.0, scale=1.0, size=len(y_tr))
-                noise_e = (noise_level / np.linalg.norm(noise_e)) * noise_e
-                y_list.append([noise_level, y_tr + noise_e])
+            # adding ||e||=0.5 noise vector on y
+            noise_e = np.random.normal(loc=0.0, scale=1.0, size=len(y_tr))
+            y_e = y_tr + (0.5 / np.linalg.norm(noise_e)) * noise_e
             data = {'lr': lr,
                     'max_epochs': max_epochs,
                     'trial_i': trial_i,
                     's': s,
                     'n': n,
                     'x_mat': x_n_mat,
-                    'y_list': y_list,
+                    'y_tr': y_tr,
+                    'y_e': y_e,
                     'n_list': n_list,
                     'b_list': b_list,
                     'p': p,
@@ -401,10 +410,8 @@ def run_test(s, n_list, p, lr, height, width, max_epochs, tol_algo,
                     'height': height,
                     'width': width,
                     'tol_rec': tol_rec,
-                    'subgraph_edges': sub_graphs[s][1],
                     'verbose': 0,
-                    'proj_para': {'edges': edges, 'costs': costs}
-                    }
+                    'proj_para': {'edges': edges, 'costs': costs}}
             if s not in saved_data:
                 saved_data[s] = data
             input_data_list.append(data)
@@ -412,68 +419,90 @@ def run_test(s, n_list, p, lr, height, width, max_epochs, tol_algo,
         results_pool = pool.map(run_single_test, input_data_list)
         pool.close()
         pool.join()
-        f_name = root_p + 'results_exp_sr_test03_trial_%02d.pkl' % trial_i
-        print('save results to file: %s' % f_name)
-        pickle.dump({'results_pool': results_pool},
-                    open(f_name, 'wb'))
+
+        sum_results = dict()
+        for _, b, n, rec_err in results_pool:
+            if trial_i not in sum_results:
+                sum_results[trial_i] = []
+            sum_results[trial_i].append((trial_i, b, n, rec_err))
+        for _ in sum_results:
+            f_name = root_p + 'results_exp_sr_test09_trial_%02d.pkl' % trial_i
+            print('save results to file: %s' % f_name)
+            pickle.dump({'results_pool': sum_results[trial_i]},
+                        open(f_name, 'wb'))
         print('total run time of %02d trials: %.2f seconds.' %
               (len(trial_range), time.time() - start_time))
 
 
-def summarize_results(
-        trim_ratio, trial_range, n_list, b_list, method_list,
-        root_p, noise_level_list):
+def summarize_results(trim_ratio, trial_range, n_list, b_list, method_list,
+                      root_p):
     results_pool = []
     num_trials = len(trial_range)
     for trial_i in trial_range:
-        f_name = root_p + 'results_exp_sr_test03_trial_%02d.pkl' % trial_i
+        f_name = root_p + 'results_exp_sr_test09_trial_%02d.pkl' % trial_i
         print('load file: %s' % f_name)
         for item in pickle.load(open(f_name))['results_pool']:
             results_pool.append(item)
-    # try to trim 5% of the results (rounding when necessary).
-    num_trim = int(round(trim_ratio * num_trials))
-    sum_results = dict()
-    trim_results = dict()
-    for noise_level in noise_level_list:
-        sum_results[noise_level] = dict()
-        trim_results[noise_level] = dict()
-        for method in method_list:
-            sum_results[noise_level][method] = dict()
-            trim_results[noise_level][method] = dict()
-            for b in b_list:
-                re = np.zeros((num_trials, len(n_list)))
-                sum_results[noise_level][method][b] = re
-                re = np.zeros((num_trials - 2 * num_trim, len(n_list)))
-                trim_results[noise_level][method][b] = re
-    # trial_i, b, n, rec_err
+    sum_results = {
+        'noise-free': {
+            method: {b: np.zeros((num_trials, len(n_list))) for b in b_list
+                     } for method in method_list},
+        'with-noise': {
+            method: {b: np.zeros((num_trials, len(n_list))) for b in b_list
+                     } for method in method_list}
+    }
     for trial_i, b, n, re in results_pool:
         n_ind = list(n_list).index(n)
-        for method, _, noise_level, val in re:
+        for method, noise, val in re:
             ind = list(trial_range).index(trial_i)
-            if method in method_list and noise_level in noise_level_list:
-                sum_results[noise_level][method][b][ind][n_ind] = val
-    for flag in noise_level_list:
-        for method, b in product(['graph-iht'], b_list):
-            if b != 2:
-                sum_results[flag][method][b] = sum_results[flag][method][2]
-    for noise_level, threshold in zip(noise_level_list,
-                                      [1e-6, 0.3, 0.5, 0.7]):
-        for method in sum_results[noise_level]:
-            for b in sum_results[noise_level][method]:
-                re = sum_results[noise_level][method][b]
-                start = num_trim
-                end = num_trials - num_trim
-                # remove 5% best and 5% worst.
-                trimmed_re = np.sort(re, axis=0)[start:end, :]
-                trimmed_re[trimmed_re > threshold] = 0.0
-                trimmed_re[trimmed_re != 0.0] = 1.0
-                re = np.mean(trimmed_re, axis=0)
-                feasible_indices = np.where(re == 1.)[0]
-                if len(feasible_indices) == 0:  # set to largest.
-                    least_n = n_list[-1]
-                else:
-                    least_n = n_list[feasible_indices[0]]
-                trim_results[noise_level][method][b] = least_n
+            sum_results[noise][method][b][ind][n_ind] = val
+    for flag in ['noise-free', 'with-noise']:
+        for method in ['iht', 'graph-iht']:
+            for b in b_list[1:]:
+                sum_results[flag][method][b] = sum_results[flag][method][4]
+
+    # try to trim 5% of the results (rounding when necessary).
+    num_trim = int(round(trim_ratio * num_trials))
+    trim_results = {
+        'noise-free': {
+            method: {b: np.zeros((num_trials - 2 * num_trim, len(n_list)))
+                     for b in b_list} for method in method_list},
+        'with-noise': {
+            method: {b: np.zeros((num_trials - 2 * num_trim, len(n_list)))
+                     for b in b_list} for method in method_list}
+    }
+    for method in sum_results['noise-free']:
+        for b in sum_results['noise-free'][method]:
+            re = sum_results['noise-free'][method][b]
+            start = num_trim
+            end = num_trials - num_trim
+            # remove 5% best and 5% worst.
+            trimmed_re = np.sort(re, axis=0)[start:end, :]
+            trimmed_re[trimmed_re > 1e-6] = 0.0
+            trimmed_re[trimmed_re != 0.0] = 1.0
+            re = np.mean(trimmed_re, axis=0)
+            feasible_indices = np.where(re == 1.)[0]
+            if len(feasible_indices) == 0:  # set to largest.
+                least_n = n_list[-1]
+            else:
+                least_n = n_list[feasible_indices[0]]
+            trim_results['noise-free'][method][b] = least_n
+    for method in sum_results['with-noise']:
+        for b in sum_results['with-noise'][method]:
+            re = sum_results['with-noise'][method][b]
+            start = num_trim
+            end = num_trials - num_trim
+            # remove 5% best and 5% worst.
+            trimmed_re = np.sort(re, axis=0)[start:end, :]
+            trimmed_re[trimmed_re > 5e-1] = 0.0
+            trimmed_re[trimmed_re != 0.0] = 1.0
+            re = np.mean(trimmed_re, axis=0)
+            feasible_indices = np.where(re == 1.)[0]
+            if len(feasible_indices) == 0:  # set to largest.
+                least_n = n_list[-1]
+            else:
+                least_n = n_list[feasible_indices[0]]
+            trim_results['with-noise'][method][b] = least_n
     f_name = root_p + 'results_exp_sr_test03.pkl'
     print('save results to file: %s' % f_name)
     pickle.dump({'trim_results': trim_results,
@@ -481,43 +510,56 @@ def summarize_results(
                  'results_pool': results_pool}, open(f_name, 'wb'))
 
 
-def show_test(b_list, method_list, root_p, noise_level_list):
+def show_test(b_list, method_list, title_list, root_p):
     import matplotlib.pyplot as plt
     from matplotlib import rc
     from pylab import rcParams
     plt.rcParams["font.family"] = "Times New Roman"
     plt.rcParams["font.size"] = 18
     rc('text', usetex=True)
-    rcParams['figure.figsize'] = 6, 5
+    rcParams['figure.figsize'] = 8, 4
     all_results = pickle.load(open(root_p + 'results_exp_sr_test03.pkl'))
     results = all_results['trim_results']
+    average01 = results['noise-free']
+    average02 = results['with-noise']
+    for method in ['graph-iht', 'iht']:
+        for b in average01[method]:
+            average01[method][b] = average01[method][2]
+        for b in average02[method]:
+            average02[method][b] = average02[method][2]
     color_list = ['b', 'g', 'm', 'r']
     marker_list = ['X', 'o', 'P', 's']
-    fig, ax = plt.subplots(1, 1, sharey='all')
-    ax.grid(b=True, which='both', color='gray', linestyle='dotted',
-            axis='both')
-    ax.set_xlim([0, 35])
-    ax.set_ylim([25, 100])
-    ax.set_xticks([4, 14, 24, 34, 44, 54, 64])
-    ax.set_yticks([25, 35, 45, 55, 65, 75, 85, 95])
-    ax.set_xticks([4, 14, 24, 34, 44, 54, 64])
-    ax.set_title(r"$\displaystyle \|{\bf \epsilon}\|=0.0$")
-    ax.set_title(r"$\displaystyle \|{\bf \epsilon}\|=0.5$")
-    ax.set_ylabel('Number of Measurements Required')
+    fig, ax = plt.subplots(1, 2, sharey='all')
+    for i in range(2):
+        ax[i].grid(b=True, which='both', color='gray', linestyle='dotted',
+                   axis='both')
+        ax[i].set_xlim([0, 70])
+        ax[i].set_ylim([0, 175])
+    ax[0].set_xticks([4, 14, 24, 34, 44, 54, 64])
+    ax[0].set_yticks([0, 25, 50, 75, 100, 125, 150, 175])
+    ax[1].set_xticks([4, 14, 24, 34, 44, 54, 64])
+    ax[0].set_title(r"(a) $\displaystyle \|{\bf \epsilon}\|=0.0$")
+    ax[1].set_title(r"(b) $\displaystyle \|{\bf \epsilon}\|=0.5$")
+    ax[0].set_ylabel('Number of Observations Required')
     x_list = b_list
     for method_ind, method in enumerate(method_list):
-        for ind, noise_level in enumerate(noise_level_list):
-            ax.plot(x_list, [results[noise_level][method][b]
-                             for b in b_list],
-                    label=str(noise_level),
-                    color=color_list[ind],
-                    marker=marker_list[ind]
-                    , markersize=6.0, markerfacecolor='none',
-                    linestyle='-', markeredgewidth=1.0, linewidth=1.0)
-    ax.set_xlabel('Block Size')
-    ax.legend(loc='lower right', fontsize=18., borderpad=0.1,
-              labelspacing=0.1, handletextpad=0.1, framealpha=1.0)
-    plt.subplots_adjust(wspace=0.0, hspace=0.0)
+        ax[0].plot(x_list, [average01[method][b] for b in b_list],
+                   label=title_list[method_ind],
+                   color=color_list[method_ind],
+                   marker=marker_list[method_ind]
+                   , markersize=6.0, markerfacecolor='none',
+                   linestyle='-', markeredgewidth=1.0, linewidth=1.0)
+        ax[1].plot(x_list, [average02[method][b] for b in b_list],
+                   label=title_list[method_ind],
+                   color=color_list[method_ind],
+                   marker=marker_list[method_ind]
+                   , markersize=6.0, markerfacecolor='none',
+                   linestyle='-', markeredgewidth=1.0, linewidth=1.0)
+    for i in range(2):
+        ax[i].set_xlabel(r"$\displaystyle b$")
+    ax[1].legend(loc='lower right', fontsize=14., borderpad=0.01,
+                 labelspacing=0.0, handletextpad=0.05, framealpha=1.0)
+    plt.subplots_adjust(wspace=0.02, hspace=0.0)
     f_name = root_p + 'results_exp_sr_test03.pdf'
     print('save fig to: %s' % f_name)
     plt.savefig(f_name, dpi=600, bbox_inches='tight', pad_inches=0,
@@ -549,26 +591,17 @@ def main():
     # learning rate
     lr = 1.0
     # list of methods
-    method_list = ['graph-iht', 'graph-sto-iht']
-    # noise level list
-    noise_level_list = [0.0, 0.3, 0.5, 0.7]
+    method_list = ['iht', 'sto-iht', 'graph-iht', 'graph-sto-iht']
+    command = sys.argv[1]
 
-    # TODO config the path by yourself.
+    # TODO config by yourself.
     root_p = 'results/'
     if not os.path.exists(root_p):
         os.mkdir(root_p)
-    save_data_path = root_p + 'results_exp_sr_test03.pkl'
 
-    if len(os.sys.argv) <= 1:
-        print('\n'.join(['please use one of the following commands: ',
-                         '1. python exp_sr_test03.py run_test 50 0 10',
-                         '2. python exp_sr_test03.py show_test']))
-        exit(0)
-
-    command = os.sys.argv[1]
     if command == 'run_test':
-        num_cpus = int(os.sys.argv[2])
-        trial_range = range(int(os.sys.argv[3]), int(os.sys.argv[4]))
+        num_cpus = int(sys.argv[2])
+        trial_range = range(int(sys.argv[3]), int(sys.argv[4]))
         run_test(s=s,
                  n_list=n_list,
                  p=p,
@@ -581,22 +614,18 @@ def main():
                  b_list=b_list,
                  num_cpus=num_cpus,
                  trial_range=trial_range,
-                 root_p=root_p,
-                 noise_level_list=noise_level_list)
+                 root_p=root_p)
     elif command == 'summarize_results':
         trial_range = range(50)
         summarize_results(trim_ratio=trim_ratio,
-                          trial_range=trial_range,
-                          b_list=b_list,
-                          n_list=n_list,
-                          method_list=method_list,
-                          root_p=root_p,
-                          noise_level_list=noise_level_list)
+                          trial_range=trial_range, b_list=b_list,
+                          n_list=n_list, method_list=method_list,
+                          root_p=root_p)
     elif command == 'show_test':
+        title_list = ['IHT', 'StoIHT', 'GraphIHT', 'GraphStoIHT']
         show_test(b_list=b_list,
                   method_list=method_list,
-                  root_p=root_p,
-                  noise_level_list=noise_level_list)
+                  title_list=title_list, root_p=root_p)
 
 
 if __name__ == '__main__':
