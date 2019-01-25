@@ -1,11 +1,10 @@
 ------------------------------------------------------------------------------
-Thank you for taking the time to review our code and datasets. This README.md 
-file describes how to run our GraphStoIHT algorithm and all baselines. The 
-folder graph-sto-iht contains all code ( including baselines), datasets, and 
-results used in our paper. Our code contains Python and C code. I assume your 
-Operating System is GNU/Linux-based. However, if you use MacOS or MacBook, 
-it will be okay. Since the two dependencies of our programs is Python2.7 
-and GCC. 
+Thank you for taking the time to review our code and datasets. This readme.txt
+describes how to run GraphStoIHT and all baselines. The folder graph-sto-iht
+contains all code ( including baselines), datasets, and results used in our
+paper. Our code is written by Python and C code. I assume your Operating
+System is GNU/Linux-based. However, if you have MacOS or MacBook, it will be
+okay. The only dependencies of our programs is Python2.7 and GCC.
 
 
 ------------------------------------------------------------------------------
@@ -19,7 +18,8 @@ then we are done for this section.
 
 
 ------------------------------------------------------------------------------
-This section describes how to generate the exact(figures,tables) reported.
+This section describes how to generate the exact (figures and tables) reported.
+
 To generate Figure-1, run:
             python exp_sr_test01.py gen_figures
 To generate Figure-2, run:
@@ -41,6 +41,8 @@ To generate Table 2, 3, 4, 5, run:
 ------------------------------------------------------------------------------
 This section describes how to reproduce the results. In the following commands,
 4 means the number of cpus used for each program.
+0 means the start of the trial id.
+50 means the end of the trial id.
  
 To generate results of Figure-2, run:
             python exp_sr_test02.py run_test 4
@@ -57,10 +59,8 @@ To generate results of Figure-7, run:
 To generate results of Table 2, 3, 4, 5, run:
             python exp_bc_run.py show_test
 
-Some programs above, will spend a lot of time if you only use 4 cpus. A better 
-way is to test them on 10 trials. Therefore, all 50 could be change to 10.
-
-
-After above steps, you should be exactly reproduce our results reported in our
-paper. If you cannot reproduce the results pleased email: --@--.
+Some programs above are time-cost if you only use 4 cpus. A better way is to
+test them on 10 trials by replacing 50 with 10. After above steps, you should
+be exactly reproduce our results reported in our paper. If you cannot reproduce
+the results pleased email: --@--.
 ------------------------------------------------------------------------------
