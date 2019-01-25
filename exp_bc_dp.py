@@ -182,7 +182,7 @@ def generate_original_data(root_input):
     anchor_list = [0, 50, 100, 150, 200, 250]
     step_list = [50, 50, 50, 50, 50, 45]
     for table_i in range(1, 7):
-        f_name = 'data/van_t_veer_2002/Table_NKI_295_%d.txt' % table_i
+        f_name = 'data/Table_NKI_295_%d.txt' % table_i
         print('load data from: %s' % f_name)
         with open(f_name) as csvfile:
             edge_reader = csv.reader(csvfile, delimiter='\t', quotechar='|')
