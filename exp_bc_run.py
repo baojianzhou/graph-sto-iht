@@ -856,7 +856,7 @@ def main():
     lambda_list = [1e-3, 1e-4]
     folding_list = range(20)
     num_iterations = 40
-    root_p = 'results_1/'
+    root_p = 'results/'
     if not os.path.exists(root_p):
         os.mkdir(root_p)
 
