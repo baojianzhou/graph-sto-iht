@@ -1,11 +1,10 @@
 # -*- coding: utf-8 -*-
 
 """
-This program is to reproduce Figure-2.
-
-
-In this test, we compare difference choice of block size b and learning rate
-eta of our proposed algorithm.
+TODO: Please check README.md file first!
+--
+This Python2.7 program is to reproduce Figure-2. In this test, we compare
+difference block size b and learning rate eta of our proposed algorithm.
 References:
     [1] Nguyen, Nam, Deanna Needell, and Tina Woolf. "Linear convergence of
         stochastic iterative greedy algorithms with sparse constraints."

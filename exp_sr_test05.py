@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 """
-This program is to reproduce Figure-7.
-
-In this test, we compare GraphStoIHT with six baseline methods
-on the grid dataset, which can be found in reference [2].
+TODO: Please check README.md file first!
+--
+This Python2.7 program is to reproduce Figure-7. In this test, we compare
+GraphStoIHT with six baseline methods on the grid dataset, which can be found
+in reference [2].
 
 References:
     [1] Nguyen, Nam, Deanna Needell, and Tina Woolf. "Linear convergence of

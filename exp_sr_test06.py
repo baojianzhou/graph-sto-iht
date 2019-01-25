@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-In this test, we compare GraphStoIHT with six baseline methods
-on the real image dataset, which can be found in reference [2].
+TODO: Please check README.md file first!
+--
+This Python2.7 program is to reproduce Figure-5. In this test, we compare
+GraphStoIHT with six baseline methods on the real image dataset, which can be
+found in reference [2].
 
 References:
     [1] Nguyen, Nam, Deanna Needell, and Tina Woolf. "Linear convergence of
@@ -839,7 +842,7 @@ def main():
                      num_cpus=num_cpus,
                      root_input='data/', root_output='results/')
     elif command == 'summarize_results':
-        trial_range = range(50)
+        trial_range = range(num_trials)
         summarize_results(
             trial_range=trial_range,
             sample_ratio_arr=sample_ratio_arr,

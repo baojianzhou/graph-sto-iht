@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-This program is to reproduce Figure-6.
-
-In this test, we compare GraphStoIHT with three baseline methods
-on the benchmark dataset, which can be found in reference [1].
+TODO: Please check README.md file first!
+--
+This Python2.7 program is to reproduce Figure-6. In this test, we compare
+GraphStoIHT with three baseline methods on the benchmark dataset, which can
+be found in reference [1].
 References:
     [1] Arias-Castro, Ery, Emmanuel J. Candes, and Arnaud Durand.
     "Detection of an anomalous cluster in a network."

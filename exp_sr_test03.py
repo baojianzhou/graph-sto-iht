@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-This file is to reproduce Figure-3.
-In this test, we compare difference choice of noise e=0.0, e=0.5.
+TODO: Please check README.md file first!
+--
+This Python2.7 program is to reproduce Figure-3. In this test, we compare our
+method with IHT, StoIHT, GraphIHT with difference choice of noise e=0.0, e=0.5.
 """
 
 import os
