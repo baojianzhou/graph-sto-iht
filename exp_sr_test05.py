@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-TODO: Please check README.md file first!
+TODO: Please check readme.txt file first!
 --
 This Python2.7 program is to reproduce Figure-7. In this test, we compare
 GraphStoIHT with six baseline methods on the grid dataset, which can be found

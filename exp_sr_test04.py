@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-TODO: Please check README.md file first!
+TODO: Please check readme.txt file first!
 --
 This Python2.7 program is to reproduce Figure-6. In this test, we compare
 GraphStoIHT with three baseline methods on the benchmark dataset, which can
