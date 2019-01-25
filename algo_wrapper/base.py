@@ -386,7 +386,6 @@ def main():
     edges, costs = simu_grid_graph(5, 3)
     print(edges)
     print(costs)
-    exit()
     test_random_walk()
     test_logistic()
     test_expit()
