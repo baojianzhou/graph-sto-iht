@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """
-In this test, we compare difference choice of block size b and learning rate
-lr of our proposed algorithm.
+This file is to reproduce Figure-2. In this test, we compare difference choice
+of block size b and learning rate eta of our proposed algorithm.
 
 References:
     [1] Nguyen, Nam, Deanna Needell, and Tina Woolf. "Linear convergence of
@@ -22,11 +22,6 @@ References:
     [6] Needell, Deanna, and Joel A. Tropp. "CoSaMP: Iterative signal recovery
         from incomplete and inaccurate samples."
         Applied and computational harmonic analysis 26.3 (2009): 301-321.
-
-# TODO You need to:
-    1.  install numpy, matplotlib (optional), and networkx (optional).
-    2.  build our sparse_module by executing ./build.sh please check our
-        readme.md file. If you do not know how to compile this library.
 """
 
 import os

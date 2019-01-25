@@ -426,7 +426,7 @@ def run_test(s, n_list, p, lr, height, width, max_epochs, tol_algo,
                 sum_results[trial_i] = []
             sum_results[trial_i].append((trial_i, b, n, rec_err))
         for _ in sum_results:
-            f_name = root_p + 'results_exp_sr_test09_trial_%02d.pkl' % trial_i
+            f_name = root_p + 'results_exp_sr_test03_trial_%02d.pkl' % trial_i
             print('save results to file: %s' % f_name)
             pickle.dump({'results_pool': sum_results[trial_i]},
                         open(f_name, 'wb'))
@@ -439,7 +439,7 @@ def summarize_results(trim_ratio, trial_range, n_list, b_list, method_list,
     results_pool = []
     num_trials = len(trial_range)
     for trial_i in trial_range:
-        f_name = root_p + 'results_exp_sr_test09_trial_%02d.pkl' % trial_i
+        f_name = root_p + 'results_exp_sr_test03_trial_%02d.pkl' % trial_i
         print('load file: %s' % f_name)
         for item in pickle.load(open(f_name))['results_pool']:
             results_pool.append(item)

@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 
 """
+This file is to reproduce Figure-1 and Figure-4. You first need to:
+    0.  install Python-2.7 and GCC (Linux/MacOS/MacBook already have them.)
+    1.  install numpy, matplotlib (optional), and networkx (optional).
+    2.  build our sparse_module by executing ./build.sh please check our
+        readme.md file. If you do not know how to compile this library.
+
 In this test, we compare GraphStoIHT with three baseline methods including
 IHT, StoIHT, and GraphIHT. IHT is proposed in [3]. StoIHT is proposed in [1].
 GraphIHT is proposed [4] with head/tail projections in [2].
@@ -24,10 +30,7 @@ References:
         from incomplete and inaccurate samples."
         Applied and computational harmonic analysis 26.3 (2009): 301-321.
 
-# TODO You need to:
-    1.  install numpy, matplotlib (optional), and networkx (optional).
-    2.  build our sparse_module by executing ./build.sh please check our
-        readme.md file. If you do not know how to compile this library.
+
 """
 import os
 import time
