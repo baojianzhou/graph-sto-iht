@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """
+This program is to reproduce Figure-7.
+
 In this test, we compare GraphStoIHT with six baseline methods
 on the grid dataset, which can be found in reference [2].
 

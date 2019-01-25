@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
+"""
+This file is to reproduce Figure-3.
+In this test, we compare difference choice of noise e=0.0, e=0.5.
+"""
 
-# system library
 import os
-
 import time
 import random
 import pickle
-from os import sys
 import multiprocessing
 from itertools import product
 
@@ -592,7 +593,7 @@ def main():
     lr = 1.0
     # list of methods
     method_list = ['iht', 'sto-iht', 'graph-iht', 'graph-sto-iht']
-    command = sys.argv[1]
+    command = os.sys.argv[1]
 
     # TODO config by yourself.
     root_p = 'results/'
@@ -600,8 +601,8 @@ def main():
         os.mkdir(root_p)
 
     if command == 'run_test':
-        num_cpus = int(sys.argv[2])
-        trial_range = range(int(sys.argv[3]), int(sys.argv[4]))
+        num_cpus = int(os.sys.argv[2])
+        trial_range = range(int(os.sys.argv[3]), int(os.sys.argv[4]))
         run_test(s=s,
                  n_list=n_list,
                  p=p,
