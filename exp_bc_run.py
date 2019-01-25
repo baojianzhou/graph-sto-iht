@@ -1,4 +1,10 @@
 # -*- coding: utf-8 -*-
+"""
+TODO: Please check README.md file first!
+--
+This Python2.7 program is to reproduce Table 2, 3, 4, and 5.
+
+"""
 import os
 import sys
 import pickle
