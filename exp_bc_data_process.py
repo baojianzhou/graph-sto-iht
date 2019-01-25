@@ -70,7 +70,7 @@ def raw_data_process(root_input):
     import scipy.io as sio
     import networkx as nx
     root_p = 'data/'
-    raw = sio.loadmat(root_p + 'raw/vant.mat')
+    raw = sio.loadmat(root_p + 'vant.mat')
     data = {'x': np.asarray(raw['X']),
             'y': np.asarray([_[1] for _ in raw['Y']]),
             'entrez': [_[0] for _ in np.asarray(raw['entrez'])]}
@@ -79,14 +79,14 @@ def raw_data_process(root_input):
             print('default values.')
     edges, costs = [], []
     g = nx.Graph()
-    with open(root_p + 'raw/edge.txt') as csvfile:
+    with open(root_p + 'edge.txt') as csvfile:
         edge_reader = csv.reader(csvfile, delimiter='\t', quotechar='|')
         for row in edge_reader:
             g.add_edge(row[0], row[1])
             edges.append([int(row[0]) - 1, int(row[1]) - 1])
             costs.append(1.)
     pathways = dict()
-    with open(root_p + 'raw/pathways.txt') as csvfile:
+    with open(root_p + 'pathways.txt') as csvfile:
         edge_reader = csv.reader(csvfile, delimiter='\t', quotechar='|')
         for row in edge_reader:
             if int(row[0]) not in pathways:
@@ -182,7 +182,7 @@ def generate_original_data(root_input):
     anchor_list = [0, 50, 100, 150, 200, 250]
     step_list = [50, 50, 50, 50, 50, 45]
     for table_i in range(1, 7):
-        f_name = root_p + 'raw/van_t_veer_2002/Table_NKI_295_%d.txt' % table_i
+        f_name = 'data/van_t_veer_2002/Table_NKI_295_%d.txt' % table_i
         print('load data from: %s' % f_name)
         with open(f_name) as csvfile:
             edge_reader = csv.reader(csvfile, delimiter='\t', quotechar='|')
