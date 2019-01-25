@@ -865,11 +865,11 @@ def main():
                      max_epochs=max_epochs, s_list=s_list, b_list=b_list,
                      lambda_list=lambda_list, folding_i=folding_i,
                      num_cpus=num_cpus, root_input='data/',
-                     root_output='results_1/')
+                     root_output='results/')
     elif command == 'show_test':
         show_test(nonconvex_method_list=method_list,
                   folding_list=folding_list, num_iterations=num_iterations,
-                  root_input='data/', root_output='results_1/')
+                  root_input='data/', root_output='results/')
 
 
 if __name__ == "__main__":
