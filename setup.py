@@ -42,7 +42,7 @@ setup(
              'algo_wrapper/c/sort.h'],
     ext_modules=[Extension('sparse_module',
                            sources=src_files,
-                           language="C",
+                           language="C11",
                            extra_compile_args=compile_args,
                            include_dirs=[numpy.get_include()])],
     keywords='sparse learning, structure sparsity, head/tail projection')
