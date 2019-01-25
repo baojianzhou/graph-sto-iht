@@ -671,10 +671,10 @@ def summarize_data(method_list, folding_list, num_iterations, root_output):
     return sum_data
 
 
-def show_test(nonconvex_method_list, folding_list, num_iterations,
+def show_test(nonconvex_method_list, folding_list, max_epochs,
               root_input, root_output, latex_flag=True):
     sum_data = summarize_data(nonconvex_method_list,
-                              folding_list, num_iterations, root_output)
+                              folding_list, max_epochs, root_output)
     all_data = pickle.load(open(root_input + 'overlap_data_summarized.pkl'))
     for trial_i in sum_data:
         for method in nonconvex_method_list:
@@ -855,7 +855,7 @@ def main():
     b_list = [1, 2]
     lambda_list = [1e-3, 1e-4]
     folding_list = range(20)
-    num_iterations = 40
+    max_epochs = 40
     root_p = 'results/'
     if not os.path.exists(root_p):
         os.mkdir(root_p)
@@ -865,7 +865,6 @@ def main():
         num_cpus = int(sys.argv[2])
         trial_start = int(sys.argv[3])
         trial_end = int(sys.argv[4])
-        max_epochs = int(sys.argv[5])
         for folding_i in range(trial_start, trial_end):
             run_test(method_list=method_list, n_folds=n_folds,
                      max_epochs=max_epochs, s_list=s_list, b_list=b_list,
@@ -874,7 +873,7 @@ def main():
                      root_output='results/')
     elif command == 'show_test':
         show_test(nonconvex_method_list=method_list,
-                  folding_list=folding_list, num_iterations=num_iterations,
+                  folding_list=folding_list, max_epochs=max_epochs,
                   root_input='data/', root_output='results/')
 
 
