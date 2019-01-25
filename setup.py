@@ -4,8 +4,8 @@ This is a wrapper of head and tail projection. To generate sparse_module.so
 file, please use the following command (suppose you have Linux/MacOS/MacBook):
     python setup.py build_ext --inplace
 
-I didn't know how to use GCC or C related compiler under Windows. But if you
-have a C compile, you can definitely generate above mentioned file in some way.
+I didn't know how to use GCC compiler under Windows. But if you have a C
+compile, you can definitely generate above mentioned file in some way.
 """
 
 import os
