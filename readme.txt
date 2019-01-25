@@ -1,8 +1,15 @@
 ------------------------------------------------------------------------------
 Thank you for taking the time to review our code and datasets. This readme.txt
-describes how to run GraphStoIHT and all baselines. The folder graph-sto-iht
-contains all code ( including baselines), datasets, and results used in our
-paper. Our code is written by Python and C code. I assume your Operating
+describes how to run GraphStoIHT and all baselines. The folder
+--graph-sto-iht:
+        contains all code ( including baselines), datasets, and
+        results used in our paper.
+--overlasso-package:
+        download from [ http://cbio.ensmp.fr/˜ljacob/documents/
+        overlasso-package.tgz ], which contains all l1/l2 mixed-norm
+        methods.
+
+Our code is written by Python and C code. I assume your Operating
 System is GNU/Linux-based. However, if you have MacOS or MacBook, it will be
 okay. The only dependencies of our programs is Python2.7 and GCC.
 
@@ -40,9 +47,9 @@ To generate Table 2, 3, 4, 5, run:
             
 ------------------------------------------------------------------------------
 This section describes how to reproduce the results. In the following commands,
-4 means the number of cpus used for each program.
-0 means the start of the trial id.
-50 means the end of the trial id.
+--4     means the number of cpus used for each program.
+--0     means the start of the trial id.
+--50    means the end of the trial id.
  
 To generate results of Figure-2, run:
             python exp_sr_test02.py run_test 4
@@ -63,4 +70,11 @@ Some programs above are time-cost if you only use 4 cpus. A better way is to
 test them on 10 trials by replacing 50 with 10. After above steps, you should
 be approximately reproduce our results reported in our paper. If you cannot
 reproduce the results pleased email: --@--.
+
+
 ------------------------------------------------------------------------------
+This section describes how to run l1/l2-mixed norm methods:
+Download overlasso from:
+http://cbio.ensmp.fr/˜ljacob/documents/overlasso-package.tgz. We downloaded a
+version in overlasso-package. Run those l1/l2-mixed norm methods 20 times and
+then generate the data and results in results folder.
