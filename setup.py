@@ -19,7 +19,7 @@ src_files = ['algo_wrapper/c/main_wrapper.c',
              'algo_wrapper/c/head_tail_proj.c',
              'algo_wrapper/c/fast_pcst.c',
              'algo_wrapper/c/sort.c']
-compile_args = ['-shared', '-Wall', '-g', '-fPIC',
+compile_args = ['-shared', '-Wall', '-g', '-O3', '-fPIC',
                 '-std=c11', '-lpython2.7', '-lm']
 # calling the setup function
 setup(
@@ -42,7 +42,7 @@ setup(
              'algo_wrapper/c/sort.h'],
     ext_modules=[Extension('sparse_module',
                            sources=src_files,
-                           language="C11",
+                           language="C",
                            extra_compile_args=compile_args,
                            include_dirs=[numpy.get_include()])],
     keywords='sparse learning, structure sparsity, head/tail projection')
