@@ -61,6 +61,6 @@ To generate results of Table 2, 3, 4, 5, run:
 
 Some programs above are time-cost if you only use 4 cpus. A better way is to
 test them on 10 trials by replacing 50 with 10. After above steps, you should
-be exactly reproduce our results reported in our paper. If you cannot reproduce
-the results pleased email: --@--.
+be approximately reproduce our results reported in our paper. If you cannot
+reproduce the results pleased email: --@--.
 ------------------------------------------------------------------------------
