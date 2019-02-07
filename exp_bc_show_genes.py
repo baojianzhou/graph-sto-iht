@@ -2,7 +2,7 @@ import pickle
 import numpy as np
 
 
-def summarize_data(method_list, folding_list, num_iterations, root_output):
+def summarize_data(method_list, folding_list, num_iterations):
     sum_data = dict()
     cancer_related_genes = {
         4288: 'MKI67', 1026: 'CDKN1A', 472: 'ATM', 7033: 'TFF3', 2203: 'FBP1', 7494: 'XBP1', 1824: 'DSC2',
@@ -11,31 +11,34 @@ def summarize_data(method_list, folding_list, num_iterations, root_output):
         10551: 'AGR2', 3169: 'FOXA1', 2296: 'FOXC1'}
     for trial_i in folding_list:
         sum_data[trial_i] = dict()
-        f_name = root_output + 'results_exp_bc_%02d_%02d.pkl' % (trial_i, num_iterations)
+        f_name = 'results/results_exp_bc_%02d_%02d.pkl' % (trial_i, num_iterations)
         data = pickle.load(open(f_name))
         for method in method_list:
             sum_data[trial_i][method] = dict()
             auc, bacc, non_zeros_list, found_genes = [], [], [], []
+            non_zeros = dict()
             for fold_i in data:
                 auc.append(data[fold_i][method]['auc'])
                 bacc.append(data[fold_i][method]['bacc'])
                 wt = data[fold_i][method]['w_hat']
                 non_zeros_list.append(len(np.nonzero(wt[:len(wt) - 1])[0]))
+                non_zeros[fold_i] = np.nonzero(wt[:len(wt) - 1])[0]
                 sum_data[trial_i][method]['w_hat_%d' % fold_i] = wt[:len(wt) - 1]
                 for element in np.nonzero(wt[:len(wt) - 1])[0]:
                     found_genes.append(data[fold_i][method]['map_entrez'][element])
+
             found_genes = [cancer_related_genes[_] for _ in found_genes if _ in cancer_related_genes]
             sum_data[trial_i][method]['auc'] = auc
             sum_data[trial_i][method]['bacc'] = bacc
             sum_data[trial_i][method]['num_nonzeros'] = non_zeros_list
             sum_data[trial_i][method]['found_genes'] = found_genes
-
+            sum_data[trial_i][method]['non_zeros'] = non_zeros
     return sum_data
 
 
-def show_test(nonconvex_method_list, folding_list, max_epochs, root_input, root_output, latex_flag=True):
-    sum_data = summarize_data(nonconvex_method_list, folding_list, max_epochs, root_output)
-    all_data = pickle.load(open(root_input + 'overlap_data_summarized.pkl'))
+def show_test(nonconvex_method_list, folding_list, max_epochs, latex_flag=True):
+    sum_data = summarize_data(nonconvex_method_list, folding_list, max_epochs)
+    all_data = pickle.load(open('data/overlap_data_summarized.pkl'))
     for trial_i in sum_data:
         for method in nonconvex_method_list:
             all_data[trial_i]['re_%s' % method] = sum_data[trial_i][method]
@@ -107,10 +110,9 @@ def show_test(nonconvex_method_list, folding_list, max_epochs, root_input, root_
             'Number of nonzeros on the breast cancer dataset.']
         for index_metrix, metric in enumerate(['bacc', 'auc', 'num_nonzeros']):
             print(' '.join(['-' * 75, '%12s' % metric, '-' * 75]))
-            print(
-                    '\\begin{table*}[ht!]\n\\caption{%s}\n'
-                    '\centering\n\scriptsize\n\\begin{tabular}{ccccccccccc}' %
-                    caption_list[index_metrix])
+            print('\\begin{table*}[ht!]\n\\caption{%s}\n'
+                  '\centering\n\scriptsize\n\\begin{tabular}{ccccccccccc}' %
+                  caption_list[index_metrix])
             print('\hline')
             mean_dict = {method: [] for method in method_list}
 
@@ -147,15 +149,13 @@ def show_test(nonconvex_method_list, folding_list, max_epochs, root_input, root_
                     min_index = np.argmin(find_min)
                     original_string = row_list[int(min_index)]
                     mean_std = original_string.split('$\pm$')
-                    row_list[int(min_index)] = '\\textbf{%s}$\pm$%s' % (
-                        mean_std[0], mean_std[1])
+                    row_list[int(min_index)] = '\\textbf{%s}$\pm$%s' % (mean_std[0], mean_std[1])
                     best_bacc_dict[min_index - 1] += 1
                 elif metric == 'auc':
                     max_index = np.argmax(find_max)
                     original_string = row_list[int(max_index)]
                     mean_std = original_string.split('$\pm$')
-                    row_list[int(max_index)] = '\\textbf{%s}$\pm$%s' % (
-                        mean_std[0], mean_std[1])
+                    row_list[int(max_index)] = '\\textbf{%s}$\pm$%s' % (mean_std[0], mean_std[1])
                     best_auc_dict[max_index - 1] += 1
                 print(' & '.join(row_list)),
                 print('\\\\')
@@ -176,14 +176,12 @@ def show_test(nonconvex_method_list, folding_list, max_epochs, root_input, root_
                 min_index = np.argmin(find_min)
                 original_string = row_list[int(min_index)]
                 mean_std = original_string.split('$\pm$')
-                row_list[int(min_index)] = '\\textbf{%s}$\pm$%s' % (
-                    mean_std[0], mean_std[1])
+                row_list[int(min_index)] = '\\textbf{%s}$\pm$%s' % (mean_std[0], mean_std[1])
             elif metric == 'auc':
                 max_index = np.argmax(find_max)
                 original_string = row_list[int(max_index)]
                 mean_std = original_string.split('$\pm$')
-                row_list[int(max_index)] = '\\textbf{%s}$\pm$%s' % (
-                    mean_std[0], mean_std[1])
+                row_list[int(max_index)] = '\\textbf{%s}$\pm$%s' % (mean_std[0], mean_std[1])
             print(' & '.join(row_list)),
             print('\\\\')
             print('\hline')
@@ -207,7 +205,7 @@ def show_test(nonconvex_method_list, folding_list, max_epochs, root_input, root_
     print('_' * 85)
 
 
-def show_detected_genes_2():
+def show_detected_genes(true_nodes, trial_start, trial_end):
     import networkx as nx
     import matplotlib.pyplot as plt
     from pylab import rcParams
@@ -223,13 +221,12 @@ def show_detected_genes_2():
     label_list = [r'$\displaystyle \ell_1$-\textsc{RDA}', r'\textsc{DA-IHT}', r'\textsc{AdaGrad}',
                   r'\textsc{DA-GL}', r'\textsc{DA-SGL}', r'\textsc{GraphDA}']
     fig, ax = plt.subplots(5, 6)
-    for trial_i_ind, trial_i in enumerate(range(0, 5)):
+    for trial_i_ind, trial_i in enumerate(range(trial_start, trial_end)):
         for method_ind, method in enumerate(method_list):
             print(trial_i, method)
             g = nx.Graph()
             detected_graph = all_subgraphs['s1'][method][trial_i]
             detected_nodes = list(detected_graph['nodes'])
-            true_nodes = all_subgraphs['hsa05213']['nodes']
             intersect = list(set(true_nodes).intersection(detected_graph['nodes']))
             for edge_ind, edge in enumerate(detected_graph['edges']):
                 g.add_edge(edge[0], edge[1], weight=detected_graph['weights'][edge_ind])
@@ -238,10 +235,10 @@ def show_detected_genes_2():
                     for node in list(true_nodes):
                         g.add_node(node)
                         g = nx.minimum_spanning_tree(g)
-                        print('method: %s pre: %.3f rec: %.3f fm: %.3f' %
-                              (method, float(len(intersect)) / float(len(detected_nodes)),
-                               float(len(intersect)) / float(len(true_nodes)),
-                               float(2.0 * len(intersect)) / float(len(detected_nodes) + len(true_nodes))))
+                        print('method: %s pre: %.3f rec: %.3f fm: %.3f' % (
+                            method, float(len(intersect)) / float(len(detected_nodes)),
+                            float(len(intersect)) / float(len(true_nodes)),
+                            float(2.0 * len(intersect)) / float(len(detected_nodes) + len(true_nodes))))
                         color_list = []
                         for node in detected_nodes:
                             if node in intersect:
@@ -249,10 +246,9 @@ def show_detected_genes_2():
                             else:
                                 color_list.append('b')
                                 nx.draw_spring(g, ax=ax[trial_i_ind, method_ind], node_size=10, edge_color='black',
-                                               edge_width=2.,
-                                               font_size=4, node_edgecolor='black', node_facecolor='white',
-                                               node_edgewidth=1., k=10.0, nodelist=detected_nodes,
-                                               node_color=color_list)
+                                               edge_width=2., font_size=4, node_edgecolor='black',
+                                               node_facecolor='white', node_edgewidth=1., k=10.0,
+                                               nodelist=detected_nodes, node_color=color_list)
                                 ax[trial_i_ind, method_ind].axis('on')
                                 ax[0, method_ind].set(title='%s' % label_list[method_ind])
                                 plt.setp(ax[trial_i_ind, method_ind].get_xticklabels(), visible=False)
@@ -265,8 +261,16 @@ def show_detected_genes_2():
 
 
 def main():
-    pass
+    method_list = ['iht', 'sto-iht', 'graph-iht', 'graph-sto-iht']
+    show_detected_genes()
 
 
 if __name__ == '__main__':
-    main()
+    method_list = ['iht', 'sto-iht', 'graph-iht', 'graph-sto-iht']
+    n_folds = 5
+    s_list = range(10, 101, 5)
+    b_list = [1, 2]
+    lambda_list = [1e-3, 1e-4]
+    folding_list = range(20)
+    max_epochs = 40
+    show_test(method_list, folding_list, max_epochs, latex_flag=True)
