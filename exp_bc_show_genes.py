@@ -5,16 +5,13 @@ import numpy as np
 def summarize_data(method_list, folding_list, num_iterations, root_output):
     sum_data = dict()
     cancer_related_genes = {
-        4288: 'MKI67', 1026: 'CDKN1A', 472: 'ATM', 7033: 'TFF3', 2203: 'FBP1',
-        7494: 'XBP1', 1824: 'DSC2', 1001: 'CDH3', 11200: 'CHEK2',
-        7153: 'TOP2A', 672: 'BRCA1', 675: 'BRCA2', 580: 'BARD1', 9: 'NAT1',
-        771: 'CA12', 367: 'AR', 7084: 'TK2', 5892: 'RAD51D', 2625: 'GATA3',
-        7155: 'TOP2B', 896: 'CCND3', 894: 'CCND2', 10551: 'AGR2',
-        3169: 'FOXA1', 2296: 'FOXC1'}
+        4288: 'MKI67', 1026: 'CDKN1A', 472: 'ATM', 7033: 'TFF3', 2203: 'FBP1', 7494: 'XBP1', 1824: 'DSC2',
+        1001: 'CDH3', 11200: 'CHEK2', 7153: 'TOP2A', 672: 'BRCA1', 675: 'BRCA2', 580: 'BARD1', 9: 'NAT1',
+        771: 'CA12', 367: 'AR', 7084: 'TK2', 5892: 'RAD51D', 2625: 'GATA3', 7155: 'TOP2B', 896: 'CCND3', 894: 'CCND2',
+        10551: 'AGR2', 3169: 'FOXA1', 2296: 'FOXC1'}
     for trial_i in folding_list:
         sum_data[trial_i] = dict()
-        f_name = root_output + 'results_exp_bc_%02d_%02d.pkl' % \
-                 (trial_i, num_iterations)
+        f_name = root_output + 'results_exp_bc_%02d_%02d.pkl' % (trial_i, num_iterations)
         data = pickle.load(open(f_name))
         for method in method_list:
             sum_data[trial_i][method] = dict()
@@ -24,14 +21,10 @@ def summarize_data(method_list, folding_list, num_iterations, root_output):
                 bacc.append(data[fold_i][method]['bacc'])
                 wt = data[fold_i][method]['w_hat']
                 non_zeros_list.append(len(np.nonzero(wt[:len(wt) - 1])[0]))
-                sum_data[trial_i][method]['w_hat_%d' % fold_i] = \
-                    wt[:len(wt) - 1]
+                sum_data[trial_i][method]['w_hat_%d' % fold_i] = wt[:len(wt) - 1]
                 for element in np.nonzero(wt[:len(wt) - 1])[0]:
-                    found_genes.append(
-                        data[fold_i][method]['map_entrez'][element])
-            found_genes = [cancer_related_genes[_]
-                           for _ in found_genes
-                           if _ in cancer_related_genes]
+                    found_genes.append(data[fold_i][method]['map_entrez'][element])
+            found_genes = [cancer_related_genes[_] for _ in found_genes if _ in cancer_related_genes]
             sum_data[trial_i][method]['auc'] = auc
             sum_data[trial_i][method]['bacc'] = bacc
             sum_data[trial_i][method]['num_nonzeros'] = non_zeros_list
@@ -41,8 +34,7 @@ def summarize_data(method_list, folding_list, num_iterations, root_output):
 
 
 def show_test(nonconvex_method_list, folding_list, max_epochs, root_input, root_output, latex_flag=True):
-    sum_data = summarize_data(nonconvex_method_list,
-                              folding_list, max_epochs, root_output)
+    sum_data = summarize_data(nonconvex_method_list, folding_list, max_epochs, root_output)
     all_data = pickle.load(open(root_input + 'overlap_data_summarized.pkl'))
     for trial_i in sum_data:
         for method in nonconvex_method_list:
@@ -50,9 +42,8 @@ def show_test(nonconvex_method_list, folding_list, max_epochs, root_input, root_
         for method in ['re_%s' % _ for _ in nonconvex_method_list]:
             re = all_data[trial_i][method]['found_genes']
             all_data[trial_i]['found_related_genes'][method] = set(re)
-    method_list = ['re_path_re_lasso', 're_path_re_overlap',
-                   're_edge_re_lasso', 're_edge_re_overlap',
-                   're_iht', 're_sto-iht', 're_graph-iht', 're_graph-sto-iht']
+    method_list = ['re_path_re_lasso', 're_path_re_overlap', 're_edge_re_lasso', 're_edge_re_overlap', 're_iht',
+                   're_sto-iht', 're_graph-iht', 're_graph-sto-iht']
     all_involved_genes = {method: set() for method in method_list}
     for trial_i in sum_data:
         for method in nonconvex_method_list:
