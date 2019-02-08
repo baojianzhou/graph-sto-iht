@@ -848,6 +848,30 @@ def show_test(nonconvex_method_list, folding_list, max_epochs,
     print('_' * 85)
 
 
+def show_genes():
+    show_genes = dict()
+    for i in range(20):
+        data = get_single_data(trial_i=0, root_input='data/')
+        show_genes['data_entrez'] = data['data_entrez']
+        show_genes['cancer_related_genes'] = data['cancer_related_genes']
+        show_genes[i] = {_: dict() for _ in data['found_related_genes']}
+        for method in data['found_related_genes']:
+            print(i, method)
+            for fold_i in data[method]:
+                show_genes[i][method][fold_i] = dict()
+                kidx = data[method][fold_i]['kidx']
+                index = list(data[method][fold_i]['lambdas']).index(data[method][fold_i]['lstar'])
+                w = data[method][fold_i]['oWs'][:, index][1:]
+                found_genes = {_: '' for _ in kidx[np.nonzero(w)[0]]}
+                found_edges = []
+                for edge in data['data_edges']:
+                    if edge[0] in found_genes and edge[1] in found_genes:
+                        found_edges.append((data['data_entrez'][edge[0]], data['data_entrez'][edge[1]]))
+                show_genes[i][method][fold_i]['nodes'] = [data['data_entrez'][_] for _ in list(found_genes.keys())]
+                show_genes[i][method][fold_i]['edges'] = found_edges
+    pickle.dump(show_genes, open('data/show_genes.pkl', 'wb'))
+
+
 def main():
     method_list = ['iht', 'sto-iht', 'graph-iht', 'graph-sto-iht']
     n_folds = 5
