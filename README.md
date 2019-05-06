@@ -1,5 +1,4 @@
 ## Stochastic IHT for Graph-structured Sparsity  Optimization
--------------------------------------------------------------------------------
 
 ### Overview
 
