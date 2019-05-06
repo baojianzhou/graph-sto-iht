@@ -45,7 +45,7 @@ then we are done for this section.
 
 This section describes how to generate the exact figures reported in our paper.
 
-##### 1. Generate Figure 1
+##### 1. Figure 1
 
 To generate Figure-1, run:
 
@@ -60,14 +60,24 @@ Graph with sparsity 8 |  Graph with sparsity 20 |  Graph with sparsity 28 |  Gra
 <img src="results/results_exp_sr_test01_s_08.png" width="200" height="200"> |  <img src="results/results_exp_sr_test01_s_20.png" width="200" height="200"> | <img src="results/results_exp_sr_test01_s_28.png" width="200" height="200"> |  <img src="results/results_exp_sr_test01_s_36.png" width="200" height="200"> 
 
 
-##### 1. Generate Figure 2
+##### 2. Figure 2
 
-To generate Figure-2, run:
+To show Figure-2, run:
 
 ```sh
 $ python exp_sr_test02.py show_test
 ```
-            
+To reproduce Figure-2, run:
+
+```sh
+$ python exp_sr_test02.py run_test 4
+```
+Here, the parameter 4 is the number of cpu used.
+
+Graph with sparsity 8 |
+:-------------------------:|
+<img src="results/results_exp_sr_test02.png" width="800" height="300">
+
 To generate Figure-3, run:
             python exp_sr_test03.py show_test
 To generate Figure-4, run:
@@ -89,7 +99,7 @@ This section describes how to reproduce the results. In the following commands,
 --50    means the end of the trial id.
  
 To generate results of Figure-2, run:
-            python exp_sr_test02.py run_test 4
+            
 To generate results of Figure-3, run:
             python exp_sr_test03.py run_test 4 0 50
 To generate results of Figure-4, run:
