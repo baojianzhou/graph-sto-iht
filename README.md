@@ -46,7 +46,6 @@ then we are done for this section.
 This section describes how to generate the exact figures reported in our paper.
 
 ##### 1. Generate Figure 1
----
 
 To generate Figure-1, run:
 
@@ -61,12 +60,14 @@ Graph with sparsity 8 |  Graph with sparsity 20 |  Graph with sparsity 28 |  Gra
 <img src="results/results_exp_sr_test01_s_08.png" width="200" height="200"> |  <img src="results/results_exp_sr_test01_s_20.png" width="200" height="200"> | <img src="results/results_exp_sr_test01_s_28.png" width="200" height="200"> |  <img src="results/results_exp_sr_test01_s_36.png" width="200" height="200"> 
 
 
-##### 1. Generate Figure 1
----
-
+##### 1. Generate Figure 2
 
 To generate Figure-2, run:
-            python exp_sr_test02.py show_test
+
+```sh
+$ python exp_sr_test02.py show_test
+```
+            
 To generate Figure-3, run:
             python exp_sr_test03.py show_test
 To generate Figure-4, run:
