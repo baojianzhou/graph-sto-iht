@@ -76,7 +76,7 @@ Here, the parameter 4 is the number of cpu used.
 
 Graph with sparsity 8 |
 :-------------------------:|
-<img src="results/results_exp_sr_test02.png" width="800" height="300">
+<img src="results/results_exp_sr_test02.png" width="800" height="300">|
 
 To generate Figure-3, run:
             python exp_sr_test03.py show_test
