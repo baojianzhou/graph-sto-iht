@@ -653,7 +653,7 @@ def generate_figures(root_p, save_data_path):
             ax.xaxis.set_major_locator(plt.NullLocator())
             ax.yaxis.set_major_locator(plt.NullLocator())
         f_name = root_p + 'results_exp_sr_test01_s_%02d.png' % s
-        fig.savefig(f_name, dpi=600, pad_inches=0.0, format='pdf')
+        fig.savefig(f_name, dpi=600, pad_inches=0.0, format='png')
         plt.close()
 
 

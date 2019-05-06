@@ -41,7 +41,7 @@ Step 3 will generate a sparse_module.so file. If you see this generated file,
 then we are done for this section.
 
 
-![fig1](figs/results_exp_sr_test01_s_20.png "test")
+![fig1](results/results_exp_sr_test01_s_20.png "test")
 
 
 
