@@ -118,18 +118,58 @@ Here, 4 is the number of CPUs used for each program. 0 is the start
 of the trial id. 50 is the end of the trial id. It means we try to run 
 50 trials and then take the average.
 
-|  |      Choice of b and η.      |  |
+|  |      Probability of recovery on synthetic dataset.      |  |
 |----------|:-------------:|------|
-|  &emsp;&emsp;&emsp;&emsp;&emsp;| <img src="results/results_exp_sr_test01.png" width="650" height="450"> | &emsp;&emsp;&emsp;&emsp;&emsp; | 
+|  &emsp;&emsp;&emsp;&emsp;&emsp;| <img src="results/results_exp_sr_test01.png" width="650" height="450"> | &emsp;&emsp;&emsp;&emsp;&emsp; |
 
+Probability of recovery on synthetic dataset. The probability of recovery as 
+function of the number of observations m.
 
+##### 5. Figure 5
 
-To generate Figure-5, run:
-            python exp_sr_test06.py show_test
-To generate Figure-6, run:
+To show Figure-5, run:
+            
+```sh
+$ python exp_sr_test06.py show_test
+```
+To reproduce Figure-5, run:
+
+```sh
+$ python exp_sr_test06.py run_test 4 0 50
+```
+
+|  |      Probability of recovery on three 50×50 resized real im-ages.      |  |
+|----------|:-------------:|------|
+|  &emsp;&emsp;&emsp;&emsp;&emsp;| <img src="results/results_exp_sr_test01.png" width="650" height="450"> | &emsp;&emsp;&emsp;&emsp;&emsp; |
+
+            
+##### 6. Figure 6
+
+To show Figure-6, run:
             python exp_sr_test04.py show_test
-To generate Figure-7, run:
+
+To generate results of Figure-6, run:
+            python exp_sr_test04.py run_test 4 0 50
+
+|  |      The probability of recovery as a function of oversampling ratio.      |  |
+|----------|:-------------:|------|
+|  &emsp;&emsp;&emsp;&emsp;&emsp;| <img src="results/results_exp_sr_test06.png" width="650" height="450"> | &emsp;&emsp;&emsp;&emsp;&emsp; |
+
+he oversampling ratio is defined as the number of observations m divided by sparsity s, i.e.,m/s. These four public benchmark graphs (a), (b), (c), and (d) in the upper row are from Arias-Castro et al.(2011)
+
+            
+##### 7. Figure 7
+To show Figure-7, run:
             python exp_sr_test05.py show_test
+            
+To generate results of Figure-7, run:
+            python exp_sr_test05.py run_test 4 0 50
+            
+|  |      The probability of recovery as a function of oversampling ratio.      |  |
+|----------|:-------------:|------|
+|  &emsp;&emsp;&emsp;&emsp;&emsp;| <img src="results/results_exp_sr_test07.png" width="650" height="450"> | &emsp;&emsp;&emsp;&emsp;&emsp; |
+
+##### 8. Figure 8
 To generate Table 2, 3, 4, 5, run:
             python exp_bc_run.py show_test
 
@@ -140,12 +180,7 @@ This section describes how to reproduce the results. In the following commands,
 --0     means the start of the trial id.
 --50    means the end of the trial id.
 
-To generate results of Figure-5, run:
-            python exp_sr_test06.py run_test 4 0 50
-To generate results of Figure-6, run:
-            python exp_sr_test04.py run_test 4 0 50
-To generate results of Figure-7, run:
-            python exp_sr_test05.py run_test 4 0 50
+
 To generate results of Table 2, 3, 4, 5, run:
             python exp_bc_run.py run_test 0 20
 
