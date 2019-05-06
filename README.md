@@ -153,7 +153,7 @@ To generate results of Figure-6, run:
 
 |  |      The probability of recovery as a function of oversampling ratio.      |  |
 |----------|:-------------:|------|
-|  &emsp;&emsp;&emsp;&emsp;&emsp;| <img src="results/results_exp_sr_test06.png" width="650" height="450"> | &emsp;&emsp;&emsp;&emsp;&emsp; |
+|  &emsp;&emsp;&emsp;&emsp;&emsp;| <img src="results/results_exp_sr_test04.png" width="650" height="450"> | &emsp;&emsp;&emsp;&emsp;&emsp; |
 
 he oversampling ratio is defined as the number of observations m divided by sparsity s, i.e.,m/s. These four public benchmark graphs (a), (b), (c), and (d) in the upper row are from Arias-Castro et al.(2011)
 
@@ -167,7 +167,7 @@ To generate results of Figure-7, run:
             
 |  |      The probability of recovery as a function of oversampling ratio.      |  |
 |----------|:-------------:|------|
-|  &emsp;&emsp;&emsp;&emsp;&emsp;| <img src="results/results_exp_sr_test05.png" width="650" height="450"> | &emsp;&emsp;&emsp;&emsp;&emsp; |
+|  &emsp;&emsp;&emsp;&emsp;&emsp;| <img src="results/results_exp_sr_test05.png" width="650" height="350"> | &emsp;&emsp;&emsp;&emsp;&emsp; |
 
 ##### 8. Figure 8
 To generate Table 2, 3, 4, 5, run:
