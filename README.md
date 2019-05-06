@@ -42,10 +42,10 @@ then we are done for this section.
 
 <div class="row">
   <div class="column">
-    <img src="results/results_exp_sr_test01_s_20.png" alt="Snow" style="width:100%">
+    <img src="results/results_exp_sr_test01_s_20.png" alt="Snow" style="width:50%">
   </div>
   <div class="column">
-    <img src="results/results_exp_sr_test01_s_20.png" alt="Forest" style="width:100%">
+    <img src="results/results_exp_sr_test01_s_20.png" alt="Forest" style="width:50%">
   </div>
 </div>
 
