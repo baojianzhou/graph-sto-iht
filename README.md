@@ -40,8 +40,9 @@ prepare the environment. It has three steps:
 Step 3 will generate a sparse_module.so file. If you see this generated file,
 then we are done for this section.
 
-<p align="center">
-<img align="center" src="https://github.com/baojianzhou/graph-sto-iht/figs/results_exp_sr_test01_s_20.png" alt="ImageMagick logo" width="265"/>
+
+![fig1](figs/results_exp_sr_test01_s_20.png "test")
+
 
 
 ------------------------------------------------------------------------------
