@@ -609,7 +609,7 @@ def generate_figures(root_p, save_data_path):
     height, width = data[20]['height'], data[20]['width']
 
     p = data[20]['p']
-    plt.figure(figsize=(1.4, 1.4))
+    plt.figure(figsize=(5.0, 5.0))
     for s in data:
         pos, graph = dict(), nx.Graph()
         black_edges = []
@@ -652,7 +652,7 @@ def generate_figures(root_p, save_data_path):
             ax.margins(0.02, 0.02)
             ax.xaxis.set_major_locator(plt.NullLocator())
             ax.yaxis.set_major_locator(plt.NullLocator())
-        f_name = root_p + 'results_exp_sr_test01_s_%02d.pdf' % s
+        f_name = root_p + 'results_exp_sr_test01_s_%02d.png' % s
         fig.savefig(f_name, dpi=600, pad_inches=0.0, format='pdf')
         plt.close()
 
