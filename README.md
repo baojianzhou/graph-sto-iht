@@ -1,12 +1,21 @@
 ## Stochastic IHT for Graph-structured Sparsity  Optimization
 -------------------------------------------------------------------------------
-Welcome to the repository of GraphStoIHT algorithm. This algorithm is proposed 
-in the paper, "Stochastic Iterative Hard Thresholding for Graph-structured 
-Sparsity  Optimization" This repository is only for reproducing our experimental results. Try 
-https://github.com/baojianzhou/sparse-learn if you interested in our algorithm.
+
+### Overview
+
+Welcome to the repository of GraphStoIHT! This repository is only for 
+reproducing all experimental results shown our paper. To install it via pip, 
+please try [sparse-learn](https://github.com/baojianzhou/sparse-learn). 
+Our work is due to several seminal works including 
+[StoIHT](https://ieeexplore.ieee.org/abstract/document/8025727), 
+[GraphCoSaMP](http://people.csail.mit.edu/ludwigs/papers/icml15_graphsparsity.pdf), 
+and [AS-IHT](http://papers.nips.cc/paper/6483-fast-recovery-from-a-union-of-subspaces).
+More details can be found in: "Baojian Zhou, Feng Chen, and Yiming Ying, 
+Stochastic Iterative Hard Thresholding for Graph-structured Sparsity
+Optimization, ICML, 2019".
 
 ------------------------------------------------------------------------------
-Thank you for taking the time to review our code and datasets. This readme.txt
+This readme.txt
 describes how to run GraphStoIHT and all baselines. The folder
 --graph-sto-iht:
         contains all code ( including baselines), datasets, and
