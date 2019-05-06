@@ -97,9 +97,13 @@ Here, 4 is the number of CPUs used for each program. 0 is the start
 of the trial id. 50 is the end of the trial id. It means we try to run 
 50 trials and then take the average.
 
-Choice of b and η.|
-:-------------------------:|
-<img src="results/results_exp_sr_test03.png" width="700" height="300">|
+|  -- |      Choice of b and η.      |  -- |
+|----------|:-------------:|------:|
+| | <img src="results/results_exp_sr_test03.png" width="700" height="300"> | | 
+
+|    |Choice of b and η.|   |
+| ---- |:|-------------------------:|
+| |<img src="results/results_exp_sr_test03.png" width="700" height="300">| |
 
 To generate Figure-4, run:
             python exp_sr_test01.py show_test
