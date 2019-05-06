@@ -175,7 +175,8 @@ typedef struct {
 } PCST;
 
 /**
- * To make run pcst multiple times more efficient. Graph must be connected.
+ * To make run pcst multiple times more efficient.
+ * Graph must be connected.
  * @param edges: list of edges. node starts from 0 to n - 1
  * @param prizes: list of prizes. non-negative.
  * @param costs: list of costs on edges. must be positive.
