@@ -1,43 +1,5 @@
 ## Stochastic IHT for Graph-structured Sparsity  Optimization
 
-<head>
-<style>
-* {
-  box-sizing: border-box;
-}
-
-.column {
-  float: left;
-  width: 33.33%;
-  padding: 5px;
-}
-
-/* Clearfix (clear floats) */
-.row::after {
-  content: "";
-  clear: both;
-  display: table;
-}
-</style>
-</head>
-<body>
-
-<h2>Images Side by Side</h2>
-<p>How to create side-by-side images with the CSS float property:</p>
-
-<div class="row">
-  <div class="column">
-    <img src="img_snow.jpg" alt="Snow" style="width:100%">
-  </div>
-  <div class="column">
-    <img src="img_forest.jpg" alt="Forest" style="width:100%">
-  </div>
-  <div class="column">
-    <img src="img_mountains.jpg" alt="Mountains" style="width:100%">
-  </div>
-</div>
-
-
 ### Overview
 
 Welcome to the repository of GraphStoIHT! This repository is only for 
@@ -78,14 +40,10 @@ prepare the environment. It has three steps:
 Step 3 will generate a sparse_module.so file. If you see this generated file,
 then we are done for this section.
 
-<div class="row">
-  <div class="column">
-    <img src="results/results_exp_sr_test01_s_20.png" alt="Snow" style="width:50%">
-  </div>
-  <div class="column">
-    <img src="results/results_exp_sr_test01_s_20.png" alt="Forest" style="width:50%">
-  </div>
-</div>
+Solarized dark             |  Solarized Ocean
+:-------------------------:|:-------------------------:
+![](results/results_exp_sr_test01_s_20.png)  |  ![](results/results_exp_sr_test01_s_20.png)
+
 
 
 
