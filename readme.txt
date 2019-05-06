@@ -1,3 +1,6 @@
+This repository is only for reproducing our experimental results. Try 
+https://github.com/baojianzhou/sparse-learn if you interested in our algorithm.
+
 ------------------------------------------------------------------------------
 Thank you for taking the time to review our code and datasets. This readme.txt
 describes how to run GraphStoIHT and all baselines. The folder
