@@ -643,9 +643,9 @@ def generate_figures(root_p, save_data_path):
             edge_color='r', font_size=6)
         plt.axis('off')
         fig = plt.gcf()
-        fig.set_figheight(1.4)
+        fig.set_figheight(4)
 
-        fig.set_figwidth(1.4)
+        fig.set_figwidth(4)
         plt.subplots_adjust(0, 0, 1, 1, 0, 0)
         for ax in fig.axes:
             ax.axis('off')
