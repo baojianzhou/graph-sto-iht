@@ -45,21 +45,25 @@ then we are done for this section.
 
 This section describes how to generate the exact figures reported in our paper.
 
-#### Generate Figure 1
+##### 1. Generate Figure 1
+---
+
 To generate Figure-1, run:
 
 ```sh
 $ python exp_sr_test01.py gen_figures
 ```
-            
+Four figures will be generated in results folder. We show the four generated figures
+in the following.
 
 Graph with sparsity 8 |  Graph with sparsity 20 |  Graph with sparsity 28 |  Graph with sparsity 36
 :-------------------------:|:-------------------------:|:-------------------------:|:-------------------------|
 <img src="results/results_exp_sr_test01_s_08.png" width="200" height="200"> |  <img src="results/results_exp_sr_test01_s_20.png" width="200" height="200"> | <img src="results/results_exp_sr_test01_s_28.png" width="200" height="200"> |  <img src="results/results_exp_sr_test01_s_36.png" width="200" height="200"> 
 
 
+##### 1. Generate Figure 1
+---
 
-------------------------------------------------------------------------------
 
 To generate Figure-2, run:
             python exp_sr_test02.py show_test
