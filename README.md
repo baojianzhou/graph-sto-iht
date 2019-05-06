@@ -98,8 +98,8 @@ of the trial id. 50 is the end of the trial id. It means we try to run
 50 trials and then take the average.
 
 |  -- |      Choice of b and η.      |  -- |
-|----------|:-------------:|------:|
-|  &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;| <img src="results/results_exp_sr_test03.png" width="600" height="300"> |&emsp;&emsp;&emsp;&emsp;&emsp;&emsp; | 
+|----------|:-------------:|------|
+|  &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;| <img src="results/results_exp_sr_test03.png" width="600" height="300"> | &emsp;&emsp;&emsp;&emsp;&emsp;&emsp; | 
 
 |    |Choice of b and η.|   |
 | ---- |:|-------------------------:|
