@@ -792,10 +792,10 @@ def show_test(n_list, method_list, method_label_list, root_p):
         i, j = node_id / height, node_id % width
         x_star[i, j] = np.random.normal(0.0, 1.0)
     for i in range(height + 1):
-        ax[0].axhline(i, lw=.1, color='gray', linestyle='dotted',
+        ax[0].axhline(i, lw=1.0, color='gray', linestyle='dotted',
                       zorder=5)
     for i in range(width + 1):
-        ax[0].axvline(i, lw=.1, color='gray', linestyle='dotted',
+        ax[0].axvline(i, lw=1.0, color='gray', linestyle='dotted',
                       zorder=5)
     ax[0].imshow(x_star, interpolation='none', cmap='gray',
                  extent=[0, height, 0, width], zorder=0)
