@@ -36,10 +36,7 @@ prepare the environment. It has three steps:
 
     2.  install numpy, matplotlib (optional), and networkx (optional).
 
-    3.  after the first two steps, run: 
-```sh
-python setup.py build_ext --inplace
-```
+    3.  after the first two steps, run: python setup.py build_ext --inplace.
 
 Step 3 will generate a sparse_module.so file. If you see this generated file,
 then we are done for this section.
