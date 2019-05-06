@@ -42,6 +42,7 @@ then we are done for this section.
 
 
 <img src="results/results_exp_sr_test01_s_20.png" alt="drawing" width="200"/>
+<img src="results/results_exp_sr_test01_s_28.png" alt="drawing" width="200"/>
 
 
 
