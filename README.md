@@ -140,7 +140,7 @@ $ python exp_sr_test06.py run_test 4 0 50
 
 |  |      Probability of recovery on three 50×50 resized real im-ages.      |  |
 |----------|:-------------:|------|
-|  &emsp;&emsp;&emsp;&emsp;&emsp;| <img src="results/results_exp_sr_test06.png" width="650" height="450"> | &emsp;&emsp;&emsp;&emsp;&emsp; |
+|  &emsp;&emsp;&emsp;&emsp;&emsp;| <img src="results/results_exp_sr_test06.png" width="650" height="400"> | &emsp;&emsp;&emsp;&emsp;&emsp; |
 
             
 ##### 6. Figure 6
