@@ -32,11 +32,13 @@ The $\ell_1$ norm-based method is downloaded from
 It contains all l1/l2 mixed-norm methods. This section is to tell you how to 
 prepare the environment. It has three steps:
 
-    1.  install Python-2.7 and GCC (Linux/MacOS/MacBook already have them.)
+    0.  clone our code website: git clone https://github.com/baojianzhou/graph-sto-iht.git
+
+    1.  install Python-2.7 and GCC (Linux/MacOS/MacBook users skip this!)
 
     2.  install numpy, matplotlib (optional), and networkx (optional).
 
-    3.  after the first two steps, run: python setup.py build_ext --inplace.
+    3.  after the above two steps, run: python setup.py build_ext --inplace.
 
 Step 3 will generate a sparse_module.so file. If you see this generated file,
 then we are done for this section.
