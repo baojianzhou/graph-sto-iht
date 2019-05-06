@@ -25,6 +25,15 @@ However, if you have MacOS or MacBook, it will be okay. The only dependencies
 of our programs is Python2.7 and GCC.
 
 ### Instructions
+As pointed in [sparse-learn](https://github.com/baojianzhou/sparse-learn), install
+GraphStoIHT via the following command:
+ ```angular2html
+$ pip install sparse-learn
+```
+After install it, you can use it via the following python interface
+```Python
+import splearn as spl
+``` 
 This section describes how to run GraphStoIHT and all baselines. 
 The $\ell_1$ norm-based method is downloaded from 
 [OverLasso](http://lbbe.univ-lyon1.fr/-Jacob-Laurent-.html?lang=fr). 
