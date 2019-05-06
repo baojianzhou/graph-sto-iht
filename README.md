@@ -166,7 +166,7 @@ To generate results of Figure-7, run:
             python exp_sr_test05.py run_test 4 0 50
 
 <p align="center">
-<img src="results/results_exp_sr_test05.png" width="550" height="350">
+<img src="results/results_exp_sr_test05.png" width="650" height="300">
 </p> 
 
 ##### 8. Figure 8
