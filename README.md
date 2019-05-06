@@ -40,9 +40,14 @@ prepare the environment. It has three steps:
 Step 3 will generate a sparse_module.so file. If you see this generated file,
 then we are done for this section.
 
-
-<img src="results/results_exp_sr_test01_s_20.png" alt="drawing" width="200"/>
-<img src="results/results_exp_sr_test01_s_28.png" alt="drawing" width="200"/>
+<div class="row">
+  <div class="column">
+    <img src="results/results_exp_sr_test01_s_20.png" alt="Snow" style="width:100%">
+  </div>
+  <div class="column">
+    <img src="results/results_exp_sr_test01_s_20.png" alt="Forest" style="width:100%">
+  </div>
+</div>
 
 
 
