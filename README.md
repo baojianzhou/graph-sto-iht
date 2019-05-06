@@ -81,6 +81,7 @@ Choice of b and η.|
 :-------------------------:|
 <img src="results/results_exp_sr_test02.png" width="800" height="300">|
 
+##### 3. Figure 3
 
 To show Figure-3, run:
             
@@ -98,7 +99,7 @@ of the trial id. 50 is the end of the trial id. It means we try to run
 
 Choice of b and η.|
 :-------------------------:|
-<img src="results/results_exp_sr_test03.png" width="800" height="300">|
+<img src="results/results_exp_sr_test03.png" width="700" height="300">|
 
 To generate Figure-4, run:
             python exp_sr_test01.py show_test
