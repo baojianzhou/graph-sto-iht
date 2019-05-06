@@ -78,9 +78,9 @@ b= 180, it degenerates to GraphIHT (the dashed line).  The right part
 shows the estimation error as a function of iterations for different choices of η. 
 Choice of b and η.
 
-<center>
-<img src="results/results_exp_sr_test02.png" width="800" height="300" >
-</center>
+<p align="center">
+<img src="results/results_exp_sr_test02.png" width="800" height="300">
+</p>
 
 ##### 3. Figure 3
 
@@ -98,9 +98,9 @@ Here, 4 is the number of CPUs used for each program. 0 is the start
 of the trial id. 50 is the end of the trial id. It means we try to run 
 50 trials and then take the average.
 
-<center> 
+<p align="center">
 <img src="results/results_exp_sr_test03.png" width="600" height="300">
-</center>
+</p>
 
 ##### 4. Figure 4
 
