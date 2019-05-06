@@ -150,12 +150,11 @@ To show Figure-6, run:
 
 To generate results of Figure-6, run:
             python exp_sr_test04.py run_test 4 0 50
+<p align="center">
+<img src="results/results_exp_sr_test04.png" width="650" height="300">
+</p>
 
-|  |      The probability of recovery as a function of oversampling ratio.      |  |
-|----------|:-------------:|------|
-|  &emsp;&emsp;&emsp;&emsp;&emsp;| <img src="results/results_exp_sr_test04.png" width="650" height="450"> | &emsp;&emsp;&emsp;&emsp;&emsp; |
-
-he oversampling ratio is defined as the number of observations m divided by sparsity s, i.e.,m/s. These four public benchmark graphs (a), (b), (c), and (d) in the upper row are from Arias-Castro et al.(2011)
+The probability of recovery as a function of oversampling ratio. The oversampling ratio is defined as the number of observations m divided by sparsity s, i.e.,m/s. These four public benchmark graphs (a), (b), (c), and (d) in the upper row are from Arias-Castro et al.(2011)
 
             
 ##### 7. Figure 7
