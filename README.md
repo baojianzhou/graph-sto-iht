@@ -39,7 +39,7 @@ prepare the environment. It has three steps:
             python setup.py build_ext --inplace
 Step 3 will generate a sparse_module.so file. If you see this generated file,
 then we are done for this section.
-
+<center>
 <p align="center">
 
 Simulated Graph with sparsity 20 |  Simulated Graph with sparsity 28
@@ -47,6 +47,7 @@ Simulated Graph with sparsity 20 |  Simulated Graph with sparsity 28
 <img src="results/results_exp_sr_test01_s_20.png" width="300" height="300"> |  <img src="results/results_exp_sr_test01_s_28.png" width="300" height="300"> 
 
 </p>
+</center>
 
 
 
