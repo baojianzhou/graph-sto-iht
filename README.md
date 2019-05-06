@@ -101,12 +101,29 @@ of the trial id. 50 is the end of the trial id. It means we try to run
 |----------|:-------------:|------|
 |  &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;| <img src="results/results_exp_sr_test03.png" width="600" height="300"> | &emsp;&emsp;&emsp;&emsp;&emsp;&emsp; | 
 
-|    |Choice of b and η.|   |
-| ---- |:|-------------------------:|
-| |<img src="results/results_exp_sr_test03.png" width="700" height="300">| |
 
-To generate Figure-4, run:
-            python exp_sr_test01.py show_test
+##### 4. Figure 4
+
+To show Figure-4, run:
+            
+```sh
+$ python exp_sr_test01.py show_test
+```
+To reproduce Figure-4, run:
+
+```sh
+$ python exp_sr_test01.py run_test 4 0 50
+```
+Here, 4 is the number of CPUs used for each program. 0 is the start 
+of the trial id. 50 is the end of the trial id. It means we try to run 
+50 trials and then take the average.
+
+|  |      Choice of b and η.      |  |
+|----------|:-------------:|------|
+|  &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;| <img src="results/results_exp_sr_test01.png" width="600" height="600"> | &emsp;&emsp;&emsp;&emsp;&emsp;&emsp; | 
+
+
+
 To generate Figure-5, run:
             python exp_sr_test06.py show_test
 To generate Figure-6, run:
@@ -122,10 +139,7 @@ This section describes how to reproduce the results. In the following commands,
 --4     means the number of cpus used for each program.
 --0     means the start of the trial id.
 --50    means the end of the trial id.
- 
-            
-To generate results of Figure-4, run:
-            python exp_sr_test01.py run_test 4 0 50
+
 To generate results of Figure-5, run:
             python exp_sr_test06.py run_test 4 0 50
 To generate results of Figure-6, run:

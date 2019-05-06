@@ -590,10 +590,10 @@ def show_test(s_list, n_list, method_list, label_list, save_data_path):
                     fontsize=14., frameon=True, borderpad=0.1,
                     labelspacing=0.1, handletextpad=0.1, markerfirst=True)
     plt.subplots_adjust(wspace=0.05, hspace=0.2)
-    save_data_path = save_data_path.replace('pkl', 'pdf')
+    save_data_path = save_data_path.replace('pkl', 'png')
     print('save fig to: %s' % save_data_path)
     plt.savefig(save_data_path, dpi=600, bbox_inches='tight', pad_inches=0,
-                format='pdf')
+                format='png')
     plt.close()
 
 
