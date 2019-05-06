@@ -28,19 +28,20 @@ of our programs is Python2.7 and GCC.
 This section describes how to run GraphStoIHT and all baselines. 
 The $\ell_1$ norm-based method is downloaded from 
 [OverLasso](http://lbbe.univ-lyon1.fr/-Jacob-Laurent-.html?lang=fr). 
-It contains all l1/l2 mixed-norm methods.
+It contains all l1/l2 mixed-norm methods. This section is to tell you how to 
+prepare the environment. It has three steps:
 
-
-
-
-------------------------------------------------------------------------------
-This section is to tell you how to prepare the environment. It has three steps:
     1.  install Python-2.7 and GCC (Linux/MacOS/MacBook already have them.)
+
     2.  install numpy, matplotlib (optional), and networkx (optional).
+
     3.  after the first two steps, run: 
             python setup.py build_ext --inplace
 Step 3 will generate a sparse_module.so file. If you see this generated file,
 then we are done for this section.
+
+<p align="center">
+<img align="center" src="https://imagemagick.org/image/wizard.png" alt="ImageMagick logo" width="265"/>
 
 
 ------------------------------------------------------------------------------
