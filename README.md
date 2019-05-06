@@ -40,7 +40,7 @@ prepare the environment. It has three steps:
 Step 3 will generate a sparse_module.so file. If you see this generated file,
 then we are done for this section.
 
-<p align="justify">
+<p align="center">
 
 Simulated Graph with sparsity 20 |  Simulated Graph with sparsity 28
 :-------------------------:|:-------------------------:
