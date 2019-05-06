@@ -651,10 +651,10 @@ def show_test(n_range_list, method_list, title_list, fig_list, root_p):
     plt.setp(ax[1, 2].get_yticklabels(), visible=False)
     plt.setp(ax[1, 3].get_yticklabels(), visible=False)
     plt.subplots_adjust(wspace=0.0, hspace=0.0)
-    f_name = root_p + 'results_exp_sr_test04.pdf'
+    f_name = root_p + 'results_exp_sr_test04.png'
     print('save fig to: %s' % f_name)
     plt.savefig(f_name, dpi=600, bbox_inches='tight', pad_inches=0,
-                format='pdf')
+                format='png')
     plt.close()
 
 
