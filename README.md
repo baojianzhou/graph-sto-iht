@@ -164,14 +164,10 @@ To show Figure-7, run:
             
 To generate results of Figure-7, run:
             python exp_sr_test05.py run_test 4 0 50
+
 <p align="center">
-<img src="results/results_exp_sr_test05.png" width="650" height="350">
+<img src="results/results_exp_sr_test05.png" width="550" height="350">
 </p> 
-<p align="center">
-|  |      The probability of recovery as a function of oversampling ratio.      |  |
-|----------|:-------------:|------|
-|  &emsp;&emsp;&emsp;&emsp;&emsp;| <img src="results/results_exp_sr_test05.png" width="650" height="350"> | &emsp;&emsp;&emsp;&emsp;&emsp; |
-</p>
 
 ##### 8. Figure 8
 To generate Table 2, 3, 4, 5, run:
