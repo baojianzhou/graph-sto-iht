@@ -72,14 +72,34 @@ To reproduce Figure-2, run:
 ```sh
 $ python exp_sr_test02.py run_test 4
 ```
-Here, the parameter 4 is the number of cpu used.
+Here, the parameter 4 is the number of CPU will be used. The left illustrates 
+the estimation error as a function of epochs for different choices of b. When 
+b= 180, it degenerates to GraphIHT (the dashed line).  The right part 
+shows the estimation error as a function of iterations for different choices of η. 
 
-Graph with sparsity 8 |
+Choice of b and η.|
 :-------------------------:|
 <img src="results/results_exp_sr_test02.png" width="800" height="300">|
 
-To generate Figure-3, run:
-            python exp_sr_test03.py show_test
+
+To show Figure-3, run:
+            
+```sh
+$ python exp_sr_test03.py show_test
+```
+To reproduce Figure-3, run:
+
+```sh
+$ python exp_sr_test03.py run_test 4 0 50
+```
+Here, 4 is the number of CPUs used for each program. 0 is the start 
+of the trial id. 50 is the end of the trial id. It means we try to run 
+50 trials and then take the average.
+
+Choice of b and η.|
+:-------------------------:|
+<img src="results/results_exp_sr_test03.png" width="800" height="300">|
+
 To generate Figure-4, run:
             python exp_sr_test01.py show_test
 To generate Figure-5, run:
@@ -98,10 +118,7 @@ This section describes how to reproduce the results. In the following commands,
 --0     means the start of the trial id.
 --50    means the end of the trial id.
  
-To generate results of Figure-2, run:
             
-To generate results of Figure-3, run:
-            python exp_sr_test03.py run_test 4 0 50
 To generate results of Figure-4, run:
             python exp_sr_test01.py run_test 4 0 50
 To generate results of Figure-5, run:

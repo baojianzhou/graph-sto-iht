@@ -563,10 +563,10 @@ def show_test(b_list, method_list, title_list, root_p):
     ax[1].legend(loc='lower right', fontsize=14., borderpad=0.01,
                  labelspacing=0.0, handletextpad=0.05, framealpha=1.0)
     plt.subplots_adjust(wspace=0.02, hspace=0.0)
-    f_name = root_p + 'results_exp_sr_test03.pdf'
+    f_name = root_p + 'results_exp_sr_test03.png'
     print('save fig to: %s' % f_name)
     plt.savefig(f_name, dpi=600, bbox_inches='tight', pad_inches=0,
-                format='pdf')
+                format='png')
 
 
 def main():
