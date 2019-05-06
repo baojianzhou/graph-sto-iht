@@ -1,8 +1,8 @@
 ## Stochastic IHT for Graph-structured Sparsity  Optimization
 -------------------------------------------------------------------------------
 Welcome to the repository of GraphStoIHT algorithm. This algorithm is proposed 
-in the paper, "Stochastic Iterative Hard Thresholding for Graph-structured Sparsity  Optimization"
-This repository is only for reproducing our experimental results. Try 
+in the paper, "Stochastic Iterative Hard Thresholding for Graph-structured 
+Sparsity  Optimization" This repository is only for reproducing our experimental results. Try 
 https://github.com/baojianzhou/sparse-learn if you interested in our algorithm.
 
 ------------------------------------------------------------------------------
