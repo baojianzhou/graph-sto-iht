@@ -44,7 +44,7 @@ then we are done for this section.
 
 Simulated Graph with sparsity 20 |  Simulated Graph with sparsity 28
 :-------------------------:|:-------------------------:
-<img src="results/results_exp_sr_test01_s_20.png" width="100" height="100"> |  <img src="results/results_exp_sr_test01_s_28.png" width="100" height="100"> 
+<img src="results/results_exp_sr_test01_s_20.png" width="200" height="200"> |  <img src="results/results_exp_sr_test01_s_28.png" width="200" height="200"> 
 
 </center>
 
