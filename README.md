@@ -47,7 +47,8 @@ This section describes how to generate the exact figures reported in our paper.
 
 #### Generate Figure 1
 To generate Figure-1, run:
-```
+
+```sh
 python exp_sr_test01.py gen_figures
 ```
             
