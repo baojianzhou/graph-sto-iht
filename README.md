@@ -9,24 +9,28 @@ Our work is due to several seminal works including
 [StoIHT](https://ieeexplore.ieee.org/abstract/document/8025727), 
 [GraphCoSaMP](http://people.csail.mit.edu/ludwigs/papers/icml15_graphsparsity.pdf), 
 and [AS-IHT](http://papers.nips.cc/paper/6483-fast-recovery-from-a-union-of-subspaces).
-More details can be found in: "Baojian Zhou, Feng Chen, and Yiming Ying, 
+More details of GraphStoIHT can be found in: "Baojian Zhou, Feng Chen, and Yiming Ying, 
 Stochastic Iterative Hard Thresholding for Graph-structured Sparsity
 Optimization, ICML, 2019".
 
-------------------------------------------------------------------------------
-This readme.txt
-describes how to run GraphStoIHT and all baselines. The folder
---graph-sto-iht:
-        contains all code ( including baselines), datasets, and
-        results used in our paper.
---overlasso-package:
-        download from [ http://cbio.ensmp.fr/˜ljacob/documents/
-        overlasso-package.tgz ], which contains all l1/l2 mixed-norm
-        methods.
+Our code is written by Python and C11. The implementation of head and tail 
+projection are almost directly from Dr. Ludwig's excellent code
+[cluster_approx](https://github.com/ludwigschmidt/cluster_approx), 
+[graph_sparsity](https://github.com/ludwigschmidt/graph_sparsity_experiments) and
+[pcst_fast](https://github.com/fraenkel-lab/pcst_fast). The reason I used C11 
+to reimplement these two projections is to hope to get a little bit faster speed 
+by using continuous memory (but the improvement is not significant at all!). I 
+assume your Operating System is GNU/Linux-based( a GCC compiler is needed!). 
+However, if you have MacOS or MacBook, it will be okay. The only dependencies 
+of our programs is Python2.7 and GCC.
 
-Our code is written by Python and C code. I assume your Operating
-System is GNU/Linux-based. However, if you have MacOS or MacBook, it will be
-okay. The only dependencies of our programs is Python2.7 and GCC.
+### Instructions
+This section describes how to run GraphStoIHT and all baselines. 
+The $\ell_1$ norm-based method is downloaded from 
+[OverLasso](http://lbbe.univ-lyon1.fr/-Jacob-Laurent-.html?lang=fr). 
+It contains all l1/l2 mixed-norm methods.
+
+
 
 
 ------------------------------------------------------------------------------
