@@ -19,18 +19,13 @@ projection are almost directly from Dr. Ludwig's excellent code
 [graph_sparsity](https://github.com/ludwigschmidt/graph_sparsity_experiments) and
 [pcst_fast](https://github.com/fraenkel-lab/pcst_fast). The reason I used C11 
 to reimplement these two projections is to hope to get a little bit faster speed 
-by using continuous memory (but the improvement is not significant at all!). I 
-assume your Operating System is GNU/Linux-based( a GCC compiler is needed!). 
-However, if you have MacOS or MacBook, it will be okay. The only dependencies 
-of our programs is Python2.7 and GCC.
+by using continuous memory (but the improvement is not significant at all!). 
 
 ## Instructions
 
-This section describes how to run GraphStoIHT and all baselines. 
-The $\ell_1$ norm-based method is downloaded from 
-[OverLasso](http://lbbe.univ-lyon1.fr/-Jacob-Laurent-.html?lang=fr). 
-It contains all l1/l2 mixed-norm methods. This section is to tell you how to 
-prepare the environment. It has three steps:
+The code has been tested on a GNU/Linux system. The dependencies of our programs 
+are Python2.7(with numpy) and GCC.  This section is to tell you how to 
+prepare the environment. It has four steps:
 
     0.  clone our code website: git clone https://github.com/baojianzhou/graph-sto-iht.git
 
@@ -38,12 +33,10 @@ prepare the environment. It has three steps:
 
     2.  install numpy, matplotlib (optional), and networkx (optional).
 
-    3.  after the above two steps, run: python setup.py build_ext --inplace.
+    3.  after the above three steps, run: python setup.py build_ext --inplace.
 
-Step 3 will generate a sparse_module.so file. If you see this generated file,
-then we are done for this section.
-
-As pointed in [sparse-learn](https://github.com/baojianzhou/sparse-learn), you 
+After step 3, it will generate a sparse_module.so file. As we pointed in 
+[sparse-learn](https://github.com/baojianzhou/sparse-learn), you 
 can install GraphStoIHT via the following command:
  ```angular2html
 $ pip install sparse-learn
@@ -54,11 +47,7 @@ After install it, you can use it via the following python interface
 import splearn as spl
 ``` 
 
-
-
-## Graph Sparse Linear Regression
-
-This section describes how to generate the exact figures reported in our paper.
+We are ready to show/replicate the results reported in our paper.
 
 ### 1. Figure 1
 
@@ -206,7 +195,10 @@ downloaded it in overlasso-package. Run those l1/l2-mixed norm methods 20 times 
 then generate the data and results in results folder.
 
 ### Concerns and Issues
-
+This section describes how to run 
+GraphStoIHT and all baselines. The $\ell_1$ norm-based method is downloaded from 
+[OverLasso](http://lbbe.univ-lyon1.fr/-Jacob-Laurent-.html?lang=fr). 
+It contains all l1/l2 mixed-norm methods.
 Since we reported results based 50 trials, some programs above are time-cost 
 if you only use 4 CPUs. A better way is to test them on 5/10 trials by replacing 
 50 with 5/10. You should be approximately able to reproduce our results. If you 
