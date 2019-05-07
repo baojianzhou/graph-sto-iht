@@ -84,7 +84,7 @@ It shows that when the sample size is suitable, the algorithm converges faster t
 batch method.
 
 <p align="center">
-<img src="results/results_exp_sr_test02.png" width="800" height="300">
+<img src="results/results_exp_sr_test02.png" width="650" height="250">
 </p>
 
 ### 3. Figure 3
