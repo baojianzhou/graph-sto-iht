@@ -3,7 +3,7 @@
 ## Overview
 
 Welcome to the repository of GraphStoIHT! This repository is only for 
-reproducing all experimental results shown our paper. To install it via pip, 
+reproducing all experimental results shown in our paper. To install it via pip, 
 please try [sparse-learn](https://github.com/baojianzhou/sparse-learn). 
 Our work is due to several seminal works including 
 [StoIHT](https://ieeexplore.ieee.org/abstract/document/8025727), 
@@ -13,13 +13,13 @@ More details of GraphStoIHT can be found in: "Baojian Zhou, Feng Chen, and Yimin
 Stochastic Iterative Hard Thresholding for Graph-structured Sparsity
 Optimization, ICML, 2019".
 
-Our code is written by Python and C11. The implementation of head and tail 
+Our code is written in Python and C11. The implementation of head and tail 
 projection are almost directly from Dr. Ludwig's excellent code
 [cluster_approx](https://github.com/ludwigschmidt/cluster_approx), 
 [graph_sparsity](https://github.com/ludwigschmidt/graph_sparsity_experiments) and
-[pcst_fast](https://github.com/fraenkel-lab/pcst_fast). The reason I used C11 
-to reimplement these two projections is to hope to get a little bit faster speed 
-by using continuous memory (but the improvement is not significant at all!). 
+[pcst_fast](https://github.com/fraenkel-lab/pcst_fast). I used C to reimplement 
+these two projections is to get a little bit faster speed by using continuous 
+memory (but the improvement is not significant at all!). 
 
 ## Instructions
 
