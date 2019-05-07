@@ -19,7 +19,17 @@ projection are almost directly from Dr. Ludwig's excellent code
 [graph_sparsity](https://github.com/ludwigschmidt/graph_sparsity_experiments) and
 [pcst_fast](https://github.com/fraenkel-lab/pcst_fast). I used C to reimplement 
 these two projections is to get a little bit faster speed by using continuous 
-memory (but the improvement is not significant at all!). 
+memory (but the improvement is not significant at all!). As we pointed in 
+[sparse-learn](https://github.com/baojianzhou/sparse-learn), you 
+can install GraphStoIHT via the following command:
+ ```angular2html
+$ pip install sparse-learn
+```
+
+After install it, you can use it via the following python interface
+```Python
+import splearn as spl
+``` 
 
 ## Instructions
 
@@ -35,17 +45,7 @@ prepare the environment. It has four steps:
 
     3.  after the above three steps, run: python setup.py build_ext --inplace.
 
-After step 3, it will generate a sparse_module.so file. As we pointed in 
-[sparse-learn](https://github.com/baojianzhou/sparse-learn), you 
-can install GraphStoIHT via the following command:
- ```angular2html
-$ pip install sparse-learn
-```
-
-After install it, you can use it via the following python interface
-```Python
-import splearn as spl
-``` 
+After step 3, it will generate a sparse_module.so file. 
 
 We are ready to show/replicate the results reported in our paper.
 
