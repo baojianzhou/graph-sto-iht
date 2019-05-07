@@ -175,15 +175,17 @@ and (d) in the upper row are from Arias-Castro et al.(2011).
 <img src="results/results_exp_sr_test04.png" width="650" height="350">
 </p>
 
-
-
-            
+   
 ### 7. Figure 7
 To show Figure-7, run:
-            python exp_sr_test05.py show_test
-            
+```sh
+python exp_sr_test05.py show_test
+```
+
 To generate results of Figure-7, run:
-            python exp_sr_test05.py run_test 4 0 50
+```sh
+python exp_sr_test05.py run_test 4 0 50
+```
 
 <p align="center">
 <img src="results/results_exp_sr_test05.png" width="650" height="300">
