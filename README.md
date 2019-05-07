@@ -101,7 +101,8 @@ $ python exp_sr_test03.py run_test 4 0 50
 ```
 Here, 4 is the number of CPUs used for each program. 0 is the start 
 of the trial id. 50 is the end of the trial id. It means we try to run 
-50 trials and then take the average.
+50 trials and then take the average. The figure shows the robustness to noise.
+The number of observations required is a function of different block sizes.
 
 <p align="center">
 <img src="results/results_exp_sr_test03.png" width="600" height="300">
@@ -121,14 +122,15 @@ $ python exp_sr_test01.py run_test 4 0 50
 ```
 Here, 4 is the number of CPUs used for each program. 0 is the start 
 of the trial id. 50 is the end of the trial id. It means we try to run 
-50 trials and then take the average.
+50 trials and then take the average. The figure shows the probability of 
+recovery on synthetic dataset. The probability of recovery is a function of 
+the number of observations m.
 
-|  |      Probability of recovery on synthetic dataset.      |  |
-|----------|:-------------:|------|
-|  &emsp;&emsp;&emsp;&emsp;&emsp;| <img src="results/results_exp_sr_test01.png" width="650" height="450"> | &emsp;&emsp;&emsp;&emsp;&emsp; |
+<p algin="center">
+<img src="results/results_exp_sr_test01.png" width="650" height="450">
+</p>
 
-Probability of recovery on synthetic dataset. The probability of recovery as 
-function of the number of observations m.
+
 
 ### 5. Figure 5
 
