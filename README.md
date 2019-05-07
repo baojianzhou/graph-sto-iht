@@ -144,6 +144,12 @@ To reproduce Figure-5, run:
 ```sh
 $ python exp_sr_test06.py run_test 4 0 50
 ```
+
+Here, 4 is the number of CPUs used for each program. 0 is the start of 
+the trial id. 50 is the end of the trial id. These three images are from
+[graph-sparsity](https://github.com/ludwigschmidt/graph_sparsity_experiments).
+We resize them to 50x50.
+
 <p align="center">
 <img src="results/results_exp_sr_test06.png" width="650" height="400">
 </p>
