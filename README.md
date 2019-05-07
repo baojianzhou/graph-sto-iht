@@ -1,6 +1,6 @@
 ## Stochastic IHT for Graph-structured Sparsity  Optimization
 
-### Overview
+## Overview
 
 Welcome to the repository of GraphStoIHT! This repository is only for 
 reproducing all experimental results shown our paper. To install it via pip, 
@@ -24,7 +24,7 @@ assume your Operating System is GNU/Linux-based( a GCC compiler is needed!).
 However, if you have MacOS or MacBook, it will be okay. The only dependencies 
 of our programs is Python2.7 and GCC.
 
-### Instructions
+## Instructions
 
 This section describes how to run GraphStoIHT and all baselines. 
 The $\ell_1$ norm-based method is downloaded from 
@@ -56,11 +56,11 @@ import splearn as spl
 
 
 
-### Graph Sparse Linear Regression
+## Graph Sparse Linear Regression
 
 This section describes how to generate the exact figures reported in our paper.
 
-##### 1. Figure 1
+### 1. Figure 1
 
 To generate Figure-1, run:
 
@@ -75,7 +75,7 @@ Graph with sparsity 8 |  Graph with sparsity 20 |  Graph with sparsity 28 |  Gra
 <img src="results/results_exp_sr_test01_s_08.png" width="200" height="200"> |  <img src="results/results_exp_sr_test01_s_20.png" width="200" height="200"> | <img src="results/results_exp_sr_test01_s_28.png" width="200" height="200"> |  <img src="results/results_exp_sr_test01_s_36.png" width="200" height="200"> 
 
 
-##### 2. Figure 2
+### 2. Figure 2
 
 To show Figure-2, run:
 
@@ -97,7 +97,7 @@ Choice of b and η.
 <img src="results/results_exp_sr_test02.png" width="800" height="300">
 </p>
 
-##### 3. Figure 3
+### 3. Figure 3
 
 To show Figure-3, run:
             
@@ -117,7 +117,7 @@ of the trial id. 50 is the end of the trial id. It means we try to run
 <img src="results/results_exp_sr_test03.png" width="600" height="300">
 </p>
 
-##### 4. Figure 4
+### 4. Figure 4
 
 To show Figure-4, run:
             
@@ -140,7 +140,7 @@ of the trial id. 50 is the end of the trial id. It means we try to run
 Probability of recovery on synthetic dataset. The probability of recovery as 
 function of the number of observations m.
 
-##### 5. Figure 5
+### 5. Figure 5
 
 To show Figure-5, run:
             
@@ -158,7 +158,7 @@ $ python exp_sr_test06.py run_test 4 0 50
 Probability of recovery on three 50×50 resized real im-ages.
 
             
-##### 6. Figure 6
+### 6. Figure 6
 
 To show Figure-6, run:
             python exp_sr_test04.py show_test
@@ -173,7 +173,7 @@ To generate results of Figure-6, run:
 The probability of recovery as a function of oversampling ratio. The oversampling ratio is defined as the number of observations m divided by sparsity s, i.e.,m/s. These four public benchmark graphs (a), (b), (c), and (d) in the upper row are from Arias-Castro et al.(2011)
 
             
-##### 7. Figure 7
+### 7. Figure 7
 To show Figure-7, run:
             python exp_sr_test05.py show_test
             
@@ -184,7 +184,7 @@ To generate results of Figure-7, run:
 <img src="results/results_exp_sr_test05.png" width="650" height="300">
 </p> 
 
-##### 8. Figure 8
+### 8. Figure 8
 To generate Table 2, 3, 4, 5, run:
             python exp_bc_run.py show_test
 
@@ -199,15 +199,20 @@ This section describes how to reproduce the results. In the following commands,
 To generate results of Table 2, 3, 4, 5, run:
             python exp_bc_run.py run_test 0 20
 
-Some programs above are time-cost if you only use 4 cpus. A better way is to
-test them on 10 trials by replacing 50 with 10. After above steps, you should
-be approximately reproduce our results reported in our paper. If you cannot
-reproduce the results pleased email: --@--.
+### L1/L2-based methods
+How to run l1/l2-mixed norm methods? You can first download 
+[Overlasso](https://lbbe.univ-lyon1.fr/-Jacob-Laurent-.html?lang=fr). We 
+downloaded it in overlasso-package. Run those l1/l2-mixed norm methods 20 times and
+then generate the data and results in results folder.
+
+### Concerns and Issues
+
+Since we reported results based 50 trials, some programs above are time-cost 
+if you only use 4 CPUs. A better way is to test them on 5/10 trials by replacing 
+50 with 5/10. You should be approximately able to reproduce our results. If you 
+cannot reproduce the results pleased email: bzhou6@albany.edu.  We can discuss 
+any concerns and potential issues could occur.  Thank you in advance!
 
 
 ------------------------------------------------------------------------------
-This section describes how to run l1/l2-mixed norm methods:
-Download overlasso from:
-http://cbio.ensmp.fr/˜ljacob/documents/overlasso-package.tgz. We downloaded a
-version in overlasso-package. Run those l1/l2-mixed norm methods 20 times and
-then generate the data and results in results folder.
+This section describes 
