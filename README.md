@@ -6,9 +6,9 @@ Welcome to the repository of GraphStoIHT! This repository is only for
 reproducing all experimental results shown in our paper. To install it via pip, 
 please try [sparse-learn](https://github.com/baojianzhou/sparse-learn). 
 Our work is due to several seminal works including 
-[StoIHT](https://ieeexplore.ieee.org/abstract/document/8025727), 
-[GraphCoSaMP](http://people.csail.mit.edu/ludwigs/papers/icml15_graphsparsity.pdf), 
-and [AS-IHT](http://papers.nips.cc/paper/6483-fast-recovery-from-a-union-of-subspaces).
+[StoIHT](https://ieeexplore.ieee.org/abstract/document/8025727),
+[AS-IHT](http://papers.nips.cc/paper/6483-fast-recovery-from-a-union-of-subspaces), 
+and [GraphCoSaMP](http://people.csail.mit.edu/ludwigs/papers/icml15_graphsparsity.pdf).
 More details of GraphStoIHT can be found in: "Baojian Zhou, Feng Chen, and Yiming Ying, 
 Stochastic Iterative Hard Thresholding for Graph-structured Sparsity
 Optimization, ICML, 2019".
