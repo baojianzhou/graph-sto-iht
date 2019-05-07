@@ -45,12 +45,12 @@ prepare the environment. It has four steps:
 
     3.  after the above three steps, run: python setup.py build_ext --inplace.
 
-After step 3, it will generate a sparse_module.so file. 
-
-We are ready to show/replicate the results reported in our paper.
+After step 3, it will generate a sparse_module.so file. We are ready to 
+show/replicate the results reported in our paper.
 
 ### 1. Figure 1
 
+Figure 1 shows the subgraphs used in graph sparse linear regression. 
 To generate Figure-1, run:
 
 ```sh
