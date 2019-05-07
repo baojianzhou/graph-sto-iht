@@ -126,7 +126,7 @@ of the trial id. 50 is the end of the trial id. It means we try to run
 recovery on synthetic dataset. The probability of recovery is a function of 
 the number of observations m.
 
-<p algin="center">
+<p align="center">
 <img src="results/results_exp_sr_test01.png" width="650" height="450">
 </p>
 
