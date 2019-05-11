@@ -421,7 +421,7 @@ def run_test_diff_b(
 
 def main():
     # try 50 different trials and take average on 44 trials.
-    num_trials = 5
+    num_trials = 50
     # tolerance of the algorithm
     tol_algo = 1e-7
     # tolerance of the recovery.
