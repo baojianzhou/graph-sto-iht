@@ -453,11 +453,11 @@ def main():
     # tolerance of the recovery.
     tol_rec = 1e-6
     # the dimension of the grid graph.
-    p = 30
+    p = 900
     # the trimmed ratio ( about 5% of the best and worst have been removed).
     trim_ratio = 0.05
     # height and width of the grid graph.
-    height, width = 16, 16
+    height, width = 30, 30
     s = 8
     # different sparsity parameters considered.
     b_list = [16, 24, 32, 40, 48, 56, 64, 180]
