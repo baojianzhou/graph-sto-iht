@@ -459,8 +459,7 @@ def main():
     # height and width of the grid graph.
     height, width = 30, 30
     s = 8
-    # different sparsity parameters considered.
-    b_list = [16, 24, 32, 40, 48, 56, 64, 180]
+    b_list = [20, 30, 50, 70, 90, 100, 400]
     root_p = 'results/'
     if not os.path.exists(root_p):
         os.mkdir(root_p)
