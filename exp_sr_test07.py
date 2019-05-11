@@ -395,7 +395,6 @@ def run_test_diff_b(
     results_pool = pool.map(run_single_test_diff_b, input_data_list)
     pool.close()
     pool.join()
-    x_len = 30
     sum_results = {method: {trial_i: [None] * len(b_list)
                             for trial_i in range(num_trials)}
                    for method in ['graph-sto-iht', 'sto-iht']}
@@ -408,23 +407,11 @@ def run_test_diff_b(
     trim_results = {method: dict() for method in ['graph-sto-iht', 'sto-iht']}
     for method in ['graph-sto-iht', 'sto-iht']:
         for b_ind in range(len(b_list)):
-            average_re = np.zeros((num_trials, x_len))
-            for trial_i in sum_results[method]:
-                re = sum_results[method][trial_i][b_ind]
-                if len(re) < x_len:
-                    ext_re = np.zeros(x_len)
-                    ext_re[:len(re)] = re
-                    ext_re[len(re):] = [re[-1]] * (x_len - len(re))
-                else:
-                    ext_re = re[:x_len]
-                average_re[trial_i] = ext_re
+            re = [sum_results[method][trial_i][b_ind]
+                  for trial_i in range(num_trials)]
             # remove 5% best and 5% worst.
-            trim_re = np.zeros((num_trials - 2 * num_trim, x_len))
-            for i in range(x_len):
-                re = average_re[:, i]
-                trim_re[:, i] = np.sort(re)[num_trim:len(re) - num_trim]
-            re = np.log10(np.mean(trim_re, axis=0))
-            trim_results[method][b_ind] = re
+            run_time_list = np.sort(re)[num_trim:len(re) - num_trim]
+            print(method, b_ind, np.mean(run_time_list))
     print('total run time of %02d trials: %.2f seconds.' %
           (num_trials, time.time() - start_time))
     return {'trim_results': trim_results,
