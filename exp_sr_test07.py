@@ -414,11 +414,13 @@ def run_test_diff_b(
                             for method in ['graph-sto-iht', 'sto-iht']}
     # # try to trim 5% of the results (rounding when necessary).
     num_trim = int(trim_ratio * num_trials)
-    for trial_i, b, re in results_pool:
+    for trial_i, b, re1, re2, re3 in results_pool:
         b_ind = list(b_list).index(b)
-        for method, run_time, num_iterations, run_time_proj in re:
+        for method, run_time in re1:
             sum_re_run_time[method][trial_i][b_ind] = run_time
+        for method, num_iterations in re2:
             sum_re_num_iter[method][trial_i][b_ind] = num_iterations
+        for method, run_time_proj in re3:
             sum_re_run_time_proj[method][trial_i][b_ind] = run_time_proj
     trim_results = {method: dict() for method in ['graph-sto-iht', 'sto-iht']}
     for method in ['graph-sto-iht', 'sto-iht']:
@@ -430,11 +432,12 @@ def run_test_diff_b(
             re = [sum_re_num_iter[method][trial_i][b_ind]
                   for trial_i in range(num_trials)]
             num_iter_list = np.sort(re)[num_trim:len(re) - num_trim]
-            re = [sum_re_num_iter[method][trial_i][b_ind]
+            re = [sum_re_run_time_proj[method][trial_i][b_ind]
                   for trial_i in range(num_trials)]
             run_time_proj_list = np.sort(re)[num_trim:len(re) - num_trim]
             print(method, b_ind, np.mean(run_time_list),
-                  np.mean(num_iter_list), np.mean(run_time_proj_list))
+                  np.mean(num_iter_list), np.mean(run_time_proj_list),
+                  np.mean(run_time_list) - np.mean(run_time_proj_list))
     print('total run time of %02d trials: %.2f seconds.' %
           (num_trials, time.time() - start_time))
     return {'trim_results': trim_results,
