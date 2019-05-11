@@ -209,8 +209,8 @@ def algo_sto_iht(x_mat, y_tr, max_epochs, lr, s, x_star, x0, tol_algo, b):
     num_blocks = int(n) / int(b)
     prob = [1. / num_blocks] * num_blocks
     num_epochs = 0
-    x_err_list = []
-    x_iter_err_list = []
+    num_iterations = 0
+    run_time_proj = 0
     for epoch_i in range(max_epochs):
         num_epochs += 1
         for _ in range(num_blocks):
@@ -220,22 +220,18 @@ def algo_sto_iht(x_mat, y_tr, max_epochs, lr, s, x_star, x0, tol_algo, b):
             xty = np.dot(x_tr_t[:, block], y_tr[block])
             gradient = - 2. * (xty - np.dot(xtx, x_hat))
             bt = x_hat - (lr / (prob[ii] * num_blocks)) * gradient
+            start_time_proj = time.time()
             bt[np.argsort(np.abs(bt))[0:p - s]] = 0.
+            run_time_proj += time.time() - start_time_proj
             x_hat = bt
-
-            x_iter_err_list.append(np.linalg.norm(x_hat - x_star))
-
-        x_err_list.append(np.linalg.norm(x_hat - x_star))
-
-        # early stopping for diverge cases due to the large learning rate
+            num_iterations += 1
+            # early stopping for diverge cases due to the large learning rate
         if np.linalg.norm(x_hat) >= 1e3:  # diverge cases.
             break
         if np.linalg.norm(y_tr - np.dot(x_mat, x_hat)) <= tol_algo:
             break
-
-    x_err = np.linalg.norm(x_hat - x_star)
     run_time = time.time() - start_time
-    return x_err_list, x_iter_err_list, x_err, num_epochs, run_time
+    return num_epochs, num_iterations, run_time, run_time_proj
 
 
 def algo_graph_sto_iht(
@@ -280,10 +276,12 @@ def algo_graph_sto_iht(
     num_blocks = int(n) / int(b)
     prob = [1. / num_blocks] * num_blocks
 
-    num_epochs = 0
-
     x_err_list = []
     x_iter_err_list = []
+    run_time_head = 0.0
+    run_time_tail = 0.0
+    num_iterations = 0
+    num_epochs = 0
     for epoch_i in range(max_epochs):
         num_epochs += 1
         for _ in range(num_blocks):
@@ -292,15 +290,21 @@ def algo_graph_sto_iht(
             xtx = np.dot(x_tr_t[:, block], x_mat[block])
             xty = np.dot(x_tr_t[:, block], y_tr[block])
             gradient = -2. * (xty - np.dot(xtx, x_hat))
+            start_time_head = time.time()
             head_nodes, proj_grad = algo_head_tail_bisearch(
                 edges, gradient, costs, g, root, h_low, h_high,
                 proj_max_num_iter, verbose)
+            run_time_head += time.time() - start_time_head
+
             bt = x_hat - (lr / (prob[ii] * num_blocks)) * proj_grad
+            start_time_tail = time.time()
             tail_nodes, proj_bt = algo_head_tail_bisearch(
                 edges, bt, costs, g, root,
                 t_low, t_high, proj_max_num_iter, verbose)
+            run_time_tail += time.time() - start_time_tail
             x_hat = proj_bt
             x_iter_err_list.append(np.linalg.norm(x_hat - x_star))
+            num_iterations += 1
 
         x_err_list.append(np.linalg.norm(x_hat - x_star))
 
@@ -309,9 +313,8 @@ def algo_graph_sto_iht(
             break
         if np.linalg.norm(y_tr - np.dot(x_mat, x_hat)) <= tol_algo:
             break
-    x_err = np.linalg.norm(x_hat - x_star)
     run_time = time.time() - start_time
-    return x_err_list, x_iter_err_list, x_err, num_epochs, run_time
+    return num_epochs, num_iterations, run_time, run_time_head, run_time_tail
 
 
 def print_helper(method, trial_i, b, n, num_epochs, err, run_time):
@@ -337,19 +340,24 @@ def run_single_test_diff_b(data):
     costs = data['proj_para']['costs']
 
     run_time_list = []
+    num_iterations_list = []
+    run_time_proj_list = []
     # ------------- StoIHT --------
-    x_err_list, _, err, num_epochs, run_time = algo_sto_iht(
+    num_epochs, num_iterations, run_time, run_time_proj = algo_sto_iht(
         x_mat=x_mat, y_tr=y_tr, max_epochs=max_epochs, lr=lr, s=s,
         x_star=x_star, x0=x0, tol_algo=tol_algo, b=b)
     run_time_list.append(('sto-iht', run_time))
-    print_helper('sto-iht', trial_i, b, n, num_epochs, err, run_time)
+    num_iterations_list.append(('sto-iht', num_iterations))
+    run_time_proj_list.append(('sto-iht', run_time_proj))
     # ------------- GraphStoIHT --------
-    x_err_list, _, err, num_epochs, run_time = algo_graph_sto_iht(
-        x_mat=x_mat, y_tr=y_tr, max_epochs=max_epochs, lr=lr, x_star=x_star,
-        x0=x0, tol_algo=tol_algo, edges=edges, costs=costs, s=s, b=b)
+    num_epochs, num_iterations, run_time, run_time_head, run_time_tail = \
+        algo_graph_sto_iht(x_mat=x_mat, y_tr=y_tr, max_epochs=max_epochs,
+                           lr=lr, x_star=x_star, x0=x0, tol_algo=tol_algo,
+                           edges=edges, costs=costs, s=s, b=b)
     run_time_list.append(('graph-sto-iht', run_time))
-    print_helper('graph-sto-iht', trial_i, b, n, num_epochs, err, run_time)
-    return trial_i, b, run_time_list
+    num_iterations_list.append(('graph-sto-iht', num_iterations))
+    run_time_proj_list.append(('graph-sto-iht', run_time_head + run_time_tail))
+    return trial_i, b, run_time_list, num_iterations_list, run_time_proj_list
 
 
 def run_test_diff_b(
@@ -395,27 +403,42 @@ def run_test_diff_b(
     results_pool = pool.map(run_single_test_diff_b, input_data_list)
     pool.close()
     pool.join()
-    sum_results = {method: {trial_i: [None] * len(b_list)
-                            for trial_i in range(num_trials)}
-                   for method in ['graph-sto-iht', 'sto-iht']}
+    sum_re_run_time = {method: {trial_i: [None] * len(b_list)
+                                for trial_i in range(num_trials)}
+                       for method in ['graph-sto-iht', 'sto-iht']}
+    sum_re_num_iter = {method: {trial_i: [None] * len(b_list)
+                                for trial_i in range(num_trials)}
+                       for method in ['graph-sto-iht', 'sto-iht']}
+    sum_re_run_time_proj = {method: {trial_i: [None] * len(b_list)
+                                     for trial_i in range(num_trials)}
+                            for method in ['graph-sto-iht', 'sto-iht']}
     # # try to trim 5% of the results (rounding when necessary).
     num_trim = int(trim_ratio * num_trials)
     for trial_i, b, re in results_pool:
         b_ind = list(b_list).index(b)
-        for method, run_time in re:
-            sum_results[method][trial_i][b_ind] = run_time
+        for method, run_time, num_iterations, run_time_proj in re:
+            sum_re_run_time[method][trial_i][b_ind] = run_time
+            sum_re_num_iter[method][trial_i][b_ind] = num_iterations
+            sum_re_run_time_proj[method][trial_i][b_ind] = run_time_proj
     trim_results = {method: dict() for method in ['graph-sto-iht', 'sto-iht']}
     for method in ['graph-sto-iht', 'sto-iht']:
         for b_ind in range(len(b_list)):
-            re = [sum_results[method][trial_i][b_ind]
+            re = [sum_re_run_time[method][trial_i][b_ind]
                   for trial_i in range(num_trials)]
             # remove 5% best and 5% worst.
             run_time_list = np.sort(re)[num_trim:len(re) - num_trim]
-            print(method, b_ind, np.mean(run_time_list))
+            re = [sum_re_num_iter[method][trial_i][b_ind]
+                  for trial_i in range(num_trials)]
+            num_iter_list = np.sort(re)[num_trim:len(re) - num_trim]
+            re = [sum_re_num_iter[method][trial_i][b_ind]
+                  for trial_i in range(num_trials)]
+            run_time_proj_list = np.sort(re)[num_trim:len(re) - num_trim]
+            print(method, b_ind, np.mean(run_time_list),
+                  np.mean(num_iter_list), np.mean(run_time_proj_list))
     print('total run time of %02d trials: %.2f seconds.' %
           (num_trials, time.time() - start_time))
     return {'trim_results': trim_results,
-            'sum_results': sum_results,
+            'sum_results': sum_re_run_time,
             'saved_data': saved_data}
 
 
