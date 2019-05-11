@@ -458,7 +458,7 @@ def main():
     trim_ratio = 0.05
     # height and width of the grid graph.
     height, width = 30, 30
-    s = 8
+    s = 20
     b_list = [20, 30, 50, 70, 90, 100, 400]
     root_p = 'results/'
     if not os.path.exists(root_p):
