@@ -314,13 +314,7 @@ def algo_graph_sto_iht(
         if np.linalg.norm(y_tr - np.dot(x_mat, x_hat)) <= tol_algo:
             break
     run_time = time.time() - start_time
-    return num_epochs, num_iterations, run_time, run_time_head, run_time_tail
-
-
-def print_helper(method, trial_i, b, n, num_epochs, err, run_time):
-    print('%13s trial_%03d b: %03d n: %03d num_epochs: %03d '
-          'rec_error: %.3e run_time: %.3e' %
-          (method, trial_i, b, n, num_epochs, err, run_time))
+    return num_epochs, num_iterations, run_time, run_time_head + run_time_tail
 
 
 def run_single_test_diff_b(data):
@@ -339,30 +333,26 @@ def run_single_test_diff_b(data):
     edges = data['proj_para']['edges']
     costs = data['proj_para']['costs']
 
-    run_time_list = []
-    num_iterations_list = []
-    run_time_proj_list = []
+    metric_list = []
     # ------------- StoIHT --------
     num_epochs, num_iterations, run_time, run_time_proj = algo_sto_iht(
         x_mat=x_mat, y_tr=y_tr, max_epochs=max_epochs, lr=lr, s=s,
         x_star=x_star, x0=x0, tol_algo=tol_algo, b=b)
-    run_time_list.append(('sto-iht', run_time))
-    num_iterations_list.append(('sto-iht', num_iterations))
-    run_time_proj_list.append(('sto-iht', run_time_proj))
+    metric_list.append(('sto-iht', num_epochs,
+                        run_time, num_iterations, run_time_proj))
     # ------------- GraphStoIHT --------
-    num_epochs, num_iterations, run_time, run_time_head, run_time_tail = \
+    num_epochs, num_iterations, run_time, run_time_proj = \
         algo_graph_sto_iht(x_mat=x_mat, y_tr=y_tr, max_epochs=max_epochs,
                            lr=lr, x_star=x_star, x0=x0, tol_algo=tol_algo,
                            edges=edges, costs=costs, s=s, b=b)
-    run_time_list.append(('graph-sto-iht', run_time))
-    num_iterations_list.append(('graph-sto-iht', num_iterations))
-    run_time_proj_list.append(('graph-sto-iht', run_time_head + run_time_tail))
-    return trial_i, b, run_time_list, num_iterations_list, run_time_proj_list
+    metric_list.append(('graph-sto-iht', num_epochs,
+                        run_time, num_iterations, run_time_proj))
+    return trial_i, b, metric_list
 
 
 def run_test_diff_b(
-        s, p, height, width, max_epochs, tol_algo, tol_rec, b_list,
-        trim_ratio, num_cpus, num_trials):
+        s, p, height, width, max_epochs, total_samples, tol_algo, tol_rec,
+        b_list, trim_ratio, num_cpus, num_trials):
     np.random.seed()
     start_time = time.time()
     input_data_list = []
@@ -377,12 +367,11 @@ def run_test_diff_b(
         data = {
             # we need to keep the consistency with Needell's code
             # when b==180 corresponding to batched-versions.
-            'lr': {b: 1.0 if b != b_list[-1] else 1.0 / 2. for b in b_list},
+            'lr': {b: 1.0 if b != total_samples else 1.0 / 2. for b in b_list},
             'max_epochs': max_epochs,
             'trial_i': trial_i,
             's': s,
-            'n': b_list[-1],
-            'n_list': [b_list[-1]],
+            'n': total_samples,
             's_list': [s],
             'p': p,
             'b': b,
@@ -403,81 +392,50 @@ def run_test_diff_b(
     results_pool = pool.map(run_single_test_diff_b, input_data_list)
     pool.close()
     pool.join()
-    sum_re_run_time = {method: {trial_i: [None] * len(b_list)
-                                for trial_i in range(num_trials)}
-                       for method in ['graph-sto-iht', 'sto-iht']}
-    sum_re_num_iter = {method: {trial_i: [None] * len(b_list)
-                                for trial_i in range(num_trials)}
-                       for method in ['graph-sto-iht', 'sto-iht']}
-    sum_re_run_time_proj = {method: {trial_i: [None] * len(b_list)
-                                     for trial_i in range(num_trials)}
-                            for method in ['graph-sto-iht', 'sto-iht']}
-    # # try to trim 5% of the results (rounding when necessary).
-    num_trim = int(trim_ratio * num_trials)
-    for trial_i, b, re1, re2, re3 in results_pool:
-        b_ind = list(b_list).index(b)
-        for method, run_time in re1:
-            sum_re_run_time[method][trial_i][b_ind] = run_time
-        for method, num_iterations in re2:
-            sum_re_num_iter[method][trial_i][b_ind] = num_iterations
-        for method, run_time_proj in re3:
-            sum_re_run_time_proj[method][trial_i][b_ind] = run_time_proj
-    trim_results = {method: dict() for method in ['graph-sto-iht', 'sto-iht']}
-    for method in ['graph-sto-iht', 'sto-iht']:
-        for b_ind in range(len(b_list)):
-            re = [sum_re_run_time[method][trial_i][b_ind]
-                  for trial_i in range(num_trials)]
-            # remove 5% best and 5% worst.
-            run_time_list = np.sort(re)[num_trim:len(re) - num_trim]
-            re = [sum_re_num_iter[method][trial_i][b_ind]
-                  for trial_i in range(num_trials)]
-            num_iter_list = np.sort(re)[num_trim:len(re) - num_trim]
-            re = [sum_re_run_time_proj[method][trial_i][b_ind]
-                  for trial_i in range(num_trials)]
-            run_time_proj_list = np.sort(re)[num_trim:len(re) - num_trim]
-            print(method, b_ind, np.mean(run_time_list),
-                  np.mean(num_iter_list), np.mean(run_time_proj_list),
-                  np.mean(run_time_list) - np.mean(run_time_proj_list))
-    print('total run time of %02d trials: %.2f seconds.' %
-          (num_trials, time.time() - start_time))
-    return {'trim_results': trim_results,
-            'sum_results': sum_re_run_time,
-            'saved_data': saved_data}
+
+    for i, metric in zip(range(4), ['num_epochs', 'run_time', 'num_iterations',
+                                    'run_time_proj']):
+        aver_results = {'sto-iht': {b: [] for b in b_list},
+                        'graph-sto-iht': {b: [] for b in b_list}}
+        for trial_i, b, re in results_pool:
+            for method, metric_list in re:
+                aver_results[method][b].append(metric_list[i])
+        for method in ['sto-iht', 'graph-sto-iht']:
+            for b in b_list:
+                print(method, b, np.mean(aver_results[method][b]))
 
 
 def main():
     # try 50 different trials and take average on 44 trials.
-    num_trials = 50
+    num_trials = 10
     # tolerance of the algorithm
     tol_algo = 1e-7
     # tolerance of the recovery.
     tol_rec = 1e-6
     # the dimension of the grid graph.
-    p = 900
+    p = 6400
     # the trimmed ratio ( about 5% of the best and worst have been removed).
     trim_ratio = 0.05
     # height and width of the grid graph.
-    height, width = 30, 30
-    s = 20
-    b_list = [20, 30, 50, 70, 90, 100, 400]
+    height, width = 80, 80
+    s = 100
+    b_list = [50]
     root_p = 'results/'
     if not os.path.exists(root_p):
         os.mkdir(root_p)
-    save_data_path = root_p + 'results_exp_sr_test07.pkl'
     num_cpus = int(os.sys.argv[1])
-    re_diff_b = run_test_diff_b(s=s,
-                                p=p,
-                                height=height,
-                                width=width,
-                                max_epochs=35,
-                                tol_algo=tol_algo,
-                                tol_rec=tol_rec,
-                                b_list=b_list,
-                                trim_ratio=trim_ratio,
-                                num_cpus=num_cpus,
-                                num_trials=num_trials)
-    pickle.dump({'re_diff_b': re_diff_b},
-                open(save_data_path, 'wb'))
+    run_test_diff_b(s=s,
+                    p=p,
+                    height=height,
+                    width=width,
+                    max_epochs=500,
+                    total_samples=1000,
+                    tol_algo=tol_algo,
+                    tol_rec=tol_rec,
+                    b_list=b_list,
+                    trim_ratio=trim_ratio,
+                    num_cpus=num_cpus,
+                    num_trials=num_trials)
 
 
 if __name__ == '__main__':
