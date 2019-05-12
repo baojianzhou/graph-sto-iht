@@ -391,7 +391,7 @@ def run_test_diff_b(
         input_data_list.append(data)
     pool = multiprocessing.Pool(processes=num_cpus)
     results_pool = pool.map(run_single_test_diff_b, input_data_list)
-    pickle.dump(results_pool, open('run_time_%d.pkl' % p, 'wb'))
+    pickle.dump(results_pool, open('results/run_time_%d.pkl' % p, 'wb'))
     pool.close()
     pool.join()
     for i, metric in zip(range(5), ['num_epochs', 'run_time', 'num_iterations',
