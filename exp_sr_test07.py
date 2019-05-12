@@ -450,11 +450,11 @@ def test_on_fix_n():
     # tolerance of the recovery.
     tol_rec = 1e-6
     # the dimension of the grid graph.
-    p = 3600
+    p = 4900
     # height and width of the grid graph.
-    height, width = 60, 60
+    height, width = 70, 70
     s = 20
-    total_samples = 3600
+    total_samples = 4900
     b_list = []
     for i in [1, 2, 4, 8, 10]:
         b_list.append(int((1. * p) / (1. * i)))
