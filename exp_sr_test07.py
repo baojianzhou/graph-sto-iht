@@ -479,13 +479,18 @@ def show_run_time():
     import matplotlib.pyplot as plt
     from matplotlib import rc
     from pylab import rcParams
-    plt.rcParams["font.size"] = 12
+    plt.rcParams["font.size"] = 16
     rc('text', usetex=True)
-    rcParams['figure.figsize'] = 8, 5
+    rcParams['figure.figsize'] = 15, 6
     color_list = ['c', 'b', 'g', 'k', 'm', 'y', 'r']
     marker_list = ['D', 'X', 'o', 'h', 'P', 'p', 's']
     img_name_list = ['background', 'angio', 'icml']
     title_list = ['(a) Background', '(b) Angio', '(c) Text']
+
+    fig, ax = plt.subplots(1, 2)
+    for i in range(2):
+        ax[i].grid(b=True, which='both', color='lightgray',
+                   linestyle='dotted', axis='both')
 
     import matplotlib.pyplot as plt
     import matplotlib.gridspec as gridspec
@@ -516,9 +521,13 @@ def show_run_time():
             for b in b_list:
                 print(b, np.mean(sorted(aver_results['sto-iht'][b])),
                       np.mean(sorted(aver_results['graph-sto-iht'][b])))
+
     for ind, ii in zip(range(5), [1, 2, 4, 8, 10]):
-        plt.plot(plot_data[ii], linewidth=2., c=color_list[ind],
-                 marker=marker_list[ind], markersize=10, label='b=%d' % ii)
+        ax[0].plot(plot_data[ii], linewidth=2., c=color_list[ind],
+                   marker=marker_list[ind], markersize=10, label='b=%d' % ii)
+    ax[0].set_xlabel('Oversampling ratio ' + r"$\displaystyle m/s$ "
+                     , fontsize=25.)
+    ax[0].set_ylabel('Probability of Recovery', fontsize=25.)
     plt.legend()
     plt.show()
 
