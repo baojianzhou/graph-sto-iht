@@ -369,7 +369,7 @@ def run_test_diff_b(
         data = {
             # we need to keep the consistency with Needell's code
             # when b==180 corresponding to batched-versions.
-            'lr': {b: .5 if b != total_samples else .5 for b in b_list},
+            'lr': {b: 1. if b != total_samples else .5 for b in b_list},
             'max_epochs': max_epochs,
             'trial_i': trial_i,
             's': s,
@@ -417,13 +417,13 @@ def main():
     # tolerance of the recovery.
     tol_rec = 1e-6
     # the dimension of the grid graph.
-    p = 900
+    p = 2500
     # the trimmed ratio ( about 5% of the best and worst have been removed).
     trim_ratio = 0.05
     # height and width of the grid graph.
-    height, width = 30, 30
+    height, width = 50, 50
     s = 20
-    total_samples = 900
+    total_samples = 1000
     b_list = []
     for i in range(1, 15):
         b_list.append(int((1. * p) / (1. * i)))
