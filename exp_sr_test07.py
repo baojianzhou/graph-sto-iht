@@ -483,79 +483,60 @@ def show_run_time_algo():
     color_list = ['c', 'b', 'g', 'k', 'm', 'y', 'r']
     marker_list = ['D', 'X', 'o', 'h', 'P', 'p', 's']
     fig, ax = plt.subplots(1, 4)
-    for i in range(4):
-        ax[i].grid(b=True, which='both', color='lightgray',
-                   linestyle='dotted', axis='both')
+    for ii in range(4):
+        ax[ii].grid(b=True, which='both', color='lightgray',
+                    linestyle='dotted', axis='both')
 
     import matplotlib.pyplot as plt
-    plot_data_sto_iht = {ii: [] for ii in [1, 2, 4, 8, 10]}
-    plot_data_graph_sto_iht = {ii: [] for ii in [1, 2, 4, 8, 10]}
-    plot_data_sto_iht_proj = {ii: [] for ii in [1, 2, 4, 8, 10]}
-    plot_data_graph_sto_iht_proj = {ii: [] for ii in [1, 2, 4, 8, 10]}
-    for p in [400, 900, 1600, 2500, 3600, 4900]:
-        results_pool = pickle.load(open('results/run_time_%d.pkl' % p))
-        for i, metric in zip(range(5),
-                             ['num_epochs', 'run_time', 'num_iterations',
-                              'run_time_proj', 'error']):
-            b_list = []
-            for ii in [1, 2, 4, 8, 10]:
-                b_list.append(int((1. * p) / (1. * ii)))
-            aver_results = {'sto-iht': {b: [] for b in b_list},
-                            'graph-sto-iht': {b: [] for b in b_list}}
-            for trial_i, b, re in results_pool:
-                for _ in re:
-                    method, num_epochs, num_iterations, run_time, run_time_proj, err = _
-                    xx = num_epochs, num_iterations, run_time, run_time_proj, err
-                    aver_results[method][b].append(xx[i])
-            if metric == 'run_time':
-                aver_run_time_sto_iht = []
-                aver_run_time_graph_sto_iht = []
-                for b in b_list:
-                    xx = np.mean(sorted(aver_results['sto-iht'][b]))
-                    aver_run_time_sto_iht.append(xx)
-                    xx = np.mean(sorted(aver_results['graph-sto-iht'][b]))
-                    aver_run_time_graph_sto_iht.append(xx)
-                for ind, ii in zip(range(5), [1, 2, 4, 8, 10]):
-                    plot_data_sto_iht[ii].append(
-                        aver_run_time_sto_iht[ind])
-                    plot_data_graph_sto_iht[ii].append(
-                        aver_run_time_graph_sto_iht[ind])
-            if metric == 'run_time_proj':
-                aver_run_time_sto_iht_proj = []
-                aver_run_time_graph_sto_iht_proj = []
-                for b in b_list:
-                    xx = np.mean(sorted(aver_results['sto-iht'][b]))
-                    aver_run_time_sto_iht_proj.append(xx)
-                    xx = np.mean(
-                        sorted(aver_results['graph-sto-iht'][b]))
-                    aver_run_time_graph_sto_iht_proj.append(xx)
-                for ind, ii in zip(range(5), [1, 2, 4, 8, 10]):
-                    plot_data_sto_iht_proj[ii].append(
-                        aver_run_time_sto_iht_proj[ind])
-                    plot_data_graph_sto_iht_proj[ii].append(
-                        aver_run_time_graph_sto_iht_proj[ind])
+    n_list = [1, 2, 4, 8, 10]
+    p_list = [400, 900, 1600, 2500, 3600, 4900]
+    run_time_sto_iht = {ii: np.zeros(len(p_list)) for ii in n_list}
+    run_time_graph_sto_iht = {ii: np.zeros(len(p_list)) for ii in n_list}
+    proj_time_sto_iht = {ii: np.zeros(len(p_list)) for ii in n_list}
+    proj_time_graph_sto_iht = {ii: np.zeros(len(p_list)) for ii in n_list}
 
-    for ind, ii in zip(range(5), [1, 2, 4, 8, 10]):
-        ax[0].plot([400, 900, 1600, 2500, 3600, 4900],
-                   plot_data_graph_sto_iht[ii],
+    for index_p, p in zip(range(len(p_list)), p_list):
+        results_pool = pickle.load(open('results/run_time_%d.pkl' % p))
+        b_list = [int((1. * p) / (1. * ii)) for ii in n_list]
+        aver_results = {'sto-iht': {b: [] for b in b_list},
+                        'graph-sto-iht': {b: [] for b in b_list}}
+        for trial_i, b, re in results_pool:
+            for _ in re:
+                aver_results[_[0]][b].append(_[2])  # run time
+        for index_n, n in zip(range(len(n_list)), n_list):
+            b = int((1. * p) / (1. * n))
+            xx = np.mean(aver_results['sto-iht'][b])
+            run_time_sto_iht[n][index_p] = xx
+            xx = np.mean(aver_results['graph-sto-iht'][b])
+            run_time_graph_sto_iht[n][index_p] = xx
+        aver_results = {'sto-iht': {b: [] for b in b_list},
+                        'graph-sto-iht': {b: [] for b in b_list}}
+        for trial_i, b, re in results_pool:
+            for _ in re:
+                aver_results[_[0]][b].append(_[4] + _[5])  # run time
+        for index_n, n in zip(range(len(n_list)), n_list):
+            b = int((1. * p) / (1. * n))
+            xx = np.mean(aver_results['sto-iht'][b])
+            proj_time_sto_iht[n][index_p] = xx
+            xx = np.mean(aver_results['graph-sto-iht'][b])
+            proj_time_graph_sto_iht[n][index_p] = xx
+
+    for ind, ii in zip(range(5), n_list):
+        ax[0].plot(p_list, run_time_graph_sto_iht[ii],
                    linewidth=1.5, c=color_list[ind], linestyle='-',
                    marker=marker_list[ind], markersize=8,
                    label=r'$\displaystyle n=%d$' % ii)
-        ax[1].plot([400, 900, 1600, 2500, 3600, 4900],
-                   np.asarray(plot_data_graph_sto_iht_proj[ii]) /
-                   np.asarray(plot_data_graph_sto_iht[ii]) * 100.,
+        ax[1].plot(p_list, np.asarray(proj_time_graph_sto_iht[ii]) /
+                   np.asarray(run_time_graph_sto_iht[ii]) * 100.,
                    linewidth=1.5, c=color_list[ind], linestyle='-',
                    marker=marker_list[ind], markersize=8,
                    label=r'$\displaystyle n=%d$' % ii)
-        ax[2].plot([400, 900, 1600, 2500, 3600, 4900],
-                   plot_data_sto_iht[ii],
+        ax[2].plot(p_list, run_time_sto_iht[ii],
                    linewidth=1.5, c=color_list[ind], linestyle='--',
                    marker=marker_list[ind], markersize=8,
                    label=r'$\displaystyle n=%d$' % ii)
-
-        ax[3].plot([400, 900, 1600, 2500, 3600, 4900],
-                   np.asarray(plot_data_sto_iht_proj[ii]) /
-                   np.asarray(plot_data_sto_iht[ii]) * 100.,
+        ax[3].plot(p_list, np.asarray(proj_time_sto_iht[ii]) /
+                   np.asarray(run_time_sto_iht[ii]) * 100.,
                    linewidth=1.5, c=color_list[ind], linestyle='--',
                    marker=marker_list[ind], markersize=8,
                    label=r'$\displaystyle n=%d$' % ii)
@@ -565,8 +546,8 @@ def show_run_time_algo():
     ax[1].set_xlabel(r"$\displaystyle p$", fontsize=15.)
     ax[1].set_ylabel('Percentage of the projection time(\%)', fontsize=15.)
 
-    for i in range(4):
-        ax[i].set_xticks([400, 1600, 2500, 3600, 4900])
+    for index_metric in range(4):
+        ax[index_metric].set_xticks([400, 1600, 2500, 3600, 4900])
 
     ax[2].set_xlabel(r"$\displaystyle p$", fontsize=15.)
     ax[2].set_ylabel('Total run time (seconds)', fontsize=15.)
@@ -577,8 +558,8 @@ def show_run_time_algo():
     ax[1].set_title('(b) GraphStoIHT')
     ax[2].set_title('(c) StoIHT')
     ax[3].set_title('(d) StoIHT')
-    for i in range(4):
-        ax[i].legend()
+    for index_metric in range(4):
+        ax[index_metric].legend()
     f_name = 'results/results_exp_sr_test07.pdf'
     print('save fig to: %s' % f_name)
     plt.savefig(f_name, dpi=600, bbox_inches='tight',
@@ -702,4 +683,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    show_run_time_algo()
