@@ -231,7 +231,8 @@ def algo_sto_iht(x_mat, y_tr, max_epochs, lr, s, x_star, x0, tol_algo, b):
         if np.linalg.norm(y_tr - np.dot(x_mat, x_hat)) <= tol_algo:
             break
     run_time = time.time() - start_time
-    return num_epochs, num_iterations, run_time, run_time_proj
+    err = np.linalg.norm(x_star - x_hat)
+    return num_epochs, num_iterations, run_time, run_time_proj, err
 
 
 def algo_graph_sto_iht(
@@ -313,7 +314,9 @@ def algo_graph_sto_iht(
         if np.linalg.norm(y_tr - np.dot(x_mat, x_hat)) <= tol_algo:
             break
     run_time = time.time() - start_time
-    return num_epochs, num_iterations, run_time, run_time_head + run_time_tail
+    err = np.linalg.norm(x_star - x_hat)
+    run_time_proj = run_time_head + run_time_tail
+    return num_epochs, num_iterations, run_time, run_time_proj, err
 
 
 def run_single_test_diff_b(data):
@@ -334,18 +337,18 @@ def run_single_test_diff_b(data):
 
     metric_list = []
     # ------------- StoIHT --------
-    num_epochs, num_iterations, run_time, run_time_proj = algo_sto_iht(
+    num_epochs, num_iterations, run_time, run_time_proj, err = algo_sto_iht(
         x_mat=x_mat, y_tr=y_tr, max_epochs=max_epochs, lr=lr, s=s,
         x_star=x_star, x0=x0, tol_algo=tol_algo, b=b)
     metric_list.append(('sto-iht', num_epochs,
-                        run_time, num_iterations, run_time_proj))
+                        run_time, num_iterations, run_time_proj, err))
     # ------------- GraphStoIHT --------
-    num_epochs, num_iterations, run_time, run_time_proj = \
+    num_epochs, num_iterations, run_time, run_time_proj, err = \
         algo_graph_sto_iht(x_mat=x_mat, y_tr=y_tr, max_epochs=max_epochs,
                            lr=lr, x_star=x_star, x0=x0, tol_algo=tol_algo,
                            edges=edges, costs=costs, s=s, b=b)
     metric_list.append(('graph-sto-iht', num_epochs,
-                        run_time, num_iterations, run_time_proj))
+                        run_time, num_iterations, run_time_proj, err))
     return trial_i, b, metric_list
 
 
@@ -391,14 +394,14 @@ def run_test_diff_b(
     results_pool = pool.map(run_single_test_diff_b, input_data_list)
     pool.close()
     pool.join()
-    for i, metric in zip(range(4), ['num_epochs', 'run_time', 'num_iterations',
-                                    'run_time_proj']):
+    for i, metric in zip(range(5), ['num_epochs', 'run_time', 'num_iterations',
+                                    'run_time_proj', 'error']):
         aver_results = {'sto-iht': {b: [] for b in b_list},
                         'graph-sto-iht': {b: [] for b in b_list}}
         for trial_i, b, re in results_pool:
             for _ in re:
-                method, num_epochs, num_iterations, run_time, run_time_proj = _
-                xx = num_epochs, num_iterations, run_time, run_time_proj
+                method, num_epochs, num_iterations, run_time, run_time_proj, err = _
+                xx = num_epochs, num_iterations, run_time, run_time_proj, err
                 aver_results[method][b].append(xx[i])
         print(metric)
         for b in b_list:
@@ -461,7 +464,7 @@ def single_test_1():
     tol_algo = 1e-7
     max_epochs = 500
     for b in [1000, 500, 250, 200, 100]:
-        num_epochs, num_iterations, run_time, run_time_proj = algo_graph_sto_iht(
+        num_epochs, num_iterations, run_time, run_time_proj, err = algo_graph_sto_iht(
             x_mat, y_tr, max_epochs, lr, x_star, x0, tol_algo, edges, costs, s,
             b, g=1, root=-1, gamma=0.1, proj_max_num_iter=50, verbose=0)
         print('num_epochs, num_iterations, run_time, run_time_proj')
@@ -487,11 +490,11 @@ def single_test_2():
     tol_algo = 1e-7
     max_epochs = 500
     for b in [2000, 1000, 500, 250, 200, 100]:
-        num_epochs, num_iterations, run_time, run_time_proj = algo_sto_iht(
+        num_epochs, num_iterations, run_time, run_time_proj, err = algo_sto_iht(
             x_mat, y_tr, max_epochs, lr, s, x_star, x0, tol_algo, b)
         print('num_epochs, num_iterations, run_time, run_time_proj')
         print(num_epochs, num_iterations, run_time, run_time_proj)
-        num_epochs, num_iterations, run_time, run_time_proj = algo_graph_sto_iht(
+        num_epochs, num_iterations, run_time, run_time_proj, err = algo_graph_sto_iht(
             x_mat, y_tr, max_epochs, lr, x_star, x0, tol_algo, edges, costs, s,
             b, g=1, root=-1, gamma=0.1, proj_max_num_iter=50, verbose=0)
         print('num_epochs, num_iterations, run_time, run_time_proj')
@@ -516,7 +519,7 @@ def single_test_3():
     tol_algo = 1e-7
     max_epochs = 500
     for b in [2000]:
-        num_epochs, num_iterations, run_time, run_time_proj = algo_sto_iht(
+        num_epochs, num_iterations, run_time, run_time_proj, err = algo_sto_iht(
             x_mat, y_tr, max_epochs, lr, s, x_star, x0, tol_algo, b)
         print('num_epochs, num_iterations, run_time, run_time_proj')
         print(num_epochs, num_iterations, run_time, run_time_proj)
