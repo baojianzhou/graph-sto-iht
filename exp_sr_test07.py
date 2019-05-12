@@ -391,6 +391,7 @@ def run_test_diff_b(
         input_data_list.append(data)
     pool = multiprocessing.Pool(processes=num_cpus)
     results_pool = pool.map(run_single_test_diff_b, input_data_list)
+    pickle.dump(results_pool, open('run_time_%d.pkl' % p, 'wb'))
     pool.close()
     pool.join()
     for i, metric in zip(range(5), ['num_epochs', 'run_time', 'num_iterations',
@@ -439,86 +440,6 @@ def main():
                     b_list=b_list,
                     num_cpus=num_cpus,
                     num_trials=num_trials)
-
-
-def single_test_1():
-    height, width = 80, 80
-    s = 100
-    lr = .5
-    n = 1000
-    start_time = time.time()
-    edges, costs = simu_grid_graph(height=height, width=width)
-    init_node = (height / 2) * width + height / 2
-    sub_graphs = {_: random_walk(edges=edges, s=_, init_node=init_node)
-                  for _ in [s]}
-    x_star = np.zeros(height * width)  # using standard Gaussian signal.
-    x_star[sub_graphs[s][0]] = np.random.normal(loc=0.0, scale=1.0, size=s)
-
-    x_mat, y_tr, _ = sensing_matrix(n=n, x=x_star)
-    x0 = np.zeros(height * width)
-    x_star = x_star
-    tol_algo = 1e-7
-    max_epochs = 500
-    for b in [1000, 500, 250, 200, 100]:
-        num_epochs, num_iterations, run_time, run_time_proj, err = algo_graph_sto_iht(
-            x_mat, y_tr, max_epochs, lr, x_star, x0, tol_algo, edges, costs, s,
-            b, g=1, root=-1, gamma=0.1, proj_max_num_iter=50, verbose=0)
-        print('num_epochs, num_iterations, run_time, run_time_proj')
-        print(num_epochs, num_iterations, run_time, run_time_proj)
-
-
-def single_test_2():
-    height, width = 80, 80
-    s = 100
-    lr = 0.5
-    n = 2000
-    start_time = time.time()
-    edges, costs = simu_grid_graph(height=height, width=width)
-    init_node = (height / 2) * width + height / 2
-    sub_graphs = {_: random_walk(edges=edges, s=_, init_node=init_node)
-                  for _ in [s]}
-    x_star = np.zeros(height * width)  # using standard Gaussian signal.
-    x_star[sub_graphs[s][0]] = np.random.normal(loc=0.0, scale=1.0, size=s)
-
-    x_mat, y_tr, _ = sensing_matrix(n=n, x=x_star)
-    x0 = np.zeros(height * width)
-    x_star = x_star
-    tol_algo = 1e-7
-    max_epochs = 500
-    for b in [2000, 1000, 500, 250, 200, 100]:
-        num_epochs, num_iterations, run_time, run_time_proj, err = algo_sto_iht(
-            x_mat, y_tr, max_epochs, lr, s, x_star, x0, tol_algo, b)
-        print('num_epochs, num_iterations, run_time, run_time_proj')
-        print(num_epochs, num_iterations, run_time, run_time_proj)
-        num_epochs, num_iterations, run_time, run_time_proj, err = algo_graph_sto_iht(
-            x_mat, y_tr, max_epochs, lr, x_star, x0, tol_algo, edges, costs, s,
-            b, g=1, root=-1, gamma=0.1, proj_max_num_iter=50, verbose=0)
-        print('num_epochs, num_iterations, run_time, run_time_proj')
-        print(num_epochs, num_iterations, run_time, run_time_proj)
-
-
-def single_test_3():
-    height, width = 80, 80
-    s = 100
-    lr = 0.5
-    n = 2000
-    start_time = time.time()
-    edges, costs = simu_grid_graph(height=height, width=width)
-    init_node = (height / 2) * width + height / 2
-    sub_graphs = {_: random_walk(edges=edges, s=_, init_node=init_node)
-                  for _ in [s]}
-    x_star = np.zeros(height * width)  # using standard Gaussian signal.
-    x_star[sub_graphs[s][0]] = np.random.normal(loc=0.0, scale=1.0, size=s)
-    x_mat, y_tr, _ = sensing_matrix(n=n, x=x_star)
-    x0 = np.zeros(height * width)
-    x_star = x_star
-    tol_algo = 1e-7
-    max_epochs = 500
-    for b in [2000]:
-        num_epochs, num_iterations, run_time, run_time_proj, err = algo_sto_iht(
-            x_mat, y_tr, max_epochs, lr, s, x_star, x0, tol_algo, b)
-        print('num_epochs, num_iterations, run_time, run_time_proj')
-        print(num_epochs, num_iterations, run_time, run_time_proj)
 
 
 if __name__ == '__main__':
