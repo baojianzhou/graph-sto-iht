@@ -417,13 +417,13 @@ def main():
     # tolerance of the recovery.
     tol_rec = 1e-6
     # the dimension of the grid graph.
-    p = 1600
+    p = 900
     # the trimmed ratio ( about 5% of the best and worst have been removed).
     trim_ratio = 0.05
     # height and width of the grid graph.
     height, width = 40, 40
     s = 8
-    total_samples = 1600
+    total_samples = 900
     b_list = []
     for i in range(1, 15):
         b_list.append(int((1. * p) / (1. * i)))
