@@ -409,7 +409,7 @@ def run_test_diff_b(
                   np.mean(sorted(aver_results['graph-sto-iht'][b])))
 
 
-def main():
+def test_on_fix_s():
     # try 50 different trials and take average on 44 trials.
     num_trials = 50
     # tolerance of the algorithm
@@ -440,6 +440,43 @@ def main():
                     b_list=b_list,
                     num_cpus=num_cpus,
                     num_trials=num_trials)
+
+
+def test_on_fix_n():
+    # try 50 different trials and take average on 44 trials.
+    num_trials = 50
+    # tolerance of the algorithm
+    tol_algo = 1e-7
+    # tolerance of the recovery.
+    tol_rec = 1e-6
+    # the dimension of the grid graph.
+    p = 3600
+    # height and width of the grid graph.
+    height, width = 60, 60
+    s = 20
+    total_samples = 3600
+    b_list = []
+    for i in [1, 2, 4, 8, 10]:
+        b_list.append(int((1. * p) / (1. * i)))
+    root_p = 'results/'
+    if not os.path.exists(root_p):
+        os.mkdir(root_p)
+    num_cpus = int(os.sys.argv[1])
+    run_test_diff_b(s=s,
+                    p=p,
+                    height=height,
+                    width=width,
+                    max_epochs=100,
+                    total_samples=total_samples,
+                    tol_algo=tol_algo,
+                    tol_rec=tol_rec,
+                    b_list=b_list,
+                    num_cpus=num_cpus,
+                    num_trials=num_trials)
+
+
+def main():
+    test_on_fix_s()
 
 
 if __name__ == '__main__':
