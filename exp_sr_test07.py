@@ -416,9 +416,9 @@ def test_on_fix_s():
     tol_rec = 1e-6
     s = 20
     # the dimension of the grid graph.
-    p = 900
+    p = 1600
     # height and width of the grid graph.
-    height, width = 30, 30
+    height, width = 40, 40
     total_samples = p
     b_list = []
     for i in [1, 2, 4, 8, 10]:
