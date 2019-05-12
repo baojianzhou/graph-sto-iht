@@ -226,7 +226,6 @@ def algo_sto_iht(x_mat, y_tr, max_epochs, lr, s, x_star, x0, tol_algo, b):
             x_hat = bt
             num_iterations += 1
             # early stopping for diverge cases due to the large learning rate
-        print(np.linalg.norm(y_tr - np.dot(x_mat, x_hat)))
         if np.linalg.norm(x_hat) >= 1e3:  # diverge cases.
             break
         if np.linalg.norm(y_tr - np.dot(x_mat, x_hat)) <= tol_algo:
