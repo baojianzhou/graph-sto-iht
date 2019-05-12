@@ -417,11 +417,11 @@ def main():
     # tolerance of the recovery.
     tol_rec = 1e-6
     # the dimension of the grid graph.
-    p = 2500
+    p = 3600
     # height and width of the grid graph.
-    height, width = 50, 50
+    height, width = 60, 60
     s = 20
-    total_samples = 2500
+    total_samples = 3600
     b_list = []
     for i in [1, 2, 4, 8, 10]:
         b_list.append(int((1. * p) / (1. * i)))
