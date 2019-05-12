@@ -366,7 +366,7 @@ def run_test_diff_b(
         data = {
             # we need to keep the consistency with Needell's code
             # when b==180 corresponding to batched-versions.
-            'lr': {b: 1.0 if b != total_samples else 1. for b in b_list},
+            'lr': {b: 1.0 if b != total_samples else 1. / 2. for b in b_list},
             'max_epochs': max_epochs,
             'trial_i': trial_i,
             's': s,
@@ -391,7 +391,6 @@ def run_test_diff_b(
     results_pool = pool.map(run_single_test_diff_b, input_data_list)
     pool.close()
     pool.join()
-    pickle.dump(results_pool, open('test.pkl', 'wb'))
     for i, metric in zip(range(4), ['num_epochs', 'run_time', 'num_iterations',
                                     'run_time_proj']):
         aver_results = {'sto-iht': {b: [] for b in b_list},
@@ -415,13 +414,16 @@ def main():
     # tolerance of the recovery.
     tol_rec = 1e-6
     # the dimension of the grid graph.
-    p = 256
+    p = 900
     # the trimmed ratio ( about 5% of the best and worst have been removed).
     trim_ratio = 0.05
     # height and width of the grid graph.
-    height, width = 16, 16
-    s = 8
-    b_list = [24, 32, 40, 48, 56, 64, 180]
+    height, width = 30, 30
+    s = 20
+    total_samples = 600
+    b_list = []
+    for i in range(1, 11):
+        b_list.append(int((1. * p) / (1. * i)))
     root_p = 'results/'
     if not os.path.exists(root_p):
         os.mkdir(root_p)
@@ -431,7 +433,7 @@ def main():
                     height=height,
                     width=width,
                     max_epochs=100,
-                    total_samples=180,
+                    total_samples=total_samples,
                     tol_algo=tol_algo,
                     tol_rec=tol_rec,
                     b_list=b_list,
