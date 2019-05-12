@@ -340,7 +340,7 @@ def run_single_test_diff_b(data):
         x_mat=x_mat, y_tr=y_tr, max_epochs=max_epochs, lr=lr, s=s,
         x_star=x_star, x0=x0, tol_algo=tol_algo, b=b)
     metric_list.append(('sto-iht', num_epochs,
-                        run_time, num_iterations, proj_time, err))
+                        run_time, num_iterations, 0.0, proj_time, err))
     # ------------- GraphStoIHT --------
     num_epochs, num_iterations, run_time, head_time, tail_time, err = \
         algo_graph_sto_iht(x_mat=x_mat, y_tr=y_tr, max_epochs=max_epochs,
@@ -393,15 +393,14 @@ def run_test_diff_b(
     pickle.dump(results_pool, open('results/run_time_%d.pkl' % p, 'wb'))
     pool.close()
     pool.join()
-    for i, metric in zip(range(5), ['num_epochs', 'run_time', 'num_iterations',
-                                    'run_time_proj', 'error']):
+    for index_metric, metric in zip(
+            range(1, 7), ['num_epochs', 'run_time', 'num_iterations',
+                          'head_time', 'tail_time', 'error']):
         aver_results = {'sto-iht': {b: [] for b in b_list},
                         'graph-sto-iht': {b: [] for b in b_list}}
         for trial_i, b, re in results_pool:
             for _ in re:
-                method, num_epochs, num_iterations, run_time, run_time_proj, err = _
-                xx = num_epochs, num_iterations, run_time, run_time_proj, err
-                aver_results[method][b].append(xx[i])
+                aver_results[re[0]][b].append(re[index_metric])
         print(metric)
         for b in b_list:
             print(b, np.mean(sorted(aver_results['sto-iht'][b])),
