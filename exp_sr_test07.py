@@ -230,6 +230,7 @@ def algo_sto_iht(x_mat, y_tr, max_epochs, lr, s, x_star, x0, tol_algo, b):
             break
         if np.linalg.norm(y_tr - np.dot(x_mat, x_hat)) <= tol_algo:
             break
+        print(np.linalg.norm(y_tr - np.dot(x_mat, x_hat)))
     run_time = time.time() - start_time
     return num_epochs, num_iterations, run_time, run_time_proj
 
@@ -493,5 +494,45 @@ def single_test_2():
         print(num_epochs, num_iterations, run_time, run_time_proj)
 
 
+def single_test_3():
+    height, width = 80, 80
+    s = 100
+    lr = 0.5
+    n = 2000
+    start_time = time.time()
+    edges, costs = simu_grid_graph(height=height, width=width)
+    init_node = (height / 2) * width + height / 2
+    sub_graphs = {_: random_walk(edges=edges, s=_, init_node=init_node)
+                  for _ in [s]}
+    x_star = np.zeros(height * width)  # using standard Gaussian signal.
+    x_star[sub_graphs[s][0]] = np.random.normal(loc=0.0, scale=1.0, size=s)
+    x_mat, y_tr, _ = sensing_matrix(n=n, x=x_star)
+    x0 = np.zeros(height * width)
+    x_star = x_star
+    tol_algo = 1e-7
+    max_epochs = 500
+    for b in [2000]:
+        num_epochs, num_iterations, run_time, run_time_proj = algo_sto_iht(
+            x_mat, y_tr, max_epochs, lr, s, x_star, x0, tol_algo, b)
+        print('num_epochs, num_iterations, run_time, run_time_proj')
+        print(num_epochs, num_iterations, run_time, run_time_proj)
+
+
 if __name__ == '__main__':
-    main()
+    single_test_3()
+    exit()
+    results_pool = pickle.load(open('test.pkl'))
+    b_list = [2000, 1000, 500, 250, 200]
+    for i, metric in zip(range(4), ['num_epochs', 'run_time', 'num_iterations',
+                                    'run_time_proj']):
+        aver_results = {'sto-iht': {b: [] for b in b_list},
+                        'graph-sto-iht': {b: [] for b in b_list}}
+        for trial_i, b, re in results_pool:
+            for _ in re:
+                method, num_epochs, num_iterations, run_time, run_time_proj = _
+                xx = num_epochs, num_iterations, run_time, run_time_proj
+                aver_results[method][b].append(xx[i])
+        print(metric)
+        for b in b_list:
+            print(b, np.mean(sorted(aver_results['sto-iht'][b])[3:47]),
+                  np.mean(sorted(aver_results['graph-sto-iht'][b])[3:47]))
