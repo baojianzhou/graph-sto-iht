@@ -366,7 +366,7 @@ def run_test_diff_b(
         data = {
             # we need to keep the consistency with Needell's code
             # when b==180 corresponding to batched-versions.
-            'lr': {b: 1.0 if b != total_samples else 1.0 / 2. for b in b_list},
+            'lr': {b: 1.0 if b != total_samples else 1. for b in b_list},
             'max_epochs': max_epochs,
             'trial_i': trial_i,
             's': s,
