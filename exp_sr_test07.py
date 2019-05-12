@@ -210,7 +210,7 @@ def algo_sto_iht(x_mat, y_tr, max_epochs, lr, s, x_star, x0, tol_algo, b):
     prob = [1. / num_blocks] * num_blocks
     num_epochs = 0
     num_iterations = 0
-    run_time_proj = 0
+    proj_time = 0
     for epoch_i in range(max_epochs):
         num_epochs += 1
         for _ in range(num_blocks):
@@ -222,7 +222,7 @@ def algo_sto_iht(x_mat, y_tr, max_epochs, lr, s, x_star, x0, tol_algo, b):
             bt = x_hat - (lr / (prob[ii] * num_blocks)) * gradient
             start_time_proj = time.time()
             bt[np.argsort(np.abs(bt))[0:p - s]] = 0.
-            run_time_proj += time.time() - start_time_proj
+            proj_time += time.time() - start_time_proj
             x_hat = bt
             num_iterations += 1
             # early stopping for diverge cases due to the large learning rate
@@ -232,7 +232,7 @@ def algo_sto_iht(x_mat, y_tr, max_epochs, lr, s, x_star, x0, tol_algo, b):
             break
     run_time = time.time() - start_time
     err = np.linalg.norm(x_star - x_hat)
-    return num_epochs, num_iterations, run_time, run_time_proj, err
+    return num_epochs, num_iterations, run_time, proj_time, err
 
 
 def algo_graph_sto_iht(
@@ -279,8 +279,8 @@ def algo_graph_sto_iht(
 
     x_err_list = []
     x_iter_err_list = []
-    run_time_head = 0.0
-    run_time_tail = 0.0
+    head_time = 0.0
+    tail_time = 0.0
     num_iterations = 0
     num_epochs = 0
     for epoch_i in range(max_epochs):
@@ -295,14 +295,14 @@ def algo_graph_sto_iht(
             head_nodes, proj_grad = algo_head_tail_bisearch(
                 edges, gradient, costs, g, root, h_low, h_high,
                 proj_max_num_iter, verbose)
-            run_time_head += time.time() - start_time_head
+            head_time += time.time() - start_time_head
 
             bt = x_hat - (lr / (prob[ii] * num_blocks)) * proj_grad
             start_time_tail = time.time()
             tail_nodes, proj_bt = algo_head_tail_bisearch(
                 edges, bt, costs, g, root,
                 t_low, t_high, proj_max_num_iter, verbose)
-            run_time_tail += time.time() - start_time_tail
+            tail_time += time.time() - start_time_tail
             x_hat = proj_bt
             x_iter_err_list.append(np.linalg.norm(x_hat - x_star))
             num_iterations += 1
@@ -315,8 +315,7 @@ def algo_graph_sto_iht(
             break
     run_time = time.time() - start_time
     err = np.linalg.norm(x_star - x_hat)
-    run_time_proj = run_time_head + run_time_tail
-    return num_epochs, num_iterations, run_time, run_time_proj, err
+    return num_epochs, num_iterations, run_time, head_time, tail_time, err
 
 
 def run_single_test_diff_b(data):
@@ -337,18 +336,18 @@ def run_single_test_diff_b(data):
 
     metric_list = []
     # ------------- StoIHT --------
-    num_epochs, num_iterations, run_time, run_time_proj, err = algo_sto_iht(
+    num_epochs, num_iterations, run_time, proj_time, err = algo_sto_iht(
         x_mat=x_mat, y_tr=y_tr, max_epochs=max_epochs, lr=lr, s=s,
         x_star=x_star, x0=x0, tol_algo=tol_algo, b=b)
     metric_list.append(('sto-iht', num_epochs,
-                        run_time, num_iterations, run_time_proj, err))
+                        run_time, num_iterations, proj_time, err))
     # ------------- GraphStoIHT --------
-    num_epochs, num_iterations, run_time, run_time_proj, err = \
+    num_epochs, num_iterations, run_time, head_time, tail_time, err = \
         algo_graph_sto_iht(x_mat=x_mat, y_tr=y_tr, max_epochs=max_epochs,
                            lr=lr, x_star=x_star, x0=x0, tol_algo=tol_algo,
                            edges=edges, costs=costs, s=s, b=b)
     metric_list.append(('graph-sto-iht', num_epochs,
-                        run_time, num_iterations, run_time_proj, err))
+                        run_time, num_iterations, head_time, tail_time, err))
     return trial_i, b, metric_list
 
 
@@ -417,11 +416,11 @@ def test_on_fix_s():
     # tolerance of the recovery.
     tol_rec = 1e-6
     # the dimension of the grid graph.
-    p = 4900
+    p = 400
     # height and width of the grid graph.
-    height, width = 70, 70
+    height, width = 20, 20
     s = 20
-    total_samples = 4900
+    total_samples = 400
     b_list = []
     for i in [1, 2, 4, 8, 10]:
         b_list.append(int((1. * p) / (1. * i)))
@@ -475,7 +474,7 @@ def test_on_fix_n():
                     num_trials=num_trials)
 
 
-def show_run_time():
+def show_run_time_algo():
     import matplotlib.pyplot as plt
     from matplotlib import rc
     from pylab import rcParams
@@ -587,8 +586,7 @@ def show_run_time():
                 pad_inches=0, format='pdf')
 
 
-
-def show_run_time():
+def show_run_time_proj():
     import matplotlib.pyplot as plt
     from matplotlib import rc
     from pylab import rcParams
@@ -705,4 +703,4 @@ def main():
 
 
 if __name__ == '__main__':
-    show_run_time()
+    main()
