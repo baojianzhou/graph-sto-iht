@@ -423,7 +423,7 @@ def main():
     # height and width of the grid graph.
     height, width = 40, 40
     s = 50
-    total_samples = 1200
+    total_samples = 1300
     b_list = []
     for i in range(1, 11):
         b_list.append(int((1. * p) / (1. * i)))
