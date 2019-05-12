@@ -400,7 +400,7 @@ def run_test_diff_b(
                         'graph-sto-iht': {b: [] for b in b_list}}
         for trial_i, b, re in results_pool:
             for _ in re:
-                aver_results[re[0]][b].append(re[index_metric])
+                aver_results[_[0]][b].append(_[index_metric])
         print(metric)
         for b in b_list:
             print(b, np.mean(sorted(aver_results['sto-iht'][b])),
@@ -414,12 +414,12 @@ def test_on_fix_s():
     tol_algo = 1e-7
     # tolerance of the recovery.
     tol_rec = 1e-6
-    # the dimension of the grid graph.
-    p = 900
-    # height and width of the grid graph.
-    height, width = 30, 30
     s = 20
-    total_samples = 900
+    # the dimension of the grid graph.
+    p = 400
+    # height and width of the grid graph.
+    height, width = 20, 20
+    total_samples = p
     b_list = []
     for i in [1, 2, 4, 8, 10]:
         b_list.append(int((1. * p) / (1. * i)))
