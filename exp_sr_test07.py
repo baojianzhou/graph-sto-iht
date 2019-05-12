@@ -406,7 +406,7 @@ def run_test_diff_b(
 
 def main():
     # try 50 different trials and take average on 44 trials.
-    num_trials = 10
+    num_trials = 50
     # tolerance of the algorithm
     tol_algo = 1e-7
     # tolerance of the recovery.
@@ -418,7 +418,7 @@ def main():
     # height and width of the grid graph.
     height, width = 80, 80
     s = 100
-    b_list = [50]
+    b_list = [200, 250, 500, 1000]
     root_p = 'results/'
     if not os.path.exists(root_p):
         os.mkdir(root_p)
@@ -464,4 +464,4 @@ def single_test():
 
 
 if __name__ == '__main__':
-    single_test()
+    main()
