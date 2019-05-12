@@ -575,10 +575,123 @@ def show_run_time():
     ax[3].set_xlabel(r"$\displaystyle p$", fontsize=15.)
     ax[3].set_ylabel('Percentage of the projection time(\%)', fontsize=15.)
 
-    ax[0].set_title('GraphStoIHT')
-    ax[1].set_title('GraphStoIHT')
-    ax[2].set_title('StoIHT')
-    ax[3].set_title('StoIHT')
+    ax[0].set_title('(a) GraphStoIHT')
+    ax[1].set_title('(b) GraphStoIHT')
+    ax[2].set_title('(c) StoIHT')
+    ax[3].set_title('(d) StoIHT')
+    for i in range(4):
+        ax[i].legend()
+    f_name = 'results/results_exp_sr_test07.pdf'
+    print('save fig to: %s' % f_name)
+    plt.savefig(f_name, dpi=600, bbox_inches='tight',
+                pad_inches=0, format='pdf')
+
+
+
+def show_run_time():
+    import matplotlib.pyplot as plt
+    from matplotlib import rc
+    from pylab import rcParams
+    plt.rcParams["font.size"] = 14
+    rc('text', usetex=True)
+    rcParams['figure.figsize'] = 18, 4
+    color_list = ['c', 'b', 'g', 'k', 'm', 'y', 'r']
+    marker_list = ['D', 'X', 'o', 'h', 'P', 'p', 's']
+    fig, ax = plt.subplots(1, 4)
+    for i in range(4):
+        ax[i].grid(b=True, which='both', color='lightgray',
+                   linestyle='dotted', axis='both')
+
+    import matplotlib.pyplot as plt
+    plot_data_sto_iht = {ii: [] for ii in [1, 2, 4, 8, 10]}
+    plot_data_graph_sto_iht = {ii: [] for ii in [1, 2, 4, 8, 10]}
+    plot_data_sto_iht_proj = {ii: [] for ii in [1, 2, 4, 8, 10]}
+    plot_data_graph_sto_iht_proj = {ii: [] for ii in [1, 2, 4, 8, 10]}
+    for p in [400, 900, 1600, 2500, 3600, 4900]:
+        results_pool = pickle.load(open('results/run_time_%d.pkl' % p))
+        for i, metric in zip(range(5),
+                             ['num_epochs', 'run_time', 'num_iterations',
+                              'run_time_proj', 'error']):
+            b_list = []
+            for ii in [1, 2, 4, 8, 10]:
+                b_list.append(int((1. * p) / (1. * ii)))
+            aver_results = {'sto-iht': {b: [] for b in b_list},
+                            'graph-sto-iht': {b: [] for b in b_list}}
+            for trial_i, b, re in results_pool:
+                for _ in re:
+                    method, num_epochs, num_iterations, run_time, run_time_proj, err = _
+                    xx = num_epochs, num_iterations, run_time, run_time_proj, err
+                    aver_results[method][b].append(xx[i])
+            if metric == 'run_time':
+                aver_run_time_sto_iht = []
+                aver_run_time_graph_sto_iht = []
+                for b in b_list:
+                    xx = np.mean(sorted(aver_results['sto-iht'][b]))
+                    aver_run_time_sto_iht.append(xx)
+                    xx = np.mean(sorted(aver_results['graph-sto-iht'][b]))
+                    aver_run_time_graph_sto_iht.append(xx)
+                for ind, ii in zip(range(5), [1, 2, 4, 8, 10]):
+                    plot_data_sto_iht[ii].append(
+                        aver_run_time_sto_iht[ind])
+                    plot_data_graph_sto_iht[ii].append(
+                        aver_run_time_graph_sto_iht[ind])
+            if metric == 'run_time_proj':
+                aver_run_time_sto_iht_proj = []
+                aver_run_time_graph_sto_iht_proj = []
+                for b in b_list:
+                    xx = np.mean(sorted(aver_results['sto-iht'][b]))
+                    aver_run_time_sto_iht_proj.append(xx)
+                    xx = np.mean(
+                        sorted(aver_results['graph-sto-iht'][b]))
+                    aver_run_time_graph_sto_iht_proj.append(xx)
+                for ind, ii in zip(range(5), [1, 2, 4, 8, 10]):
+                    plot_data_sto_iht_proj[ii].append(
+                        aver_run_time_sto_iht_proj[ind])
+                    plot_data_graph_sto_iht_proj[ii].append(
+                        aver_run_time_graph_sto_iht_proj[ind])
+
+    for ind, ii in zip(range(5), [1, 2, 4, 8, 10]):
+        ax[0].plot([400, 900, 1600, 2500, 3600, 4900],
+                   plot_data_graph_sto_iht[ii],
+                   linewidth=1.5, c=color_list[ind], linestyle='-',
+                   marker=marker_list[ind], markersize=8,
+                   label=r'$\displaystyle n=%d$' % ii)
+        ax[1].plot([400, 900, 1600, 2500, 3600, 4900],
+                   np.asarray(plot_data_graph_sto_iht_proj[ii]) /
+                   np.asarray(plot_data_graph_sto_iht[ii]) * 100.,
+                   linewidth=1.5, c=color_list[ind], linestyle='-',
+                   marker=marker_list[ind], markersize=8,
+                   label=r'$\displaystyle n=%d$' % ii)
+        ax[2].plot([400, 900, 1600, 2500, 3600, 4900],
+                   plot_data_sto_iht[ii],
+                   linewidth=1.5, c=color_list[ind], linestyle='--',
+                   marker=marker_list[ind], markersize=8,
+                   label=r'$\displaystyle n=%d$' % ii)
+
+        ax[3].plot([400, 900, 1600, 2500, 3600, 4900],
+                   np.asarray(plot_data_sto_iht_proj[ii]) /
+                   np.asarray(plot_data_sto_iht[ii]) * 100.,
+                   linewidth=1.5, c=color_list[ind], linestyle='--',
+                   marker=marker_list[ind], markersize=8,
+                   label=r'$\displaystyle n=%d$' % ii)
+    plt.subplots_adjust(wspace=0.3, hspace=0.1)
+    ax[0].set_xlabel(r"$\displaystyle p$", fontsize=15.)
+    ax[0].set_ylabel('Total run time (seconds)', fontsize=15.)
+    ax[1].set_xlabel(r"$\displaystyle p$", fontsize=15.)
+    ax[1].set_ylabel('Percentage of the projection time(\%)', fontsize=15.)
+
+    for i in range(4):
+        ax[i].set_xticks([400, 1600, 2500, 3600, 4900])
+
+    ax[2].set_xlabel(r"$\displaystyle p$", fontsize=15.)
+    ax[2].set_ylabel('Total run time (seconds)', fontsize=15.)
+    ax[3].set_xlabel(r"$\displaystyle p$", fontsize=15.)
+    ax[3].set_ylabel('Percentage of the projection time(\%)', fontsize=15.)
+
+    ax[0].set_title('(a) GraphStoIHT')
+    ax[1].set_title('(b) GraphStoIHT')
+    ax[2].set_title('(c) StoIHT')
+    ax[3].set_title('(d) StoIHT')
     for i in range(4):
         ax[i].legend()
     f_name = 'results/results_exp_sr_test07.pdf'
