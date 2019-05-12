@@ -354,9 +354,8 @@ def run_single_test_diff_b(data):
 
 def run_test_diff_b(
         s, p, height, width, max_epochs, total_samples, tol_algo, tol_rec,
-        b_list, trim_ratio, num_cpus, num_trials):
+        b_list, num_cpus, num_trials):
     np.random.seed()
-    start_time = time.time()
     input_data_list = []
     saved_data = dict()
     for (b, trial_i) in product(b_list, range(num_trials)):
@@ -418,8 +417,6 @@ def main():
     tol_rec = 1e-6
     # the dimension of the grid graph.
     p = 400
-    # the trimmed ratio ( about 5% of the best and worst have been removed).
-    trim_ratio = 0.05
     # height and width of the grid graph.
     height, width = 20, 20
     s = 20
@@ -440,7 +437,6 @@ def main():
                     tol_algo=tol_algo,
                     tol_rec=tol_rec,
                     b_list=b_list,
-                    trim_ratio=trim_ratio,
                     num_cpus=num_cpus,
                     num_trials=num_trials)
 
