@@ -422,7 +422,7 @@ def main():
     trim_ratio = 0.05
     # height and width of the grid graph.
     height, width = 40, 40
-    s = 20
+    s = 16
     total_samples = 1600
     b_list = []
     for i in range(1, 15):
