@@ -230,7 +230,6 @@ def algo_sto_iht(x_mat, y_tr, max_epochs, lr, s, x_star, x0, tol_algo, b):
             break
         if np.linalg.norm(y_tr - np.dot(x_mat, x_hat)) <= tol_algo:
             break
-        print(np.linalg.norm(y_tr - np.dot(x_mat, x_hat)))
     run_time = time.time() - start_time
     return num_epochs, num_iterations, run_time, run_time_proj
 
