@@ -422,7 +422,7 @@ def main():
     s = 20
     total_samples = 400
     b_list = []
-    for i in range(1, 15):
+    for i in [1, 2, 4, 8, 10]:
         b_list.append(int((1. * p) / (1. * i)))
     root_p = 'results/'
     if not os.path.exists(root_p):
