@@ -421,7 +421,7 @@ def main():
     # the trimmed ratio ( about 5% of the best and worst have been removed).
     trim_ratio = 0.05
     # height and width of the grid graph.
-    height, width = 40, 40
+    height, width = 30, 30
     s = 8
     total_samples = 900
     b_list = []
