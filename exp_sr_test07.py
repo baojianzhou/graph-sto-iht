@@ -417,11 +417,11 @@ def test_on_fix_s():
     # tolerance of the recovery.
     tol_rec = 1e-6
     # the dimension of the grid graph.
-    p = 3600
+    p = 4900
     # height and width of the grid graph.
-    height, width = 60, 60
+    height, width = 70, 70
     s = 20
-    total_samples = 3600
+    total_samples = 4900
     b_list = []
     for i in [1, 2, 4, 8, 10]:
         b_list.append(int((1. * p) / (1. * i)))
@@ -473,6 +473,39 @@ def test_on_fix_n():
                     b_list=b_list,
                     num_cpus=num_cpus,
                     num_trials=num_trials)
+
+
+def show_run_time():
+    import matplotlib.pyplot as plt
+    from matplotlib import rc
+    from pylab import rcParams
+    plt.rcParams["font.family"] = "Times New Roman"
+    plt.rcParams["font.size"] = 12
+    rc('text', usetex=True)
+    rcParams['figure.figsize'] = 8, 5
+    color_list = ['c', 'b', 'g', 'k', 'm', 'y', 'r']
+    marker_list = ['D', 'X', 'o', 'h', 'P', 'p', 's']
+    img_name_list = ['background', 'angio', 'icml']
+    title_list = ['(a) Background', '(b) Angio', '(c) Text']
+
+    import matplotlib.pyplot as plt
+    import matplotlib.gridspec as gridspec
+    for p in [400, 900, 1600, 2500, 3600]:
+        results_pool = pickle.load(open('results/run_time_%d.pkl' % p))
+        for i, metric in zip(range(5),
+                             ['num_epochs', 'run_time', 'num_iterations',
+                              'run_time_proj', 'error']):
+            aver_results = {'sto-iht': {b: [] for b in b_list},
+                            'graph-sto-iht': {b: [] for b in b_list}}
+            for trial_i, b, re in results_pool:
+                for _ in re:
+                    method, num_epochs, num_iterations, run_time, run_time_proj, err = _
+                    xx = num_epochs, num_iterations, run_time, run_time_proj, err
+                    aver_results[method][b].append(xx[i])
+            print(metric)
+            for b in b_list:
+                print(b, np.mean(sorted(aver_results['sto-iht'][b])),
+                      np.mean(sorted(aver_results['graph-sto-iht'][b])))
 
 
 def main():
