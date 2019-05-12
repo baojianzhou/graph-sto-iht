@@ -366,7 +366,7 @@ def run_test_diff_b(
         data = {
             # we need to keep the consistency with Needell's code
             # when b==180 corresponding to batched-versions.
-            'lr': {b: 0.5 if b != total_samples else 1.0 / 2. for b in b_list},
+            'lr': {b: 1.0 if b != total_samples else 1.0 / 2. for b in b_list},
             'max_epochs': max_epochs,
             'trial_i': trial_i,
             's': s,
@@ -403,8 +403,8 @@ def run_test_diff_b(
                 aver_results[method][b].append(xx[i])
         print(metric)
         for b in b_list:
-            print(b, np.mean(sorted(aver_results['sto-iht'][b])[3:47]),
-                  np.mean(sorted(aver_results['graph-sto-iht'][b])[3:47]))
+            print(b, np.mean(sorted(aver_results['sto-iht'][b])),
+                  np.mean(sorted(aver_results['graph-sto-iht'][b])))
 
 
 def main():
@@ -415,13 +415,13 @@ def main():
     # tolerance of the recovery.
     tol_rec = 1e-6
     # the dimension of the grid graph.
-    p = 6400
+    p = 256
     # the trimmed ratio ( about 5% of the best and worst have been removed).
     trim_ratio = 0.05
     # height and width of the grid graph.
-    height, width = 80, 80
-    s = 100
-    b_list = [2000, 1000, 500, 250, 200]
+    height, width = 16, 16
+    s = 8
+    b_list = [24, 32, 40, 48, 56, 64, 180]
     root_p = 'results/'
     if not os.path.exists(root_p):
         os.mkdir(root_p)
@@ -431,7 +431,7 @@ def main():
                     height=height,
                     width=width,
                     max_epochs=100,
-                    total_samples=2000,
+                    total_samples=180,
                     tol_algo=tol_algo,
                     tol_rec=tol_rec,
                     b_list=b_list,
