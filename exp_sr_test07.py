@@ -398,11 +398,14 @@ def run_test_diff_b(
         aver_results = {'sto-iht': {b: [] for b in b_list},
                         'graph-sto-iht': {b: [] for b in b_list}}
         for trial_i, b, re in results_pool:
-            for method, metric_list in re:
-                aver_results[method][b].append(metric_list[i])
-        for method in ['sto-iht', 'graph-sto-iht']:
-            for b in b_list:
-                print(method, b, np.mean(aver_results[method][b]))
+            for _ in re:
+                method, num_epochs, num_iterations, run_time, run_time_proj = _
+                xx = num_epochs, num_iterations, run_time, run_time_proj
+                aver_results[method][b].append(xx[i])
+        print(metric)
+        for b in b_list:
+            print(b, np.mean(sorted(aver_results['sto-iht'][b])[3:47]),
+                  np.mean(sorted(aver_results['graph-sto-iht'][b])[3:47]))
 
 
 def main():
@@ -428,8 +431,8 @@ def main():
                     p=p,
                     height=height,
                     width=width,
-                    max_epochs=500,
-                    total_samples=1000,
+                    max_epochs=100,
+                    total_samples=2000,
                     tol_algo=tol_algo,
                     tol_rec=tol_rec,
                     b_list=b_list,
@@ -519,20 +522,4 @@ def single_test_3():
 
 
 if __name__ == '__main__':
-    single_test_3()
-    exit()
-    results_pool = pickle.load(open('test.pkl'))
-    b_list = [2000, 1000, 500, 250, 200]
-    for i, metric in zip(range(4), ['num_epochs', 'run_time', 'num_iterations',
-                                    'run_time_proj']):
-        aver_results = {'sto-iht': {b: [] for b in b_list},
-                        'graph-sto-iht': {b: [] for b in b_list}}
-        for trial_i, b, re in results_pool:
-            for _ in re:
-                method, num_epochs, num_iterations, run_time, run_time_proj = _
-                xx = num_epochs, num_iterations, run_time, run_time_proj
-                aver_results[method][b].append(xx[i])
-        print(metric)
-        for b in b_list:
-            print(b, np.mean(sorted(aver_results['sto-iht'][b])[3:47]),
-                  np.mean(sorted(aver_results['graph-sto-iht'][b])[3:47]))
+    main()
