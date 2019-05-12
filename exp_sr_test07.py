@@ -307,7 +307,6 @@ def algo_graph_sto_iht(
             num_iterations += 1
 
         x_err_list.append(np.linalg.norm(x_hat - x_star))
-
         # early stopping for diverge cases due to the large learning rate
         if np.linalg.norm(x_hat) >= 1e3:  # diverge cases.
             break
@@ -438,5 +437,31 @@ def main():
                     num_trials=num_trials)
 
 
+def single_test():
+    height, width = 80, 80
+    s = 100
+    lr = .5
+    n = 1000
+    start_time = time.time()
+    edges, costs = simu_grid_graph(height=height, width=width)
+    init_node = (height / 2) * width + height / 2
+    sub_graphs = {_: random_walk(edges=edges, s=_, init_node=init_node)
+                  for _ in [s]}
+    x_star = np.zeros(height * width)  # using standard Gaussian signal.
+    x_star[sub_graphs[s][0]] = np.random.normal(loc=0.0, scale=1.0, size=s)
+
+    x_mat, y_tr, _ = sensing_matrix(n=n, x=x_star)
+    x0 = np.zeros(height * width)
+    x_star = x_star
+    tol_algo = 1e-7
+    max_epochs = 500
+    for b in [1000, 500, 250, 200, 100]:
+        num_epochs, num_iterations, run_time, run_time_proj = algo_graph_sto_iht(
+            x_mat, y_tr, max_epochs, lr, x_star, x0, tol_algo, edges, costs, s,
+            b, g=1, root=-1, gamma=0.1, proj_max_num_iter=50, verbose=0)
+        print('num_epochs, num_iterations, run_time, run_time_proj')
+        print(num_epochs, num_iterations, run_time, run_time_proj)
+
+
 if __name__ == '__main__':
-    main()
+    single_test()
