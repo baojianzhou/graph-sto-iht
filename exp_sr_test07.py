@@ -484,16 +484,12 @@ def show_run_time():
     rcParams['figure.figsize'] = 18, 4
     color_list = ['c', 'b', 'g', 'k', 'm', 'y', 'r']
     marker_list = ['D', 'X', 'o', 'h', 'P', 'p', 's']
-    img_name_list = ['background', 'angio', 'icml']
-    title_list = ['(a) Background', '(b) Angio', '(c) Text']
-
     fig, ax = plt.subplots(1, 4)
     for i in range(4):
         ax[i].grid(b=True, which='both', color='lightgray',
                    linestyle='dotted', axis='both')
 
     import matplotlib.pyplot as plt
-    import matplotlib.gridspec as gridspec
     plot_data_sto_iht = {ii: [] for ii in [1, 2, 4, 8, 10]}
     plot_data_graph_sto_iht = {ii: [] for ii in [1, 2, 4, 8, 10]}
     plot_data_sto_iht_proj = {ii: [] for ii in [1, 2, 4, 8, 10]}
@@ -513,7 +509,6 @@ def show_run_time():
                     method, num_epochs, num_iterations, run_time, run_time_proj, err = _
                     xx = num_epochs, num_iterations, run_time, run_time_proj, err
                     aver_results[method][b].append(xx[i])
-            print(metric)
             if metric == 'run_time':
                 aver_run_time_sto_iht = []
                 aver_run_time_graph_sto_iht = []
@@ -546,27 +541,31 @@ def show_run_time():
         ax[0].plot([400, 900, 1600, 2500, 3600, 4900],
                    plot_data_graph_sto_iht[ii],
                    linewidth=1.5, c=color_list[ind], linestyle='-',
-                   marker=marker_list[ind], markersize=8, label='b=%d' % ii)
+                   marker=marker_list[ind], markersize=8,
+                   label=r'$\displaystyle n=%d$' % ii)
         ax[1].plot([400, 900, 1600, 2500, 3600, 4900],
                    np.asarray(plot_data_graph_sto_iht_proj[ii]) /
-                   np.asarray(plot_data_graph_sto_iht[ii]),
+                   np.asarray(plot_data_graph_sto_iht[ii]) * 100.,
                    linewidth=1.5, c=color_list[ind], linestyle='-',
-                   marker=marker_list[ind], markersize=8, label='b=%d' % ii)
+                   marker=marker_list[ind], markersize=8,
+                   label=r'$\displaystyle n=%d$' % ii)
         ax[2].plot([400, 900, 1600, 2500, 3600, 4900],
                    plot_data_sto_iht[ii],
                    linewidth=1.5, c=color_list[ind], linestyle='--',
-                   marker=marker_list[ind], markersize=8, label='b=%d' % ii)
+                   marker=marker_list[ind], markersize=8,
+                   label=r'$\displaystyle n=%d$' % ii)
 
         ax[3].plot([400, 900, 1600, 2500, 3600, 4900],
                    np.asarray(plot_data_sto_iht_proj[ii]) /
-                   np.asarray(plot_data_sto_iht[ii]),
+                   np.asarray(plot_data_sto_iht[ii]) * 100.,
                    linewidth=1.5, c=color_list[ind], linestyle='--',
-                   marker=marker_list[ind], markersize=8, label='b=%d' % ii)
+                   marker=marker_list[ind], markersize=8,
+                   label=r'$\displaystyle n=%d$' % ii)
     plt.subplots_adjust(wspace=0.3, hspace=0.1)
     ax[0].set_xlabel(r"$\displaystyle p$", fontsize=15.)
     ax[0].set_ylabel('Total run time (seconds)', fontsize=15.)
     ax[1].set_xlabel(r"$\displaystyle p$", fontsize=15.)
-    ax[1].set_ylabel('Percentage of the projection time', fontsize=15.)
+    ax[1].set_ylabel('Percentage of the projection time(\%)', fontsize=15.)
 
     for i in range(4):
         ax[i].set_xticks([400, 1600, 2500, 3600, 4900])
@@ -574,7 +573,7 @@ def show_run_time():
     ax[2].set_xlabel(r"$\displaystyle p$", fontsize=15.)
     ax[2].set_ylabel('Total run time (seconds)', fontsize=15.)
     ax[3].set_xlabel(r"$\displaystyle p$", fontsize=15.)
-    ax[3].set_ylabel('Percentage of the projection time', fontsize=15.)
+    ax[3].set_ylabel('Percentage of the projection time(\%)', fontsize=15.)
 
     ax[0].set_title('GraphStoIHT')
     ax[1].set_title('GraphStoIHT')
