@@ -480,8 +480,8 @@ def show_run_time_algo():
     plt.rcParams["font.size"] = 14
     rc('text', usetex=True)
     rcParams['figure.figsize'] = 18, 4
-    color_list = ['c', 'b', 'g', 'k', 'm', 'y', 'r']
-    marker_list = ['D', 'X', 'o', 'h', 'P', 'p', 's']
+    color_list = ['r', 'b', 'g', 'k', 'm']
+    marker_list = ['s', 'X', 'o', 'h', 'P']
     fig, ax = plt.subplots(1, 4)
     for ii in range(4):
         ax[ii].grid(b=True, which='both', color='lightgray',
@@ -573,8 +573,8 @@ def show_run_time_proj():
     plt.rcParams["font.size"] = 14
     rc('text', usetex=True)
     rcParams['figure.figsize'] = 14, 4
-    color_list = ['c', 'b', 'g', 'k', 'm', 'y', 'r']
-    marker_list = ['D', 'X', 'o', 'h', 'P', 'p', 's']
+    color_list = ['r', 'b', 'g', 'k', 'm']
+    marker_list = ['s', 'X', 'o', 'h', 'P']
     fig, ax = plt.subplots(1, 3)
     for ii in range(3):
         ax[ii].grid(b=True, which='both', color='lightgray',
@@ -650,4 +650,5 @@ def main():
 
 
 if __name__ == '__main__':
+    show_run_time_algo()
     show_run_time_proj()
