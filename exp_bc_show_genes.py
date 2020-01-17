@@ -201,14 +201,16 @@ def show_detected_genes():
     rcParams['figure.figsize'] = 8, 8.
     from matplotlib import rc
     from matplotlib.font_manager import FontProperties
-    plt.rc('font', **{'size': 12, 'weight': 'bold'})
+    plt.rc('font', **{'size': 8, 'weight': 'bold'})
     rc('text', usetex=True)
     font0 = FontProperties()
     font0.set_weight('bold')
     method_list = ['re_edge_re_lasso', 're_path_re_lasso', 're_edge_re_overlap', 're_path_re_lasso',
                    'iht', 'sto-iht', 'graph-iht', 'graph-sto-iht']
-    label_list = [r'\textsc{Edge-Lasso}', r'\textsc{Path-Lasso}', r'\textsc{Edge-Overlap}', r'\textsc{Path-Overlap}',
-                  r'\textsc{IHT}', r'\textsc{StoIHT}', r'\textsc{GraphIHT}', r'\textsc{GraphStoIHT}']
+    label_list = [r'\textsc{Edge-L1}', r'\textsc{Path-L1}', r'\textsc{Edge-Over}',
+                  r'\textsc{Path-Over}',
+                  r'\textsc{IHT}', r'\textsc{StoIHT}',
+                  r'\textsc{GraphIHT}', r'\textsc{GraphSIHT}']
     all_data = dict()
     data_convex = pickle.load(open('data/show_genes_convex.pkl'))
     all_data['cancer_related_genes'] = data_convex['cancer_related_genes']
@@ -222,7 +224,7 @@ def show_detected_genes():
             all_data[i][method] = data_nonconvex[i][method]
     true_nodes = all_data['cancer_related_genes'].keys()
     fig, ax = plt.subplots(5, 8)
-    for trial_i_ind, trial_i in enumerate(range(0, 10)):
+    for trial_i_ind, trial_i in enumerate(range(0, 5)):
         for method_ind, method in enumerate(method_list):
             print(trial_i, method)
             g = nx.Graph()
@@ -246,19 +248,20 @@ def show_detected_genes():
                     color_list.append('r')
                 else:
                     color_list.append('b')
-                    nx.draw_spring(g, ax=ax[trial_i_ind, method_ind], node_size=10, edge_color='black',
-                                   edge_width=2., font_size=4, node_edgecolor='black',
-                                   node_facecolor='white', node_edgewidth=1., k=10.0,
-                                   nodelist=detected_nodes, node_color=color_list)
-                    ax[trial_i_ind, method_ind].axis('on')
-                    ax[0, method_ind].set(title='%s' % label_list[method_ind])
-                    plt.setp(ax[trial_i_ind, method_ind].get_xticklabels(), visible=False)
-                    plt.setp(ax[trial_i_ind, method_ind].get_yticklabels(), visible=False)
-                    ax[trial_i_ind, method_ind].tick_params(axis='both', which='both', length=0)
-                    plt.subplots_adjust(wspace=0.0, hspace=0.0)
-                    f_name = 'bc_figures_genes_all_0_5.pdf'
-                    plt.savefig(f_name, dpi=600, bbox_inches='tight', pad_inches=0.03, format='pdf')
-                    plt.close()
+            print(nx.nodes(g))
+            nx.draw_spring(g, ax=ax[trial_i_ind, method_ind], node_size=10, edge_color='black',
+                           edge_width=2., font_size=4, node_edgecolor='black',
+                           node_facecolor='white', node_edgewidth=1., k=10.0,
+                           nodelist=detected_nodes, node_color=color_list)
+            ax[trial_i_ind, method_ind].axis('on')
+            ax[0, method_ind].set(title='%s' % label_list[method_ind])
+            plt.setp(ax[trial_i_ind, method_ind].get_xticklabels(), visible=False)
+            plt.setp(ax[trial_i_ind, method_ind].get_yticklabels(), visible=False)
+            ax[trial_i_ind, method_ind].tick_params(axis='both', which='both', length=0)
+    plt.subplots_adjust(wspace=0.0, hspace=0.0)
+    f_name = 'bc_figures_genes_all_0_5.pdf'
+    plt.savefig(f_name, dpi=600, bbox_inches='tight', pad_inches=0.03, format='pdf')
+    plt.close()
 
 
 def main():
