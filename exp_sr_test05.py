@@ -792,10 +792,10 @@ def show_test(n_list, method_list, method_label_list, root_p):
         i, j = node_id / height, node_id % width
         x_star[i, j] = np.random.normal(0.0, 1.0)
     for i in range(height + 1):
-        ax[0].axhline(i, lw=.05, color='gray', linestyle='dotted',
+        ax[0].axhline(i, lw=1.0, color='gray', linestyle='dotted',
                       zorder=5)
     for i in range(width + 1):
-        ax[0].axvline(i, lw=.05, color='gray', linestyle='dotted',
+        ax[0].axvline(i, lw=1.0, color='gray', linestyle='dotted',
                       zorder=5)
     ax[0].imshow(x_star, interpolation='none', cmap='gray',
                  extent=[0, height, 0, width], zorder=0)
@@ -825,10 +825,10 @@ def show_test(n_list, method_list, method_label_list, root_p):
     ax[1].spines['right'].set_visible(False)
     ax[1].spines['top'].set_visible(False)
     plt.subplots_adjust(wspace=0.3, hspace=0.0)
-    f_name = root_p + 'results_exp_sr_test05.pdf'
+    f_name = root_p + 'results_exp_sr_test05.png'
     print('save fig to: %s' % f_name)
     fig.savefig(f_name, dpi=600, bbox_inches='tight', pad_inches=0,
-                format='pdf')
+                format='png')
     plt.close()
 
 

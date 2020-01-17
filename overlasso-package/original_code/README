@@ -1,0 +1,32 @@
+This library implements the algorithm proposed in /Group lasso with
+overlaps and graph lasso/, by Laurent Jacob, Guillaume Obozinski and
+Jean-Philippe Vert (ICML 2009).
+
+*Directories*
+
+src: the source code, released under the GPL3 license.
+
+src/blasso: an implementation of the bootstrapped lasso (P. Zhao and B. Yu (2004)).
+
+src/overlib: the functions implementing the group lasso, and the group lasso with overlaps.
+
+data: the breast cancer data of Van't Veer et al. as formated in Chuang et al., the formated pathways from MSigDB and the graph of Chuang et al.
+
+*Important files*
+
+src/overlib/overLasso.m: learn a model using an input loss and the
+overlapping group lasso penalty. In practice, we create one duplicate
+of each variable for each group to which it belongs. For the group
+lasso, we use the active set method of Roth et al., 2008.
+
+src/mainChain.m: an example of use of overLasso using a chain structure on the variables.
+
+src/mainGraph.m: an example of use of overLasso using a grid structure on the variables.
+
+src/mainBCPath.m: an example of use of overLasso using the breast cancer dataset of Van't Veer et al., with the canonical pathways of MSigDB as groups.
+
+src/mainBCGr.m: an example of use of overLasso using Van't Veer's breast cancer dataset, with some subgraphs of the graph of Chuang et al. as the groups.
+
+*Contact*
+
+In case of problem, please contact laurent.jacob@gmail.com.

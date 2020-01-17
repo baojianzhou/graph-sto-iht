@@ -770,10 +770,10 @@ def show_test(lr_list, b_list, save_data_path):
     ax[1].set_xlabel('Iteration')
     plt.gcf().subplots_adjust(bottom=0.2)
     plt.subplots_adjust(wspace=0.7, hspace=0.5)
-    save_data_path = save_data_path.replace('pkl', 'pdf')
+    save_data_path = save_data_path.replace('pkl', 'png')
     print('save fig to: %s' % save_data_path)
     plt.savefig(save_data_path, dpi=600, bbox_inches='tight', pad_inches=0,
-                format='pdf')
+                format='png')
     plt.close()
 
 

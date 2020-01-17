@@ -746,10 +746,10 @@ def show_test(method_list, method_label_list, sample_ratio_arr, root_p):
                     frameon=True, borderpad=0.1, labelspacing=0.2,
                     handletextpad=0.1, markerfirst=True)
     plt.subplots_adjust(wspace=0.1, hspace=0.0)
-    f_name = root_p + 'results_exp_sr_test06.pdf'
+    f_name = root_p + 'results_exp_sr_test06.png'
     print('save fig to: %s' % f_name)
     plt.savefig(f_name, dpi=600, bbox_inches='tight', pad_inches=0,
-                format='pdf')
+                format='png')
     plt.close()
 
 

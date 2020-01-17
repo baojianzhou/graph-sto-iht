@@ -590,10 +590,10 @@ def show_test(s_list, n_list, method_list, label_list, save_data_path):
                     fontsize=14., frameon=True, borderpad=0.1,
                     labelspacing=0.1, handletextpad=0.1, markerfirst=True)
     plt.subplots_adjust(wspace=0.05, hspace=0.2)
-    save_data_path = save_data_path.replace('pkl', 'pdf')
+    save_data_path = save_data_path.replace('pkl', 'png')
     print('save fig to: %s' % save_data_path)
     plt.savefig(save_data_path, dpi=600, bbox_inches='tight', pad_inches=0,
-                format='pdf')
+                format='png')
     plt.close()
 
 
@@ -609,7 +609,7 @@ def generate_figures(root_p, save_data_path):
     height, width = data[20]['height'], data[20]['width']
 
     p = data[20]['p']
-    plt.figure(figsize=(1.4, 1.4))
+    plt.figure(figsize=(5.0, 5.0))
     for s in data:
         pos, graph = dict(), nx.Graph()
         black_edges = []
@@ -652,8 +652,8 @@ def generate_figures(root_p, save_data_path):
             ax.margins(0.02, 0.02)
             ax.xaxis.set_major_locator(plt.NullLocator())
             ax.yaxis.set_major_locator(plt.NullLocator())
-        f_name = root_p + 'results_exp_sr_test01_s_%02d.pdf' % s
-        fig.savefig(f_name, dpi=600, pad_inches=0.0, format='pdf')
+        f_name = root_p + 'results_exp_sr_test01_s_%02d.png' % s
+        fig.savefig(f_name, dpi=600, pad_inches=0.0, format='png')
         plt.close()
 
 
